@@ -1,0 +1,6 @@
+@MilkMaster_HostAddress = http://localhost:5068
+
+GET {{MilkMaster_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
