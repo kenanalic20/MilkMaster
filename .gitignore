@@ -1,0 +1,11 @@
+# Visual Studio & .NET ignores
+/bin
+/obj
+/.vs
+/packages
+*.user
+*.suo
+
+# App settings (ignore local/dev configs)
+appsettings.json
+appsettings.*.json
