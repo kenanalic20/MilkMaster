@@ -1,11 +1,51 @@
-# Visual Studio & .NET ignores
-/bin
-/obj
-/.vs
-/packages
+## .NET ##
+**/[Bb]in/
+**/[Oo]bj/
+**/[Ll]og/
+**/[Ll]ogs/
+**/.vs/
+**/packages/
 *.user
 *.suo
+*.userprefs
+*.lock.json
+*.launchsettings.json
 
-# App settings (ignore local/dev configs)
-appsettings.json
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+
+# NuGet
+**/[Nn]uget.exe
+.nuget/
+**/packages/*
+!**/packages/build/
+nuget.props
+nuget.targets
+
+# VS Code
+.vscode/
+
+# Rider
+.idea/
+
+# Docker
+.dockerignore
+docker-compose.*
+.docker/
+**/.env
+
+# App-specific
 appsettings.*.json
+!appsettings.example.json
+**/secrets.json
