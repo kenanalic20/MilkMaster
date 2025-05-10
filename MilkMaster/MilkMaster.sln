@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MilkMaster.Application", "M
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MilkMaster.Infrastructure", "MilkMaster.Infrastructure\MilkMaster.Infrastructure.csproj", "{632D4583-385D-41D9-A9DE-C5F3F92E1D89}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MilkMaster.Subscriber", "MilkMaster.Subscriber\MilkMaster.Subscriber.csproj", "{B7BC3079-DCA9-4EB8-97E2-43B2832C8F4F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{632D4583-385D-41D9-A9DE-C5F3F92E1D89}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{632D4583-385D-41D9-A9DE-C5F3F92E1D89}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{632D4583-385D-41D9-A9DE-C5F3F92E1D89}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7BC3079-DCA9-4EB8-97E2-43B2832C8F4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7BC3079-DCA9-4EB8-97E2-43B2832C8F4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7BC3079-DCA9-4EB8-97E2-43B2832C8F4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7BC3079-DCA9-4EB8-97E2-43B2832C8F4F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
