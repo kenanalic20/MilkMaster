@@ -10,6 +10,7 @@ namespace MilkMaster.Infrastructure.Extensions
         {
             services.AddTransient<IJwtService, JwtService>();
             services.AddTransient<IAuthService, AuthService>();
+            services.AddSingleton<IRabbitMqPublisher, RabbitMqPublisherService>();
             return services;
         }
     }
