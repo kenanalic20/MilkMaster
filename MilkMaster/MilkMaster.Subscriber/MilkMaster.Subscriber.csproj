@@ -8,7 +8,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="RabbitMQ.Client" Version="7.1.2" />
+    <PackageReference Include="EasyNetQ" Version="7.8.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="RabbitMQ.Client" Version="6.8.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MilkMaster.Application\MilkMaster.Application.csproj" />
+    <ProjectReference Include="..\MilkMaster.Infrastructure\MilkMaster.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

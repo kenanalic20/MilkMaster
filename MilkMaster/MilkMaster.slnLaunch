@@ -3,10 +3,6 @@
     "Name": "New Profile",
     "Projects": [
       {
-        "Path": "MilkMaster.API\\MilkMaster.API.csproj",
-        "Action": "Start"
-      },
-      {
         "Path": "MilkMaster.Subscriber\\MilkMaster.Subscriber.csproj",
         "Action": "Start"
       }
