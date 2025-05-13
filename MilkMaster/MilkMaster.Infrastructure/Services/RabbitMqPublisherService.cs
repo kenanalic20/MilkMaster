@@ -12,10 +12,22 @@ namespace MilkMaster.Infrastructure.Services
             _bus = RabbitHutch.CreateBus($"host={hostName}");
         }
 
-        public async Task PublishAsync<T>(T message)
+        public async Task PublishAsync<T>(T message, string ? role = null, string? action = "*")
         {
-            var routingKey = typeof(T).Name;
-            await _bus.PubSub.PublishAsync(message, routingKey);
+            var dtoName = typeof(T).Name
+            .Replace("MilkMaster.Application.Dtos.", "")
+            .Replace("Dto", "") 
+            .ToLower();  
+
+            Console.WriteLine($"Publishing dtoName: {dtoName}");
+
+            var topic = string.IsNullOrEmpty(role)
+                ? $"{dtoName}.{action}" 
+                : $"{role}.{dtoName}.{action}";  
+
+            Console.WriteLine($"Publishing to topic: {topic}");
+
+            await _bus.PubSub.PublishAsync(message, topic);
         }
     }
 }

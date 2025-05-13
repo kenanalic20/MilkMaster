@@ -62,6 +62,7 @@ namespace MilkMaster.API.Controllers
                 NotificationsEnabled = true,
                 PushNotificationsEnabled = true
             };
+            
             await _rabbitMqPublisher.PublishAsync(message);
 
             return Ok("Message published to RabbitMQ");

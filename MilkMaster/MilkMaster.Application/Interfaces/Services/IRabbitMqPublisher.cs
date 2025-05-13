@@ -2,6 +2,6 @@
 {
     public interface IRabbitMqPublisher
     {
-        Task PublishAsync<T>(T message);
+        Task PublishAsync<T>(T message, string ? role = null, string ? action = "*");
     }
 }
