@@ -8,9 +8,9 @@ WORKDIR /src
 COPY . .
 
 FROM build AS publish
-RUN dotnet publish "MilkMaster.API/MilkMaster.API.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "MilkMaster.API/MilkMaster.API.csproj" -c Release -o /app
 
 FROM base AS final
 WORKDIR /app
-COPY --from=publish /app/publish .
+COPY --from=publish /app .
 ENTRYPOINT ["dotnet", "MilkMaster.API.dll"]

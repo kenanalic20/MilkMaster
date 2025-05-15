@@ -1,0 +1,50 @@
+version: '3.9'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    restart: unless-stopped
+    environment:
+        - ACCEPT_EULA=Y
+        - SA_PASSWORD=${SA_PASSWORD}
+        - MSSQL_PID=${MSSQL_PID}
+    ports:
+        - 1401:1433
+    expose:
+        - 1433
+    networks:
+        - milkmaster-net
+
+  milkmaster:
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 5068:5068
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+      - ConnectionStrings__DefaultConnection=${DEFAULT_CONNECTION}
+      - RABBITMQ_CONNECTIONSTRING=${RABBITMQ_CONNECTIONSTRING}
+    depends_on:
+      - sqlserver
+      - rabbitmq 
+    networks:
+      - milkmaster-net
+   
+  rabbitmq:
+    image: rabbitmq:3-management
+    restart: unless-stopped
+    ports:
+      - 15672:15672
+      - 5672:5672
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    networks:
+      - milkmaster-net
+      
+
+networks:
+  milkmaster-net:
+    driver: bridge
