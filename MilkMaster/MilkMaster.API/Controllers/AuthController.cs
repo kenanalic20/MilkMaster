@@ -1,11 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using MilkMaster.Application.DTOs;
 using MilkMaster.Application.Interfaces.Services;
-using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.Win32;
+
 
 namespace MilkMaster.API.Controllers
 {
@@ -43,16 +40,16 @@ namespace MilkMaster.API.Controllers
             return Ok(response.Data);
         }
         //Temporary
-        //[Authorize]
-        //[HttpGet("user")]
-        //public async Task<IActionResult> GetUser()
-        //{
-        //    //var response = await _authService.GetUserAsync();
-        //    if (!response.Success)
-        //        return StatusCode(response.StatusCode, response.Message);
+        [Authorize]
+        [HttpGet("user")]
+        public async Task<IActionResult> GetUser()
+        {
+            var response = await _authService.GetUserAsync(HttpContext.User);
+            if (!response.Success)
+                return StatusCode(response.StatusCode, response.Message);
 
-        //    return Ok(response.Data);
-        //}
+            return Ok(response.Data);
+        }
 
         [HttpGet("RabbitMq")]
         public async Task<IActionResult> RabbitMQPublisher()

@@ -72,26 +72,26 @@ namespace MilkMaster.Infrastructure.Services
             return ServiceResponse<string>.SuccessResponse(token);
         }
 
-        //public async Task<ServiceResponse<UserDetailsDto>> GetUserAsync(ClaimsPrincipal userPrincipal)
-        //{
-        //    var userId = userPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
-        //    if (string.IsNullOrEmpty(userId))
-        //        return ServiceResponse<UserDetailsDto>.FailureResponse("User not authenticated", 401);
+        public async Task<ServiceResponse<UserDetailsDto>> GetUserAsync(ClaimsPrincipal userPrincipal)
+        {
+            var userId = userPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return ServiceResponse<UserDetailsDto>.FailureResponse("User not authenticated", 401);
 
-        //    var user = await _userManager.FindByIdAsync(userId);
-        //    if (user == null || user.UserName == null || user.Email == null)
-        //        return ServiceResponse<UserDetailsDto>.FailureResponse("User not found", 404);
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null || user.UserName == null || user.Email == null)
+                return ServiceResponse<UserDetailsDto>.FailureResponse("User not found", 404);
 
-        //    var roles = await _userManager.GetRolesAsync(user);
+            var roles = await _userManager.GetRolesAsync(user);
 
-        //    if (roles == null || roles.Count == 0)
-        //        return ServiceResponse<UserDetailsDto>.FailureResponse("User has no roles", 400);
+            if (roles == null || roles.Count == 0)
+                return ServiceResponse<UserDetailsDto>.FailureResponse("User has no roles", 400);
 
-        //    var userDetails = _mapper.Map<UserDetailsDto>(user);
+            var userDetails = _mapper.Map<UserDetailsDto>(user);
 
-        //    userDetails.Roles = roles;
+            userDetails.Roles = roles;
 
-        //    return ServiceResponse<UserDetailsDto>.SuccessResponse(userDetails);
-        //}
+            return ServiceResponse<UserDetailsDto>.SuccessResponse(userDetails);
+        }
     }
 }
