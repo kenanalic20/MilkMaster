@@ -96,9 +96,6 @@ docker-compose.*
 **/.env
 
 # App-specific
-appsettings.*.json
-!appsettings.example.json
 **/secrets.json
-appsettings.json
 !appsettings.example.json
 **/secrets.json
