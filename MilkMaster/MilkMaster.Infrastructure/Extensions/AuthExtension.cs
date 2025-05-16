@@ -9,7 +9,7 @@ namespace MilkMaster.Infrastructure.Extensions
 {
     public static class AuthExtension
     {
-        public static IServiceCollection AddAuth(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddAuthService(this IServiceCollection services, IConfiguration configuration)
         {
             var jwtSecret = configuration["JWT:Secret"];
 
