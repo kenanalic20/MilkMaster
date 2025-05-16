@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -8,21 +9,13 @@
 
   <ItemGroup>
     <PackageReference Include="EasyNetQ" Version="7.8.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.3" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="7.0.0" />
-    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.35.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="RabbitMQ.Client" Version="6.8.1" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.35.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Seeders\" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\MilkMaster.Application\MilkMaster.Application.csproj" />
+    <ProjectReference Include="..\MilkMaster.Infrastructure\MilkMaster.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

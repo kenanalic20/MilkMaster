@@ -12,5 +12,7 @@ namespace MilkMaster.API.Controllers
         public TestController(IService<Settings, SettingsDto, string> service) : base(service)
         {
         }
+
+       
     }
 }
