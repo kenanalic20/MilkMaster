@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MilkMaster.Application.DTOs;
 using MilkMaster.Application.Interfaces.Services;
-using MilkMaster.Domain.Migrations;
-
+using MilkMaster.Domain.Models;
 //Temporary
 namespace MilkMaster.API.Controllers
 {
