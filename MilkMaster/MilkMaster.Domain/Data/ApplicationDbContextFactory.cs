@@ -8,7 +8,6 @@ namespace MilkMaster.Domain.Data
     {
         public ApplicationDbContext CreateDbContext(string[] args)
         {
-            // Load configuration from appsettings.json in the API project
             var config = new ConfigurationBuilder()
                 .SetBasePath(Path.Combine(Directory.GetCurrentDirectory(), "..", "MilkMaster.API"))
                 .AddJsonFile("appsettings.json")

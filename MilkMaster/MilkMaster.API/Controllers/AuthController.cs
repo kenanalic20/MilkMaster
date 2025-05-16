@@ -43,24 +43,24 @@ namespace MilkMaster.API.Controllers
             return Ok(response.Data);
         }
         //Temporary
-        [Authorize]
-        [HttpGet("user")]
-        public async Task<IActionResult> GetUser()
-        {
-            var response = await _authService.GetUserAsync(HttpContext.User);
-            if (!response.Success)
-                return StatusCode(response.StatusCode, response.Message);
+        //[Authorize]
+        //[HttpGet("user")]
+        //public async Task<IActionResult> GetUser()
+        //{
+        //    //var response = await _authService.GetUserAsync();
+        //    if (!response.Success)
+        //        return StatusCode(response.StatusCode, response.Message);
 
-            return Ok(response.Data);
-        }
+        //    return Ok(response.Data);
+        //}
 
         [HttpGet("RabbitMq")]
         public async Task<IActionResult> RabbitMQPublisher()
         {
-            var message = new SettingsDto
+            // Create a message to test publishing
+            var message = new TestRabbitMessagingDto
             {
-                NotificationsEnabled = true,
-                PushNotificationsEnabled = true
+                Message = "Hello from RabbitMQ!",
             };
             
             await _rabbitMqPublisher.PublishAsync(message);

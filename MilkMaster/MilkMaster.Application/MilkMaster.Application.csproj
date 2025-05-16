@@ -15,6 +15,10 @@
       <ProjectReference Include="..\MilkMaster.Domain\MilkMaster.Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Mappings\" />
+    </ItemGroup>
+
 
 
 </Project>

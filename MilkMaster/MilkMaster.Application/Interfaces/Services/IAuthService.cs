@@ -10,6 +10,6 @@ namespace MilkMaster.Application.Interfaces.Services
     {
         Task<ServiceResponse<string>> RegisterAsync(RegisterDto register);
         Task<ServiceResponse<string>> LoginAsync(LoginDto login);
-        Task<ServiceResponse<UserDetailsDto>> GetUserAsync(ClaimsPrincipal user);
+        //Task<ServiceResponse<UserDetailsDto>> GetUserAsync(ClaimsPrincipal user);
     }
 }
