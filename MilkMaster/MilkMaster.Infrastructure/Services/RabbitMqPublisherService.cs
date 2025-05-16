@@ -9,7 +9,7 @@ namespace MilkMaster.Infrastructure.Services
 
         public RabbitMqPublisherService(string hostName = "localhost")
         {
-            _bus = RabbitHutch.CreateBus($"host={hostName}");
+            _bus = RabbitHutch.CreateBus(hostName);
         }
 
         public async Task PublishAsync<T>(T message, string ? role = null, string? action = "*")
