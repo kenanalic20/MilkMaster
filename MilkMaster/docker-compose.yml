@@ -25,7 +25,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
       - ConnectionStrings__DefaultConnection=${DEFAULT_CONNECTION}
-      - RABBITMQ_CONNECTIONSTRING=${RABBITMQ_CONNECTIONSTRING}
+      - RabbitMQ__ConnectionString=${RABBITMQ_CONNECTIONSTRING}
       - JWT__Secret=${JWT_SECRET}
       - JWT__ValidIssuer=${JWT_ISSUER}
       - JWT__ValidAudience=${JWT_AUDIENCE}
