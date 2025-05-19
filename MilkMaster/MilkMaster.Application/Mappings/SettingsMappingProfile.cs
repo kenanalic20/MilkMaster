@@ -9,9 +9,9 @@ namespace MilkMaster.Application.Mappings
         public SettingsMappingProfile() 
         {
             CreateMap<SettingsCreateDto, Settings>();
-            CreateMap<Settings, SettingsDto>()
-                .ForMember(dest => dest.PushNotificationsEnabled, opt => opt.MapFrom(src => src.PushNotificationsEnabled))
-                .ForMember(dest => dest.NotificationsEnabled, opt => opt.MapFrom(src => src.NotificationsEnabled));
+            CreateMap<Settings, SettingsDto>();
+            CreateMap<SettingsDto, Settings>();
+
         }
     }
 }

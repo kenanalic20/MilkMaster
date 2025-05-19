@@ -14,7 +14,7 @@ namespace MilkMaster.Application.Interfaces.Services
     {
         Task<TDto> GetByIdAsync(TKey id);
         Task<IEnumerable<TDto>> GetAllAsync();
-        Task<TDto> CreateAsync(TDto dto);
+        Task<TDto> CreateAsync(TDto dto, bool returnDto = true);
         Task<TDto> UpdateAsync(TKey id, TDto dto);
         Task<bool> DeleteAsync(TKey id);
         Task<bool> ExistsAsync(TKey id);

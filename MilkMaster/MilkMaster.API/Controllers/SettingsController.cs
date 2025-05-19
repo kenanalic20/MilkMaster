@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MilkMaster.Application.DTOs;
 using MilkMaster.Application.Interfaces.Services;
 using MilkMaster.Domain.Models;
 //Temporary
 namespace MilkMaster.API.Controllers
 {
+    [Authorize]
     [ApiController]
     public class SettingsController : BaseController<Settings, SettingsDto, string>
     {

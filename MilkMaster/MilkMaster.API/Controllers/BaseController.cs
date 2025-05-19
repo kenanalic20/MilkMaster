@@ -38,6 +38,10 @@ namespace MilkMaster.API.Controllers
                 return BadRequest(ModelState);
 
             var created = await _service.CreateAsync(dto);
+
+            if (created == null)
+                return BadRequest("Failed to create entity.");
+
             return CreatedAtAction(nameof(GetById), new { id = GetEntityId(created) }, created);
         }
 
