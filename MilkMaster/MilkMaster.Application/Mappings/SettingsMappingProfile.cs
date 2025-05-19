@@ -8,7 +8,10 @@ namespace MilkMaster.Application.Mappings
     {
         public SettingsMappingProfile() 
         {
-            CreateMap<Settings, SettingsDto>().ReverseMap();
+            CreateMap<SettingsCreateDto, Settings>();
+            CreateMap<Settings, SettingsDto>()
+                .ForMember(dest => dest.PushNotificationsEnabled, opt => opt.MapFrom(src => src.PushNotificationsEnabled))
+                .ForMember(dest => dest.NotificationsEnabled, opt => opt.MapFrom(src => src.NotificationsEnabled));
         }
     }
 }

@@ -10,13 +10,11 @@ namespace MilkMaster.Infrastructure.Seeders
 {
     public class SettingsSeeder
     {
-        private readonly ISettingsService _settingsService;
         private readonly IMapper _mapper;
         private readonly IRepository<Settings, string> _repository;
 
-        public SettingsSeeder(ISettingsService settingsService, IMapper mapper, IRepository<Settings, string> repository)
+        public SettingsSeeder(IMapper mapper, IRepository<Settings, string> repository)
         {
-            _settingsService = settingsService;
             _mapper = mapper;
             _repository = repository;
         }
