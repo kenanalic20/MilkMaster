@@ -4,6 +4,7 @@ using MilkMaster.Application.DTOs;
 using System.Security.Claims;
 using MilkMaster.Application.Common;
 using AutoMapper;
+using MilkMaster.Infrastructure.Seeders;
 
 namespace MilkMaster.Infrastructure.Services
 {
@@ -11,18 +12,21 @@ namespace MilkMaster.Infrastructure.Services
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly SettingsSeeder _settingsSeeder;
         private readonly IJwtService _jwtService;
         private readonly IMapper _mapper;
 
         public AuthService(
             UserManager<IdentityUser> userManager,
             RoleManager<IdentityRole> roleManager,
+            SettingsSeeder settingsSeeder,
             IJwtService jwtService, 
             IMapper mapper
         )
         {
             _userManager = userManager;
             _roleManager = roleManager;
+            _settingsSeeder = settingsSeeder;
             _jwtService = jwtService;
             _mapper = mapper;
         }
@@ -51,6 +55,8 @@ namespace MilkMaster.Infrastructure.Services
                 await _roleManager.CreateAsync(new IdentityRole(role));
 
             await _userManager.AddToRoleAsync(user, role);
+
+            await _settingsSeeder.SeedSettingsAsync(user.Id);
 
             var token = await _jwtService.GenerateJwtToken(user);
 

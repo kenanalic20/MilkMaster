@@ -4,11 +4,9 @@ using MilkMaster.Domain.Data;
 using MilkMaster.Infrastructure.Seeders;
 using MilkMaster.API.Extensions;
 using MilkMaster.Application.Extensions;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+
 
 var builder = WebApplication.CreateBuilder(args);
-
 builder.Configuration
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json", optional: false)
@@ -17,7 +15,6 @@ builder.Configuration
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerService();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -29,11 +26,9 @@ builder.Services.AddServices(builder.Configuration);
 builder.Services.AddSeeders();
 
 
-// Adding Authentication  
 builder.Services.AddAuthService(builder.Configuration);
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

@@ -57,7 +57,7 @@ namespace MilkMaster.API.Controllers
         [HttpGet("RabbitMq")]
         public async Task<IActionResult> RabbitMQPublisher()
         {
-            var message = new SettingsDto
+            var message = new SettingsCreateDto
             {
                 NotificationsEnabled = true,
                 PushNotificationsEnabled = true

@@ -1,7 +1,11 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MilkMaster.Application.DTOs;
+using MilkMaster.Application.Interfaces.Repositories;
 using MilkMaster.Application.Interfaces.Services;
+using MilkMaster.Infrastructure.Repositories;
 using MilkMaster.Infrastructure.Services;
+using MilkMaster.Domain.Models;
 
 namespace MilkMaster.Infrastructure.Extensions
 {
@@ -13,6 +17,8 @@ namespace MilkMaster.Infrastructure.Extensions
             services.AddTransient<IJwtService, JwtService>();
             services.AddTransient<IAuthService, AuthService>();
             services.AddSingleton<IRabbitMqPublisher>(sp => new RabbitMqPublisherService(rabbitMqHost));
+            services.AddScoped<ISettingsRepository,SettingsRepository>();
+            services.AddScoped<ISettingsService, SettingsService>();
             return services;
         }
     }
