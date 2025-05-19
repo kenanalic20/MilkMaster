@@ -21,26 +21,30 @@ namespace MilkMaster.Infrastructure.Services
             _repository = repository;
             _mapper = mapper;
         }
-        public async Task<TDto> GetByIdAsync(TKey id)
+        public virtual async Task<TDto> GetByIdAsync(TKey id)
         {
             var entity = await _repository.GetByIdAsync(id);
            
             return _mapper.Map<TDto>(entity);
         }
-        public async Task<IEnumerable<TDto>> GetAllAsync()
+        public virtual async Task<IEnumerable<TDto>> GetAllAsync()
         {
             var entities = await _repository.GetAllAsync();
             return _mapper.Map<IEnumerable<TDto>>(entities);
         }
 
-        public async Task<TDto> CreateAsync(TDto dto)
+        public virtual async Task<TDto> CreateAsync(TDto dto, bool returnDto = true)
         {
             var entity = _mapper.Map<T>(dto);
             await _repository.AddAsync(entity);
+
+            if (!returnDto)
+                return null;
+
             return _mapper.Map<TDto>(entity);
         }
 
-        public async Task<TDto> UpdateAsync(TKey id, TDto dto)
+        public virtual async Task<TDto> UpdateAsync(TKey id, TDto dto)
         {
             var entity = await _repository.GetByIdAsync(id);
             if (entity == null)
@@ -51,7 +55,7 @@ namespace MilkMaster.Infrastructure.Services
             return _mapper.Map<TDto>(entity);
         }
 
-        public async Task<bool> DeleteAsync(TKey id)
+        public virtual async Task<bool> DeleteAsync(TKey id)
         {
             var entity = await _repository.GetByIdAsync(id);
             if (entity == null)
@@ -61,7 +65,7 @@ namespace MilkMaster.Infrastructure.Services
             return true;
         }
 
-        public async Task<bool> ExistsAsync(TKey id)
+        public virtual async Task<bool> ExistsAsync(TKey id)
         {
             return await _repository.ExistsAsync(id);
         }

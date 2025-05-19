@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using MilkMaster.Application.DTOs;
+using MilkMaster.Domain.Models;
 
 namespace MilkMaster.Application.Mappings
 {

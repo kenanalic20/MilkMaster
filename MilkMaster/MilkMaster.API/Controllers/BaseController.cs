@@ -16,7 +16,7 @@ namespace MilkMaster.API.Controllers
             _service = service;
         }
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(TKey id)
+        public virtual async Task<IActionResult> GetById(TKey id)
         {
             var result = await _service.GetByIdAsync(id);
             if (result == null)
@@ -25,24 +25,28 @@ namespace MilkMaster.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public virtual async Task<IActionResult> GetAll()
         {
             var results = await _service.GetAllAsync();
             return Ok(results);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] TDto dto)
+        public virtual async Task<IActionResult> Create([FromBody] TDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             var created = await _service.CreateAsync(dto);
+
+            if (created == null)
+                return BadRequest("Failed to create entity.");
+
             return CreatedAtAction(nameof(GetById), new { id = GetEntityId(created) }, created);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(TKey id, [FromBody] TDto dto)
+        public virtual async Task<IActionResult> Update(TKey id, [FromBody] TDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -54,7 +58,7 @@ namespace MilkMaster.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(TKey id)
+        public virtual async Task<IActionResult> Delete(TKey id)
         {
             var success = await _service.DeleteAsync(id);
             if (!success)

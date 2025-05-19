@@ -8,6 +8,7 @@ namespace MilkMaster.Infrastructure.Extensions
         public static IServiceCollection AddSeeders(this IServiceCollection services)
         {
             services.AddTransient<RoleSeeder>();
+            services.AddScoped<SettingsSeeder>();
             return services;
         }
     }

@@ -8,6 +8,7 @@ namespace MilkMaster.Domain.Data
     public class ApplicationDbContext : IdentityDbContext<IdentityUser>
     {
         public DbSet<UserDetails> UserDetails { get; set; }
+        public DbSet<Settings> Settings { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
