@@ -1,11 +1,9 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MilkMaster.Application.DTOs;
 using MilkMaster.Application.Interfaces.Repositories;
 using MilkMaster.Application.Interfaces.Services;
 using MilkMaster.Infrastructure.Repositories;
 using MilkMaster.Infrastructure.Services;
-using MilkMaster.Domain.Models;
 
 namespace MilkMaster.Infrastructure.Extensions
 {
