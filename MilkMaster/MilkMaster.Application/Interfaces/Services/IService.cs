@@ -1,12 +1,4 @@
-﻿using MilkMaster.Application.Common;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Principal;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MilkMaster.Application.Interfaces.Services
+﻿namespace MilkMaster.Application.Interfaces.Services
 {
     public interface IService<T, TDto, TKey>
     where T : class

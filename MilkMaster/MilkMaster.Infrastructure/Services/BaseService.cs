@@ -1,6 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.Extensions.Logging;
-using MilkMaster.Application.Common;
 using MilkMaster.Application.Interfaces.Repositories;
 using MilkMaster.Application.Interfaces.Services;
 

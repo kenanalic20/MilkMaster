@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MilkMaster.Application.Common;
 using MilkMaster.Application.Interfaces.Services;
 
 namespace MilkMaster.API.Controllers
