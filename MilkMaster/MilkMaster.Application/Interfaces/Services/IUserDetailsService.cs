@@ -3,7 +3,7 @@ using MilkMaster.Domain.Models;
 
 namespace MilkMaster.Application.Interfaces.Services
 {
-    public interface ISettingsService : IService<Settings, SettingsDto, SettingsCreateDto, SettingsUpdateDto, string>
+    public interface IUserDetailsService:IService<UserDetails, UserDetailsDto, UserDetailsCreateDto, UserDetailsUpdateDto, string>
     {
     }
 }

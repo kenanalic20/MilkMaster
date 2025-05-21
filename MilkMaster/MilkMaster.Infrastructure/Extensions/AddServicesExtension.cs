@@ -16,9 +16,12 @@ namespace MilkMaster.Infrastructure.Extensions
             services.AddTransient<IAuthService, AuthService>();
             services.AddSingleton<IRabbitMqPublisher>(sp => new RabbitMqPublisherService(rabbitMqHost));
             services.AddScoped(typeof(IRepository<,>), typeof(BaseRepository<,>));
-            services.AddScoped(typeof(IService<,,>), typeof(BaseService<,,>));
+            services.AddScoped(typeof(IService<,,,,>), typeof(BaseService<,,,,>));
             services.AddScoped<ISettingsRepository,SettingsRepository>();
             services.AddScoped<ISettingsService, SettingsService>();
+            services.AddScoped<IUserDetailsRepository, UserDetailsRepository>();
+            services.AddScoped<IUserDetailsService, UserDetailsService>();
+
             return services;
         }
     }

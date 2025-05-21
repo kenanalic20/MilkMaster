@@ -4,9 +4,11 @@ using MilkMaster.Application.Interfaces.Services;
 
 namespace MilkMaster.Infrastructure.Services
 {
-    public class BaseService<T, TDto, TKey> : IService<T, TDto, TKey>
+    public class BaseService<T, TDto, TCreateDto, TUpdateDto, TKey> : IService<T, TDto, TCreateDto, TUpdateDto, TKey>
         where T : class
         where TDto : class
+        where TCreateDto : class
+        where TUpdateDto : class
     {
         protected readonly IRepository<T, TKey> _repository;
         protected readonly IMapper _mapper;
@@ -31,9 +33,10 @@ namespace MilkMaster.Infrastructure.Services
             return _mapper.Map<IEnumerable<TDto>>(entities);
         }
 
-        public virtual async Task<TDto> CreateAsync(TDto dto, bool returnDto = true)
+        public virtual async Task<TDto> CreateAsync(TCreateDto dto, bool returnDto = true)
         {
             var entity = _mapper.Map<T>(dto);
+
             await _repository.AddAsync(entity);
 
             if (!returnDto)
@@ -42,7 +45,7 @@ namespace MilkMaster.Infrastructure.Services
             return _mapper.Map<TDto>(entity);
         }
 
-        public virtual async Task<TDto> UpdateAsync(TKey id, TDto dto)
+        public virtual async Task<TDto> UpdateAsync(TKey id, TUpdateDto dto)
         {
             var entity = await _repository.GetByIdAsync(id);
             if (entity == null)
