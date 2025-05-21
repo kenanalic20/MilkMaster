@@ -1,6 +1,4 @@
-﻿
-using AutoMapper;
-using MilkMaster.Application.DTOs;
+﻿using MilkMaster.Application.DTOs;
 using MilkMaster.Application.Interfaces.Services;
 using MilkMaster.Domain.Models;
 
@@ -9,11 +7,10 @@ namespace MilkMaster.Infrastructure.Seeders
 {
     public class SettingsSeeder
     {
-        private readonly IService<Settings, SettingsCreateDto ,string> _service;
-
-        public SettingsSeeder(IService<Settings, SettingsCreateDto, string> service)
+        private readonly ISettingsService _settingsService;
+        public SettingsSeeder(ISettingsService settingsService)
         {
-            _service = service;
+            _settingsService = settingsService;
         }
 
         public async Task SeedSettingsAsync(string userId)
@@ -24,7 +21,7 @@ namespace MilkMaster.Infrastructure.Seeders
                 PushNotificationsEnabled = true,
                 NotificationsEnabled = true,
             };
-            await _service.CreateAsync(defaultSettingsDto,false);
+            await _settingsService.CreateAsync(defaultSettingsDto);
         }   
     }
 }

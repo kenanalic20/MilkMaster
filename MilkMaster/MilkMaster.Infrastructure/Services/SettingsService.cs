@@ -6,7 +6,7 @@ using AutoMapper;
 
 namespace MilkMaster.Infrastructure.Services
 {
-    public class SettingsService:BaseService<Settings,SettingsDto,string>, ISettingsService
+    public class SettingsService:BaseService<Settings, SettingsDto, SettingsCreateDto, SettingsUpdateDto, string>, ISettingsService
     {
         private readonly ISettingsRepository _settingsRepository;
         public SettingsService(ISettingsRepository settingsRepository, IMapper mapper) : base(settingsRepository, mapper)

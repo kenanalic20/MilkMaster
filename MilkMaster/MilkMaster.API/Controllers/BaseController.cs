@@ -4,13 +4,15 @@ using MilkMaster.Application.Interfaces.Services;
 namespace MilkMaster.API.Controllers
 {
     [Route("[controller]")]
-    public class BaseController<T,TDto,TKey> : ControllerBase 
+    public class BaseController<T, TDto, TCreateDto, TUpdateDto, TKey> : ControllerBase 
         where T : class 
         where TDto : class
+        where TCreateDto : class
+        where TUpdateDto : class
     {
-        private readonly IService<T,TDto,TKey> _service;
+        private readonly IService<T,TDto,TCreateDto,TUpdateDto, TKey> _service;
 
-        public BaseController(IService<T, TDto, TKey> service)
+        public BaseController(IService<T, TDto, TCreateDto, TUpdateDto, TKey> service)
         {
             _service = service;
         }
@@ -31,7 +33,7 @@ namespace MilkMaster.API.Controllers
         }
 
         [HttpPost]
-        public virtual async Task<IActionResult> Create([FromBody] TDto dto)
+        public virtual async Task<IActionResult> Create([FromBody] TCreateDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -41,11 +43,11 @@ namespace MilkMaster.API.Controllers
             if (created == null)
                 return BadRequest("Failed to create entity.");
 
-            return CreatedAtAction(nameof(GetById), new { id = GetEntityId(created) }, created);
+            return Created(string.Empty, created);
         }
 
         [HttpPut("{id}")]
-        public virtual async Task<IActionResult> Update(TKey id, [FromBody] TDto dto)
+        public virtual async Task<IActionResult> Update(TKey id, [FromBody] TUpdateDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -65,13 +67,6 @@ namespace MilkMaster.API.Controllers
             return NoContent();
         }
 
-        // Optional: Override this in derived controllers if needed
-        protected virtual object GetEntityId(TDto dto)
-        {
-            // Use reflection to get property named "Id"
-            var prop = dto.GetType().GetProperty("Id");
-            return prop?.GetValue(dto);
-        }
 
     }
 }

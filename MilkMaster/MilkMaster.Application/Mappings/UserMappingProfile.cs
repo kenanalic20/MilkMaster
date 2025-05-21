@@ -9,7 +9,7 @@ namespace MilkMaster.Application.Mappings
     {
         public UserMappingProfile() 
         { 
-            CreateMap<IdentityUser, UserDetailsDto>()
+            CreateMap<IdentityUser, UserDto>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.UserName))
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email));
         }
