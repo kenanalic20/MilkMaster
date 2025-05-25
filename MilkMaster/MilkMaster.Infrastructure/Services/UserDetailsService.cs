@@ -15,9 +15,9 @@ namespace MilkMaster.Infrastructure.Services
         }
         public override async Task<UserDetailsDto> GetByIdAsync(string id)
         {
-            var settings = await _userDetailsRepository.GetByIdAsync(id);
+            var userDetails = await _userDetailsRepository.GetByIdAsync(id);
 
-            return _mapper.Map<UserDetailsDto>(settings);
+            return _mapper.Map<UserDetailsDto>(userDetails);
         }
 
         public override async Task<UserDetailsDto> CreateAsync(UserDetailsCreateDto dto, bool returnDto = true)

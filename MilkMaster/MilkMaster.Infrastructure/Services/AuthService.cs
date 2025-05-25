@@ -78,6 +78,16 @@ namespace MilkMaster.Infrastructure.Services
             return ServiceResponse<string>.SuccessResponse(token);
         }
 
+        public async Task<string> GetUserIdAsync(ClaimsPrincipal user)
+        {
+            return await Task.FromResult(user.FindFirstValue(ClaimTypes.NameIdentifier));
+        }
+
+        public async Task<bool> IsAdminAsync(ClaimsPrincipal user)
+        {
+            return await Task.FromResult(user.IsInRole("Admin"));
+        }
+
         public async Task<ServiceResponse<UserDto>> GetUserAsync(ClaimsPrincipal userPrincipal)
         {
             var userId = userPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
