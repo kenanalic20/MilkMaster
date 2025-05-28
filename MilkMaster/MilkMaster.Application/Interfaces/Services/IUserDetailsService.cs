@@ -7,6 +7,6 @@ namespace MilkMaster.Application.Interfaces.Services
 {
     public interface IUserDetailsService:IService<UserDetails, UserDetailsDto, UserDetailsCreateDto, UserDetailsUpdateDto, string>
     {
-        Task<ServiceResponse<UserAddressDto>> GetByIdAsync(string id, ClaimsPrincipal user);
+        Task<ServiceResponse<UserDetailsDto>> GetByIdAsync(string id, ClaimsPrincipal user);
     }
 }

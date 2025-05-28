@@ -15,9 +15,10 @@ namespace MilkMaster.Infrastructure.Services
         private readonly IUserDetailsRepository _userDetailsRepository;
         public readonly IAuthService _authService;
 
-        public UserDetailsService(IUserDetailsRepository userDetailsRepository, IMapper mapper) : base(userDetailsRepository, mapper)
+        public UserDetailsService(IUserDetailsRepository userDetailsRepository,IAuthService authService, IMapper mapper) : base(userDetailsRepository, mapper)
         {
             _userDetailsRepository = userDetailsRepository;
+            _authService = authService;
         }
 
         public async Task<ServiceResponse<UserDetailsDto>> GetByIdAsync(string id, ClaimsPrincipal user)
