@@ -1,6 +1,5 @@
 ﻿using MilkMaster.Application.DTOs;
 using MilkMaster.Application.Interfaces.Services;
-using MilkMaster.Domain.Models;
 
 
 namespace MilkMaster.Infrastructure.Seeders

@@ -1,35 +1,42 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MilkMaster.Application.Common;
 using MilkMaster.Application.Interfaces.Services;
 
 namespace MilkMaster.API.Controllers
 {
     [Route("[controller]")]
-    public class BaseController<T, TDto, TCreateDto, TUpdateDto, TKey> : ControllerBase 
-        where T : class 
+    [ApiController]
+    public class BaseController<T, TDto, TCreateDto, TUpdateDto, TKey> : ControllerBase
+        where T : class
         where TDto : class
         where TCreateDto : class
         where TUpdateDto : class
     {
-        private readonly IService<T,TDto,TCreateDto,TUpdateDto, TKey> _service;
+        private readonly IService<T, TDto, TCreateDto, TUpdateDto, TKey> _service;
 
         public BaseController(IService<T, TDto, TCreateDto, TUpdateDto, TKey> service)
         {
             _service = service;
         }
+
         [HttpGet("{id}")]
         public virtual async Task<IActionResult> GetById(TKey id)
         {
-            var result = await _service.GetByIdAsync(id);
-            if (result == null)
-                return NotFound();
-            return Ok(result);
+            var response = await _service.GetByIdAsync(id);
+            if (!response.Success)
+                return StatusCode(response.StatusCode, response.Message);
+
+            return Ok(response.Data);
         }
 
         [HttpGet]
         public virtual async Task<IActionResult> GetAll()
         {
-            var results = await _service.GetAllAsync();
-            return Ok(results);
+            var response = await _service.GetAllAsync();
+            if (!response.Success)
+                return StatusCode(response.StatusCode, response.Message);
+
+            return Ok(response.Data);
         }
 
         [HttpPost]
@@ -38,12 +45,11 @@ namespace MilkMaster.API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var created = await _service.CreateAsync(dto);
+            var response = await _service.CreateAsync(dto);
+            if (!response.Success)
+                return StatusCode(response.StatusCode, response.Message);
 
-            if (created == null)
-                return BadRequest("Failed to create entity.");
-
-            return Created(string.Empty, created);
+            return Created(string.Empty, response.Data);
         }
 
         [HttpPut("{id}")]
@@ -52,21 +58,21 @@ namespace MilkMaster.API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var updated = await _service.UpdateAsync(id, dto);
-            if (updated == null)
-                return NotFound();
-            return Ok(updated);
+            var response = await _service.UpdateAsync(id, dto);
+            if (!response.Success)
+                return StatusCode(response.StatusCode, response.Message);
+
+            return Ok(response.Data);
         }
 
         [HttpDelete("{id}")]
         public virtual async Task<IActionResult> Delete(TKey id)
         {
-            var success = await _service.DeleteAsync(id);
-            if (!success)
-                return NotFound();
+            var response = await _service.DeleteAsync(id);
+            if (!response.Success)
+                return StatusCode(response.StatusCode, response.Message);
+
             return NoContent();
         }
-
-
     }
 }

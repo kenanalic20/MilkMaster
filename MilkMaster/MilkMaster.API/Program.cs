@@ -29,11 +29,14 @@ builder.Services.AddSeeders();
 builder.Services.AddAuthService(builder.Configuration);
 var app = builder.Build();
 
+app.UseStaticFiles();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
 
 using (var scope = app.Services.CreateScope())
 {

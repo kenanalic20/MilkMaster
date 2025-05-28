@@ -3,32 +3,52 @@ using MilkMaster.Application.DTOs;
 using MilkMaster.Application.Interfaces.Repositories;
 using MilkMaster.Application.Interfaces.Services;
 using MilkMaster.Domain.Models;
+using MilkMaster.Application.Common;
+using System.Threading.Tasks;
+using MilkMaster.Infrastructure.Repositories;
+using System.Security.Claims;
 
 namespace MilkMaster.Infrastructure.Services
 {
     public class UserDetailsService : BaseService<UserDetails, UserDetailsDto, UserDetailsCreateDto, UserDetailsUpdateDto, string>, IUserDetailsService
     {
         private readonly IUserDetailsRepository _userDetailsRepository;
-        public UserDetailsService(IUserDetailsRepository userDetailsRepository, IMapper mapper) : base(userDetailsRepository, mapper)
+        public readonly IAuthService _authService;
+
+        public UserDetailsService(IUserDetailsRepository userDetailsRepository,IAuthService authService, IMapper mapper) : base(userDetailsRepository, mapper)
         {
             _userDetailsRepository = userDetailsRepository;
+            _authService = authService;
         }
-        public override async Task<UserDetailsDto> GetByIdAsync(string id)
+
+        public async Task<ServiceResponse<UserDetailsDto>> GetByIdAsync(string id, ClaimsPrincipal user)
         {
-            var settings = await _userDetailsRepository.GetByIdAsync(id);
+            var userAddress = await _userDetailsRepository.GetByIdAsync(id);
 
-            return _mapper.Map<UserDetailsDto>(settings);
+            if (userAddress == null)
+                return ServiceResponse<UserDetailsDto>.FailureResponse("Address not found", 404);
+
+            var isAdmin = await _authService.IsAdminAsync(user);
+            var currentUserId = await _authService.GetUserIdAsync(user);
+
+            if (!isAdmin && userAddress.UserId != currentUserId)
+                return ServiceResponse<UserDetailsDto>.FailureResponse("Forbidden", 403);
+
+            var dto = _mapper.Map<UserDetailsDto>(userAddress);
+            return ServiceResponse<UserDetailsDto>.SuccessResponse(dto);
         }
 
-        public override async Task<UserDetailsDto> CreateAsync(UserDetailsCreateDto dto, bool returnDto = true)
+        public override async Task<ServiceResponse<UserDetailsDto>> CreateAsync(UserDetailsCreateDto dto, bool returnDto = true)
         {
             var exists = await _userDetailsRepository.ExistsAsync(dto.UserId);
             if (exists)
             {
-                return null;
+                return ServiceResponse<UserDetailsDto>.FailureResponse("User details already exist", 400);
             }
 
-            return await base.CreateAsync(dto, returnDto);
+            var baseResponse = await base.CreateAsync(dto, returnDto);
+            return ServiceResponse<UserDetailsDto>.SuccessResponse(baseResponse.Data, "User details created successfully");
         }
+
     }
 }
