@@ -1,4 +1,3 @@
-version: '3.9'
 
 services:
   sqlserver:
@@ -24,6 +23,7 @@ services:
       - 5068:5068
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+      - APP_BASE_URL=${APP_BASE_URL} 
       - ConnectionStrings__DefaultConnection=${DEFAULT_CONNECTION}
       - RabbitMQ__ConnectionString=${RABBITMQ_CONNECTIONSTRING}
       - JWT__Secret=${JWT_SECRET}

@@ -9,6 +9,7 @@ namespace MilkMaster.Infrastructure.Extensions
         {
             services.AddTransient<RoleSeeder>();
             services.AddScoped<SettingsSeeder>();
+            services.AddScoped<ProductCategoriesSeeder>();
             return services;
         }
     }

@@ -52,6 +52,9 @@ using (var scope = app.Services.CreateScope())
 
     var roleSeeder = scope.ServiceProvider.GetRequiredService<RoleSeeder>();
     await roleSeeder.SeedRolesAsync();
+
+    var productCategorySeeder = scope.ServiceProvider.GetRequiredService<ProductCategoriesSeeder>();
+    await productCategorySeeder.SeedProductCategoriesAsync();
 }
 
 app.UseHttpsRedirection();
