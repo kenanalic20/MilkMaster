@@ -43,7 +43,7 @@ namespace MilkMaster.Infrastructure.Services
                 Audience = jwtIssuer,
                 SigningCredentials = credentials
             };
-            
+
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
