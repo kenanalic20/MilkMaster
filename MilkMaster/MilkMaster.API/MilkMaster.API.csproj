@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <Folder Include="Data\" />
+    <Folder Include="Filters\" />
     <Folder Include="Services\" />
   </ItemGroup>
 

@@ -1,11 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using MilkMaster.Application.DTOs;
 using MilkMaster.Application.Interfaces.Services;
-using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.Win32;
 
 namespace MilkMaster.API.Controllers
 {
