@@ -25,7 +25,10 @@ namespace MilkMaster.Infrastructure.Extensions
             services.AddScoped<IUserAddressService, UserAddressService>();
             services.AddScoped<IProductCategoriesRepository, ProductCategoriesRepository>();
             services.AddScoped<IProductCategoriesService, ProductCategoriesService>();
-            services.AddTransient<IImageService, ImageService>();
+            services.AddTransient<IFileService, FileService>();
+            services.AddScoped<ICattleCategoriesRepository, CattleCategoriesRepository>();
+            services.AddScoped<ICattleCategoriesService, CattleCategoriesService>();
+
 
             return services;
         }

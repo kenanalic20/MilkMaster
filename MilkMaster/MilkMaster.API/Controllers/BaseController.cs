@@ -4,7 +4,6 @@ using MilkMaster.Application.Interfaces.Services;
 namespace MilkMaster.API.Controllers
 {
     [Route("[controller]")]
-    //[ApiController]
     public class BaseController<T, TDto, TCreateDto, TUpdateDto, TKey> : ControllerBase
         where T : class
         where TDto : class

@@ -11,6 +11,7 @@ namespace MilkMaster.Domain.Data
         public DbSet<Settings> Settings { get; set; }
         public DbSet<UserAddress> UserAddresses { get; set; }
         public DbSet<ProductCategories> ProductCategories { get; set; }
+        public DbSet<CattleCategories> CattleCategories { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {

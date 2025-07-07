@@ -3,6 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
+using Microsoft.AspNetCore.Identity;
+using MilkMaster.Domain.Data;
 
 
 namespace MilkMaster.Infrastructure.Extensions
@@ -37,6 +39,17 @@ namespace MilkMaster.Infrastructure.Extensions
                     ValidAudience = configuration["JWT:ValidAudience"],
                 };
             });
+            //Identity
+            services.AddIdentity<IdentityUser, IdentityRole>(options =>
+            {
+                options.Password.RequireDigit = true;
+                options.Password.RequiredLength = 8;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireLowercase = true;
+            })
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddDefaultTokenProviders();
             return services;
         }
     }
