@@ -9,6 +9,7 @@ namespace MilkMaster.API.Controllers
 {
     [Authorize]
     [ApiController]
+    [Route("[controller]")]
     public class UserAddressController : BaseController<UserAddress, UserAddressDto, UserAddressCreateDto, UserAddressUpdateDto, string>
     {
         IUserAddressService _service;

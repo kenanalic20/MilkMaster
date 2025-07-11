@@ -9,7 +9,11 @@ namespace MilkMaster.Domain.Models
         [Required]
         public string ImageUrl { get; set; }
         [Required]
+        public string Name { get; set; }
+        [Required]
         public string Title { get; set; }
         public string Description { get; set; }
+
+        public ICollection<Products>? Products { get; set; }
     }
 }

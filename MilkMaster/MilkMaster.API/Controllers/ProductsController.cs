@@ -9,9 +9,9 @@ namespace MilkMaster.API.Controllers
     [Authorize]
     [ApiController]
     [Route("[controller]")]
-    public class CattleCategoriesController : BaseController<CattleCategories, CattleCategoriesDto, CattleCategoriesCreateDto, CattleCategoriesUpdateDto, int>
+    public class ProductController : BaseController<Products, ProductsDto, ProductsCreateDto, ProductsUpdateDto, int>
     {
-       public CattleCategoriesController(ICattleCategoriesService service):base(service)
+       public ProductController(IProductsService service):base(service)
        {
        }
         

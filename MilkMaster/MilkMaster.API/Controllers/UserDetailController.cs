@@ -8,6 +8,7 @@ namespace MilkMaster.API.Controllers
 {
     [Authorize]
     [ApiController]
+    [Route("[controller]")]
     public class UserDetailController : BaseController<UserDetails, UserDetailsDto, UserDetailsCreateDto, UserDetailsUpdateDto, string>
     {
         public UserDetailController(IUserDetailsService service):base(service)

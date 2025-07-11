@@ -28,6 +28,9 @@ namespace MilkMaster.Infrastructure.Extensions
             services.AddTransient<IFileService, FileService>();
             services.AddScoped<ICattleCategoriesRepository, CattleCategoriesRepository>();
             services.AddScoped<ICattleCategoriesService, CattleCategoriesService>();
+            services.AddScoped<IProductsRepository, ProductRepository>();
+            services.AddScoped<IProductsService, ProductService>();
+
 
 
             return services;

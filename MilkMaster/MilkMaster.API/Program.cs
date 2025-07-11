@@ -67,7 +67,6 @@ using (var scope = app.Services.CreateScope())
     await cattleCategorySeeder.SeedCattleCategoriesAsync();
 }
 
-app.UseHttpsRedirection();
 
 app.UseAuthentication();
 

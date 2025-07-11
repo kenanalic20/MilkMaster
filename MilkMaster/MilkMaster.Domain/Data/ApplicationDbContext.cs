@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using MilkMaster.Domain.Models;
+using System.Reflection.Emit;
 
 namespace MilkMaster.Domain.Data
 {
@@ -12,6 +13,8 @@ namespace MilkMaster.Domain.Data
         public DbSet<UserAddress> UserAddresses { get; set; }
         public DbSet<ProductCategories> ProductCategories { get; set; }
         public DbSet<CattleCategories> CattleCategories { get; set; }
+        public DbSet<Products> Products { get; set; }
+        public DbSet<ProductCategoriesProducts> ProductCategoriesProducts { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
@@ -39,7 +42,27 @@ namespace MilkMaster.Domain.Data
                 HasOne(s => s.User)
                 .WithOne()
                 .HasForeignKey<Settings>(s => s.UserId)
-                .IsRequired();
+            .IsRequired();
+
+            // Product Categories - Products
+            builder.Entity<ProductCategoriesProducts>()
+            .HasKey(pc => new { pc.ProductId, pc.ProductCategoryId });
+
+            //ProductCategoriesProducts - Product
+            builder.Entity<ProductCategoriesProducts>()
+                .HasOne(pc => pc.Product)
+                .WithMany(p => p.ProductCategories)
+                .HasForeignKey(pc => pc.ProductId);
+
+            // ProductCategoriesProducts - ProductCategories
+            builder.Entity<ProductCategoriesProducts>()
+                .HasOne(pc => pc.ProductCategory)
+                .WithMany(c =>c.ProductCategoriesProducts )
+                .HasForeignKey(pc => pc.ProductCategoryId);
+            //Products decimal price
+            builder.Entity<Products>()
+                .Property(p => p.PricePerUnit)
+                .HasPrecision(18,2);
         }
     }
 }
