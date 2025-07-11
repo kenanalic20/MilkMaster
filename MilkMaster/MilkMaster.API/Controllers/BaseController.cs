@@ -3,6 +3,7 @@ using MilkMaster.Application.Interfaces.Services;
 
 namespace MilkMaster.API.Controllers
 {
+    [Route("[controller]")]
     public class BaseController<T, TDto, TCreateDto, TUpdateDto, TKey> : ControllerBase
         where T : class
         where TDto : class

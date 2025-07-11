@@ -8,7 +8,6 @@ namespace MilkMaster.API.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("[controller]")]
     public class SettingsController : BaseController<Settings, SettingsDto, SettingsCreateDto, SettingsUpdateDto, string>
     {
         public SettingsController(ISettingsService service) : base(service)

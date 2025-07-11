@@ -8,7 +8,6 @@ namespace MilkMaster.API.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("[controller]")]
     public class ProductController : BaseController<Products, ProductsDto, ProductsCreateDto, ProductsUpdateDto, int>
     {
        public ProductController(IProductsService service):base(service)

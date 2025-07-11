@@ -13,6 +13,17 @@ namespace MilkMaster.Infrastructure.Extensions
     {
         public static IServiceCollection AddAuthService(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddIdentity<IdentityUser, IdentityRole>(options =>
+            {
+                options.Password.RequireDigit = true;
+                options.Password.RequiredLength = 8;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireLowercase = true;
+            })
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddDefaultTokenProviders();
+            // Configure JWT authentication
             var jwtSecret = configuration["JWT:Secret"];
 
             if (string.IsNullOrEmpty(jwtSecret))
@@ -39,17 +50,7 @@ namespace MilkMaster.Infrastructure.Extensions
                     ValidAudience = configuration["JWT:ValidAudience"],
                 };
             });
-            //Identity
-            services.AddIdentity<IdentityUser, IdentityRole>(options =>
-            {
-                options.Password.RequireDigit = true;
-                options.Password.RequiredLength = 8;
-                options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequireUppercase = true;
-                options.Password.RequireLowercase = true;
-            })
-            .AddEntityFrameworkStores<ApplicationDbContext>()
-            .AddDefaultTokenProviders();
+            
             return services;
         }
     }
