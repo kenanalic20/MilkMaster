@@ -25,18 +25,21 @@ namespace MilkMaster.Infrastructure.Seeders
                 new CattleCategoriesCreateDto
                 {
                     Title = "Check out our cows",
+                    Name = "Cows",
                     Description = "Meet our friendly cows – they're ready to say moo!",
                     ImageUrl = $"{_baseUrl}/Images/Categories/CowLogo.png"
                 },
                 new CattleCategoriesCreateDto
                 {
                     Title = "Check out our goats",
+                    Name = "Goats",
                     Description = "Our goats are full of energy – see them for yourself!",
                     ImageUrl = $"{_baseUrl}/Images/Categories/GoatLogo.png"
                 },
                 new CattleCategoriesCreateDto
                 {
                     Title = "Check out our sheep",
+                    Name = "Sheep",
                     Description = "Meet our woolly friends – our sheep are waiting for you!",
                     ImageUrl = $"{_baseUrl}/Images/Categories/SheepLogo.png"
                 },

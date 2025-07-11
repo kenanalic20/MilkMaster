@@ -10,9 +10,11 @@ namespace MilkMaster.API.Controllers
     [ApiController]
     public class ProductCategoriesController : BaseController<ProductCategories, ProductCategoriesDto, ProductCategoriesCreateDto, ProductCategoriesUpdateDto, int>
     {
+        private readonly IProductCategoriesService _service;
        public ProductCategoriesController(IProductCategoriesService service):base(service)
        {
+            _service = service;
        }
-        
     }
+
 }

@@ -12,5 +12,6 @@ namespace MilkMaster.Domain.Models
         public string Name { get; set; }
         public int Count { get; set; }
 
+        public ICollection<ProductCategoriesProducts> ProductCategoriesProducts { get; set; } = new List<ProductCategoriesProducts>();  
     }
 }
