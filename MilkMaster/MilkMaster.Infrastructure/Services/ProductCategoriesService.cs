@@ -2,7 +2,6 @@
 using MilkMaster.Application.DTOs;
 using MilkMaster.Application.Interfaces.Services;
 using MilkMaster.Application.Interfaces.Repositories;
-using MilkMaster.Application.Common;
 using AutoMapper;
 
 namespace MilkMaster.Infrastructure.Services
@@ -14,7 +13,7 @@ namespace MilkMaster.Infrastructure.Services
         {
             _productCategoriesRepository = productCategoriesRepository;
         }
-        public Task<List<ServiceResponse<ProductCategoriesAdminDto>>> GetByIdAdminAsync(int id)
+        public Task<List<ProductCategoriesAdminDto>> GetByIdAdminAsync(int id)
         {
             throw new NotImplementedException();
         }

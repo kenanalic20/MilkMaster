@@ -1,5 +1,4 @@
-﻿using MilkMaster.Application.Common;
-using MilkMaster.Application.DTOs;
+﻿using MilkMaster.Application.DTOs;
 using MilkMaster.Domain.Models;
 
 namespace MilkMaster.Application.Interfaces.Services

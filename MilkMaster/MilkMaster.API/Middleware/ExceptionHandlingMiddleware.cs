@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using MilkMaster.Application.Exceptions;
+using System.Net;
 using System.Text.Json;
 
 namespace MilkMaster.API.Middleware
@@ -24,6 +25,8 @@ namespace MilkMaster.API.Middleware
         private static Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
             var statusCode = (int)HttpStatusCode.InternalServerError;
+            //remove it later
+            string stackTrace = exception.StackTrace;
             string message = "An unexpected error occurred.";
 
             switch (exception)
@@ -34,6 +37,9 @@ namespace MilkMaster.API.Middleware
                     break;
 
                 case ArgumentNullException:
+                    statusCode = (int)HttpStatusCode.BadRequest;
+                    message = exception.Message;
+                    break;
                 case ArgumentException:
                     statusCode = (int)HttpStatusCode.BadRequest;
                     message = exception.Message;
@@ -43,8 +49,10 @@ namespace MilkMaster.API.Middleware
                     statusCode = (int)HttpStatusCode.NotFound;
                     message = exception.Message;
                     break;
-
-
+                case MilkMasterValidationException ve:
+                    statusCode = (int)HttpStatusCode.BadRequest;
+                    message = ve.Message;
+                    break;
                 default:
                     break;
             }
@@ -55,10 +63,13 @@ namespace MilkMaster.API.Middleware
             var result = JsonSerializer.Serialize(new
             {
                 error = message,
+                //remov stack trace at the end
+                stackTrace = stackTrace,
                 statusCode = statusCode
             });
 
             return context.Response.WriteAsync(result);
         }
     }
+    
 }

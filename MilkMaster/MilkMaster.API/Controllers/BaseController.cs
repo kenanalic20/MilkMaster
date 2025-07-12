@@ -38,7 +38,8 @@ namespace MilkMaster.API.Controllers
                 return BadRequest(ModelState);
 
             var result = await _service.CreateAsync(dto);
-            return Created();
+           
+            return Ok(result);
         }
 
         [HttpPut("{id}")]
@@ -48,7 +49,7 @@ namespace MilkMaster.API.Controllers
                 return BadRequest(ModelState);
 
             var result = await _service.UpdateAsync(id, dto);
-            return Created();
+            return Ok(result);
         }
 
         [HttpDelete("{id}")]
@@ -57,5 +58,6 @@ namespace MilkMaster.API.Controllers
             await _service.DeleteAsync(id);
             return NoContent();
         }
+
     }
 }

@@ -3,9 +3,6 @@ using MilkMaster.Application.DTOs;
 using MilkMaster.Application.Interfaces.Repositories;
 using MilkMaster.Application.Interfaces.Services;
 using MilkMaster.Domain.Models;
-using MilkMaster.Application.Common;
-using System.Threading.Tasks;
-using MilkMaster.Infrastructure.Repositories;
 using System.Security.Claims;
 
 namespace MilkMaster.Infrastructure.Services

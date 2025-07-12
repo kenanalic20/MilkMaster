@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MilkMaster.Application.Common;
 using MilkMaster.Application.Interfaces.Repositories;
 using MilkMaster.Domain.Data;
 using MilkMaster.Domain.Models;
@@ -29,5 +28,6 @@ namespace MilkMaster.Infrastructure.Repositories
                     .Include(p => p.CattleCategory)
                     .FirstOrDefaultAsync(p => p.Id == id);
         }
+        
     }
 }

@@ -22,32 +22,22 @@ namespace MilkMaster.API.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto register)
         {
-           var response = await _authService.RegisterAsync(register);
-
-           if(!response.Success)
-                return StatusCode(response.StatusCode, response.Message);
-
-            return Ok(response.Data);
+            var token = await _authService.RegisterAsync(register);
+            return Ok(new { token });
         }
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto login)
         {
-            var response = await _authService.LoginAsync(login);
-            if (!response.Success)
-                return StatusCode(response.StatusCode, response.Message);
-
-            return Ok(response.Data);
+            var token = await _authService.LoginAsync(login);
+            return Ok(new { token });
         }
-        //Temporary
+
         [Authorize]
         [HttpGet("user")]
         public async Task<IActionResult> GetUser()
         {
-            var response = await _authService.GetUserAsync(HttpContext.User);
-            if (!response.Success)
-                return StatusCode(response.StatusCode, response.Message);
-
-            return Ok(response.Data);
+            var userDto = await _authService.GetUserAsync(HttpContext.User);
+            return Ok(new { user = userDto });
         }
 
         [HttpGet("RabbitMq")]

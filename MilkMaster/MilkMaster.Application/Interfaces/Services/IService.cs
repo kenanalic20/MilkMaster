@@ -1,5 +1,4 @@
-﻿using MilkMaster.Application.Common;
-
+﻿
 namespace MilkMaster.Application.Interfaces.Services
 {
     public interface IService<T, TDto, TCreateDto, TUpdateDto, TKey>

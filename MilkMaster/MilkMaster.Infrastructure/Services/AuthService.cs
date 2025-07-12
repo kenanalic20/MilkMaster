@@ -2,9 +2,10 @@
 using MilkMaster.Application.Interfaces.Services;
 using MilkMaster.Application.DTOs;
 using System.Security.Claims;
-using MilkMaster.Application.Common;
 using AutoMapper;
 using MilkMaster.Infrastructure.Seeders;
+using System.ComponentModel.DataAnnotations;
+using MilkMaster.Application.Exceptions;
 
 namespace MilkMaster.Infrastructure.Services
 {
@@ -30,7 +31,7 @@ namespace MilkMaster.Infrastructure.Services
             _jwtService = jwtService;
             _mapper = mapper;
         }
-        public async Task<ServiceResponse<string>> RegisterAsync(RegisterDto register)
+        public async Task<string> RegisterAsync(RegisterDto register)
         {
             string username = register.Email.Split('@')[0];
 
@@ -45,8 +46,7 @@ namespace MilkMaster.Infrastructure.Services
             if (!result.Succeeded)
             {
                 string errorMessage = result.Errors.FirstOrDefault()?.Description ?? "Bad Request";
-
-                return ServiceResponse<string>.FailureResponse(errorMessage);
+                throw new MilkMasterValidationException(errorMessage);
             }
 
             string role = register.Platform.ToLower() == "desktop" ? "Admin" : "User";
@@ -60,22 +60,22 @@ namespace MilkMaster.Infrastructure.Services
 
             var token = await _jwtService.GenerateJwtToken(user);
 
-            return ServiceResponse<string>.SuccessResponse(token, result.Succeeded.ToString());
+            return token;
         }
 
-        public async Task<ServiceResponse<string>> LoginAsync(LoginDto login)
+        public async Task<string> LoginAsync(LoginDto login)
         {
             var user = await _userManager.FindByEmailAsync(login.Email);
             if (user == null)
-                return ServiceResponse<string>.FailureResponse("User not found", 404);
+                throw new KeyNotFoundException("User not found");
 
             var result = await _userManager.CheckPasswordAsync(user, login.Password);
             if (!result)
-                return ServiceResponse<string>.FailureResponse("Invalid password", 401);
+                throw new KeyNotFoundException("Invalid password");
 
             var token = await _jwtService.GenerateJwtToken(user);
 
-            return ServiceResponse<string>.SuccessResponse(token);
+            return token;
         }
 
         public async Task<string> GetUserIdAsync(ClaimsPrincipal user)
@@ -91,26 +91,26 @@ namespace MilkMaster.Infrastructure.Services
             return await Task.FromResult(user.IsInRole("Admin"));
         }
 
-        public async Task<ServiceResponse<UserDto>> GetUserAsync(ClaimsPrincipal userPrincipal)
+        public async Task<UserDto> GetUserAsync(ClaimsPrincipal userPrincipal)
         {
             var userId = userPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
-                return ServiceResponse<UserDto>.FailureResponse("User not authenticated", 401);
+                throw new KeyNotFoundException("User not authenticated");
 
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null || user.UserName == null || user.Email == null)
-                return ServiceResponse<UserDto>.FailureResponse("User not found", 404);
+                throw new KeyNotFoundException("User not found");
 
             var roles = await _userManager.GetRolesAsync(user);
 
             if (roles == null || roles.Count == 0)
-                return ServiceResponse<UserDto>.FailureResponse("User has no roles", 400);
+                throw new KeyNotFoundException("User has no roles");
             
             var userDetails = _mapper.Map<UserDto>(user);
 
             userDetails.Roles = roles;
 
-            return ServiceResponse<UserDto>.SuccessResponse(userDetails);
+            return userDetails;
         }
     }
 }
