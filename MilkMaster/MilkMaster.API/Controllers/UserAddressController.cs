@@ -16,23 +16,6 @@ namespace MilkMaster.API.Controllers
         {
             _service = service;
         }
-        [HttpGet("{id}")]
-        public override async Task<IActionResult> GetById(string id)
-        {
-            var result = await _service.GetByIdAsync(id, User);
-
-            if (!result.Success)
-            {
-                if (result.StatusCode == 403)
-                    return Forbid();
-                if (result.StatusCode == 404)
-                    return NotFound(result.Message);
-
-                return StatusCode(result.StatusCode, result.Message);
-            }
-
-            return Ok(result.Data);
-        }
 
         [HttpDelete("{id}")]
         [ApiExplorerSettings(IgnoreApi = true)]

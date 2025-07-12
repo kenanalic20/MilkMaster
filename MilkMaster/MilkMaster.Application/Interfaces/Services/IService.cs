@@ -8,11 +8,11 @@ namespace MilkMaster.Application.Interfaces.Services
     where TCreateDto : class
     where TUpdateDto : class
     {
-        Task<ServiceResponse<TDto>> GetByIdAsync(TKey id);
-        Task<ServiceResponse<IEnumerable<TDto>>> GetAllAsync();
-        Task<ServiceResponse<TDto>> CreateAsync(TCreateDto dto, bool returnDto = true);
-        Task<ServiceResponse<TDto>> UpdateAsync(TKey id, TUpdateDto dto);
-        Task<ServiceResponse<bool>> DeleteAsync(TKey id);
-        Task<ServiceResponse<bool>> ExistsAsync(TKey id);
+        Task<TDto> GetByIdAsync(TKey id);
+        Task<IEnumerable<TDto>> GetAllAsync();
+        Task<TDto> CreateAsync(TCreateDto dto, bool returnDto = true);
+        Task<TDto> UpdateAsync(TKey id, TUpdateDto dto);
+        Task DeleteAsync(TKey id);
+        Task<bool> ExistsAsync(TKey id);
     }
 }

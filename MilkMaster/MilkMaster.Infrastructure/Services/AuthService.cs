@@ -85,6 +85,9 @@ namespace MilkMaster.Infrastructure.Services
 
         public async Task<bool> IsAdminAsync(ClaimsPrincipal user)
         {
+            if (user == null || !(user.Identity?.IsAuthenticated ?? false))
+                throw new UnauthorizedAccessException("User not authenticated");
+
             return await Task.FromResult(user.IsInRole("Admin"));
         }
 
