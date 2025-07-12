@@ -4,6 +4,7 @@ using MilkMaster.Domain.Data;
 using MilkMaster.Infrastructure.Seeders;
 using MilkMaster.API.Extensions;
 using MilkMaster.Application.Extensions;
+using MilkMaster.API.Middleware;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,6 +30,7 @@ builder.Services.AddAuthService(builder.Configuration);
 var app = builder.Build();
 
 app.UseStaticFiles();
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
