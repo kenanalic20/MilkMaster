@@ -5,6 +5,5 @@ namespace MilkMaster.Application.Interfaces.Services
 {
     public interface IProductCategoriesService:IService<ProductCategories,ProductCategoriesDto,ProductCategoriesCreateDto,ProductCategoriesUpdateDto,int>
     {
-        Task<List<ProductCategoriesAdminDto>> GetByIdAdminAsync(int id);
     }
 }

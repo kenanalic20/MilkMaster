@@ -28,6 +28,22 @@ namespace MilkMaster.Infrastructure.Repositories
                     .Include(p => p.CattleCategory)
                     .FirstOrDefaultAsync(p => p.Id == id);
         }
-        
+
+        public async Task RecalculateCategoryCountsAsync() 
+        {
+            var categories = await _context.ProductCategories.ToListAsync();
+
+            foreach (var category in categories)
+            {
+                var count = await _context.ProductCategoriesProducts
+                    .CountAsync(p => p.ProductCategoryId == category.Id);
+
+                category.Count = count;
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+
     }
 }
