@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using MilkMaster.Application.DTOs;
+using MilkMaster.Application.Exceptions;
 using MilkMaster.Application.Interfaces.Repositories;
 using MilkMaster.Application.Interfaces.Services;
 using MilkMaster.Domain.Models;
@@ -13,7 +14,8 @@ namespace MilkMaster.Infrastructure.Services
         private readonly IAuthService _authService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         public ProductService(
-            IProductsRepository productRepository, 
+            IProductsRepository productRepository,
+            IProductCategoriesRepository productCategoriesRepository,
             IMapper mapper, 
             IAuthService authService,
             IHttpContextAccessor httpContextAccessor
@@ -30,22 +32,55 @@ namespace MilkMaster.Infrastructure.Services
             var user = _httpContextAccessor.HttpContext?.User!;
             var isAdmin = await _authService.IsAdminAsync(user);
             if (!isAdmin)
-            {
                 throw new UnauthorizedAccessException("User is not admin.");
-            }
-            await Task.CompletedTask;
+
+            if (string.IsNullOrEmpty(dto.ImageUrl))
+                throw new MilkMasterValidationException("Image URL cannot be empty.");
+
+            if (string.IsNullOrEmpty(dto.Title))
+                throw new MilkMasterValidationException("Product name cannot be empty.");
+
+            if (string.IsNullOrEmpty(dto.Unit))
+                throw new MilkMasterValidationException("Unit cannot be empty.");
+        }
+        protected override async Task AfterUpdateAsync(Products entity, ProductsUpdateDto dto)
+        {
+            await _productRepository.RecalculateCategoryCountsAsync();
         }
         protected override async Task BeforeCreateAsync(Products entity, ProductsCreateDto dto)
         {
             var user = _httpContextAccessor.HttpContext?.User!;
             var isAdmin = await _authService.IsAdminAsync(user);
             if (!isAdmin)
-            {
                 throw new UnauthorizedAccessException("User is not admin.");
-            }
 
-            await Task.CompletedTask;
+            if (string.IsNullOrEmpty(dto.ImageUrl))
+                throw new MilkMasterValidationException("Image URL cannot be empty.");
+
+            if (string.IsNullOrEmpty(dto.Title))
+                throw new MilkMasterValidationException("Product name cannot be empty.");
+
+            if (string.IsNullOrEmpty(dto.Unit))
+                throw new MilkMasterValidationException("Unit cannot be empty.");
         }
+        protected override async Task AfterCreateAsync(Products entity, ProductsCreateDto dto)
+        {
+            await _productRepository.RecalculateCategoryCountsAsync();
+        }
+
+        protected override async Task BeforeDeleteAsync(Products entity)
+        {
+            var user = _httpContextAccessor.HttpContext?.User!;
+            var isAdmin = await _authService.IsAdminAsync(user);
+            if (!isAdmin)
+                throw new UnauthorizedAccessException("User is not admin.");
+        }
+        protected override async Task AfterDeleteAsync(Products entity)
+        {
+            await _productRepository.RecalculateCategoryCountsAsync();
+        }
+
+
 
     }
     
