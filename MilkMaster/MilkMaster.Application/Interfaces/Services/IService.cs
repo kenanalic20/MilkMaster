@@ -13,5 +13,6 @@ namespace MilkMaster.Application.Interfaces.Services
         Task<TDto> UpdateAsync(TKey id, TUpdateDto dto);
         Task DeleteAsync(TKey id);
         Task<bool> ExistsAsync(TKey id);
+        void EnableSeedingMode();
     }
 }

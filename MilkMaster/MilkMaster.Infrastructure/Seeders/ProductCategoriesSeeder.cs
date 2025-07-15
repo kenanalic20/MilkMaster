@@ -20,6 +20,7 @@ namespace MilkMaster.Infrastructure.Seeders
 
         public async Task SeedProductCategoriesAsync()
         {
+            _productCategoriesService.EnableSeedingMode();
             var defaultCategories = new List<ProductCategoriesCreateDto>
             {
                 new ProductCategoriesCreateDto

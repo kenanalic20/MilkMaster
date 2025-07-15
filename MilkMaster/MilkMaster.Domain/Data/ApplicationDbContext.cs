@@ -15,6 +15,7 @@ namespace MilkMaster.Domain.Data
         public DbSet<CattleCategories> CattleCategories { get; set; }
         public DbSet<Products> Products { get; set; }
         public DbSet<ProductCategoriesProducts> ProductCategoriesProducts { get; set; }
+        public DbSet<Nutritions> Nutritions { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
@@ -59,10 +60,18 @@ namespace MilkMaster.Domain.Data
                 .HasOne(pc => pc.ProductCategory)
                 .WithMany(c =>c.ProductCategoriesProducts )
                 .HasForeignKey(pc => pc.ProductCategoryId);
+
             //Products decimal price
             builder.Entity<Products>()
                 .Property(p => p.PricePerUnit)
                 .HasPrecision(18,2);
+
+            // Products-Nutritions
+            builder.Entity<Products>()
+                .HasOne(p => p.Nutrition)
+                .WithOne(n => n.Product)
+                .HasForeignKey<Nutritions>(n => n.Id)
+                .IsRequired(false);
         }
     }
 }

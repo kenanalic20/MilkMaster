@@ -29,6 +29,9 @@ namespace MilkMaster.Infrastructure.Services
         
         protected override async Task BeforeCreateAsync(CattleCategories entity, CattleCategoriesCreateDto dto)
         {
+            if (_isSeeding)
+                return;
+
             var user = _httpContextAccessor.HttpContext?.User!;
             var isAdmin = await _authService.IsAdminAsync(user);
             if (!isAdmin)

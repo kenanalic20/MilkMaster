@@ -18,7 +18,6 @@ namespace MilkMaster.Infrastructure.Services
             IMapper mapper,
             IAuthService authService,
             IHttpContextAccessor httpContextAccessor
-
             ) 
             : base(productCategoriesRepository, mapper)
         {
@@ -28,6 +27,9 @@ namespace MilkMaster.Infrastructure.Services
         }
         protected override async Task BeforeCreateAsync(ProductCategories entity, ProductCategoriesCreateDto dto)
         {
+            if (_isSeeding)
+                return;
+
             var user = _httpContextAccessor.HttpContext?.User!;
             var isAdmin = await _authService.IsAdminAsync(user);
             if (!isAdmin)

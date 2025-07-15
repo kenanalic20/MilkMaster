@@ -14,6 +14,7 @@ namespace MilkMaster.Infrastructure.Services
     {
         protected readonly IRepository<T, TKey> _repository;
         protected readonly IMapper _mapper;
+        protected bool _isSeeding = false;
 
         public BaseService(
             IRepository<T, TKey> repository,
@@ -22,6 +23,11 @@ namespace MilkMaster.Infrastructure.Services
         {
             _repository = repository;
             _mapper = mapper;
+        }
+
+        public void EnableSeedingMode()
+        {
+            _isSeeding = true;
         }
 
         public virtual async Task<TDto> GetByIdAsync(TKey id)
