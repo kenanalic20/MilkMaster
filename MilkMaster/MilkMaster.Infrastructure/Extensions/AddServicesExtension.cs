@@ -30,6 +30,7 @@ namespace MilkMaster.Infrastructure.Extensions
             services.AddScoped<ICattleCategoriesService, CattleCategoriesService>();
             services.AddScoped<IProductsRepository, ProductRepository>();
             services.AddScoped<IProductsService, ProductService>();
+            services.AddScoped<INutritionsRepository, NutritionsRepository>();
 
 
 
