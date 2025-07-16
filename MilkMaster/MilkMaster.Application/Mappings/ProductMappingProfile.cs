@@ -8,6 +8,8 @@ namespace MilkMaster.Application.Mappings
     {
         public ProductMappingProfile()
         {
+            CreateMap<Nutritions, NutritionsDto>().ReverseMap();
+
             CreateMap<Products, ProductsDto>()
                 .ForMember(dest => dest.ProductCategories,
                     opt => opt.MapFrom(src => src.ProductCategories.Select(pc => pc.ProductCategory)))
@@ -32,7 +34,6 @@ namespace MilkMaster.Application.Mappings
                 .ForMember(dest => dest.CattleCategoryId, opt => opt.MapFrom(src => src.CattleCategoryId))
                 .ForMember(dest => dest.Nutrition, opt => opt.MapFrom(src => src.Nutrition));
 
-            CreateMap<NutritionsDto, Nutritions>().ReverseMap();
         }
     }
 }

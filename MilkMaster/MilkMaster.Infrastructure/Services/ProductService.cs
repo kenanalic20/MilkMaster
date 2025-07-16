@@ -15,7 +15,6 @@ namespace MilkMaster.Infrastructure.Services
         private readonly IHttpContextAccessor _httpContextAccessor;
         public ProductService(
             IProductsRepository productRepository,
-            IProductCategoriesRepository productCategoriesRepository,
             IMapper mapper, 
             IAuthService authService,
             IHttpContextAccessor httpContextAccessor
@@ -42,6 +41,14 @@ namespace MilkMaster.Infrastructure.Services
 
             if (string.IsNullOrEmpty(dto.Unit))
                 throw new MilkMasterValidationException("Unit cannot be empty.");
+
+            if (dto.Nutrition != null)
+            {
+                if(entity.Nutrition == null)
+                    entity.Nutrition = _mapper.Map<Nutritions>(dto.Nutrition);
+                else
+                    _mapper.Map(dto.Nutrition, entity.Nutrition);
+            }
         }
         protected override async Task AfterUpdateAsync(Products entity, ProductsUpdateDto dto)
         {
@@ -62,6 +69,11 @@ namespace MilkMaster.Infrastructure.Services
 
             if (string.IsNullOrEmpty(dto.Unit))
                 throw new MilkMasterValidationException("Unit cannot be empty.");
+
+            if (dto.Nutrition != null)
+            {
+                entity.Nutrition = _mapper.Map<Nutritions>(dto.Nutrition);
+            }
         }
         protected override async Task AfterCreateAsync(Products entity, ProductsCreateDto dto)
         {

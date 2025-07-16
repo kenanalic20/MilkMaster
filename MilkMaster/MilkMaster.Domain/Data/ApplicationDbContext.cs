@@ -68,10 +68,11 @@ namespace MilkMaster.Domain.Data
 
             // Products-Nutritions
             builder.Entity<Products>()
-                .HasOne(p => p.Nutrition)
-                .WithOne(n => n.Product)
-                .HasForeignKey<Nutritions>(n => n.Id)
-                .IsRequired(false);
+           .HasOne(p => p.Nutrition)
+           .WithOne(n => n.Product)
+           .HasForeignKey<Nutritions>(n => n.ProductId)
+           .IsRequired(false)
+           .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
