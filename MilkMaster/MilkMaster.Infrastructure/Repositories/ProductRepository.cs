@@ -18,7 +18,6 @@ namespace MilkMaster.Infrastructure.Repositories
                 .Include(p => p.ProductCategories)
                     .ThenInclude(pc => pc.ProductCategory)
                 .Include(p => p.CattleCategory)
-                .Include(p => p.Nutrition)
                 .ToListAsync();
         }
         public override async Task<Products> GetByIdAsync(int id)

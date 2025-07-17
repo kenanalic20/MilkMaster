@@ -14,6 +14,7 @@ namespace MilkMaster.Domain.Models
         public string Title { get; set; }
         public string Description { get; set; }
 
-        public ICollection<Products>? Products { get; set; }
+        public ICollection<Products> Products { get; set; }=new List<Products>();
+        public ICollection<Cattle> Cattle { get; set; } = new List<Cattle>();
     }
 }
