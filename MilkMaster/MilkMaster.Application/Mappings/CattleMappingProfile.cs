@@ -12,21 +12,13 @@ namespace MilkMaster.Application.Mappings
             CreateMap<BreedingStatus, BreedingStatusDto>().ReverseMap();
 
             CreateMap<Cattle, CattleDto>()
-                .ForMember(dest => dest.CattleCategory, opt => opt.MapFrom(src => src.CattleCategory))
-                .ForMember(dest => dest.Overview, opt => opt.MapFrom(src => src.Overview))
-                .ForMember(dest => dest.BreedingStatus, opt => opt.MapFrom(src => src.BreedingStatus));
+                .ForMember(dest => dest.CattleCategory, opt => opt.MapFrom(src => src.CattleCategory));
 
             CreateMap<CattleCreateDto, Cattle>()
-                .ForMember(dest => dest.CattleCategoryId, opt => opt.MapFrom(src => src.CattleCategoryId))
-                .ForMember(dest => dest.Overview, opt => opt.MapFrom(src => src.Overview))
-                .ForMember(dest => dest.BreedingStatus, opt => opt.MapFrom(src => src.BreedingStatus))
-                .ForMember(dest => dest.Age, opt => opt.Ignore());
+                .ForMember(dest => dest.CattleCategoryId, opt => opt.MapFrom(src => src.CattleCategoryId));
 
             CreateMap<CattleUpdateDto, Cattle>()
-                .ForMember(dest => dest.CattleCategoryId, opt => opt.MapFrom(src => src.CattleCategoryId))
-                .ForMember(dest => dest.Overview, opt => opt.MapFrom(src => src.Overview))
-                .ForMember(dest => dest.BreedingStatus, opt => opt.MapFrom(src => src.BreedingStatus));
-                .ForMember(dest => dest.Age, opt => opt.Ignore());
+                .ForMember(dest => dest.CattleCategoryId, opt => opt.MapFrom(src => src.CattleCategoryId));
         }
     }
 }

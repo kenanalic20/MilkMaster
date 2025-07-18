@@ -26,6 +26,7 @@ namespace MilkMaster.Infrastructure.Services
             _authService = authService;
             _httpContextAccessor = httpContextAccessor;
         }
+
         protected override async Task BeforeUpdateAsync(Cattle entity, CattleUpdateDto dto)
         {
             var user = _httpContextAccessor.HttpContext?.User!;
@@ -38,8 +39,6 @@ namespace MilkMaster.Infrastructure.Services
 
             if(string.IsNullOrEmpty(dto.MilkCartonUrl))
                 throw new MilkMasterValidationException("Milk carton URL cannot be empty.");
-
-
 
             if (dto.Overview != null)
             {
@@ -56,7 +55,10 @@ namespace MilkMaster.Infrastructure.Services
                 else
                     _mapper.Map(dto.BreedingStatus, entity.BreedingStatus);
             }
+
+            entity.Age = CalculateAge(entity.BirthDate);
         }
+
         protected override async Task BeforeCreateAsync(Cattle entity, CattleCreateDto dto)
         {
             var user = _httpContextAccessor.HttpContext?.User!;
@@ -79,8 +81,9 @@ namespace MilkMaster.Infrastructure.Services
             {
                 entity.BreedingStatus = _mapper.Map<BreedingStatus>(dto.BreedingStatus);
             }
+
+            entity.Age = CalculateAge(entity.BirthDate);
         }
-   
 
         protected override async Task BeforeDeleteAsync(Cattle entity)
         {
@@ -89,7 +92,15 @@ namespace MilkMaster.Infrastructure.Services
             if (!isAdmin)
                 throw new UnauthorizedAccessException("User is not admin.");
         }
-        
+
+        private int CalculateAge(DateTime birthDate)
+        {
+            var today = DateTime.Today;
+            var age = today.Year - birthDate.Year;
+            if (birthDate.Date > today.AddYears(-age)) 
+                age--;
+            return age;
+        }
 
     }
 }

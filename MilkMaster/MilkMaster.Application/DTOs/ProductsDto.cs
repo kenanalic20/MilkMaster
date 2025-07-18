@@ -24,7 +24,6 @@
         public ICollection<int>? ProductCategories { get; set; } = new List<int>();
         public int? CattleCategoryId { get; set; }
         public NutritionsDto? Nutrition { get; set; }
-
     }
     public class ProductsUpdateDto
     {
