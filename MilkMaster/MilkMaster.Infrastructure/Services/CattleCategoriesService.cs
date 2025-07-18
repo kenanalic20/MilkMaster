@@ -2,14 +2,16 @@
 using Microsoft.AspNetCore.Http;
 using MilkMaster.Application.DTOs;
 using MilkMaster.Application.Exceptions;
+using MilkMaster.Application.Filters;
 using MilkMaster.Application.Interfaces.Repositories;
 using MilkMaster.Application.Interfaces.Services;
 using MilkMaster.Domain.Models;
-using MilkMaster.Infrastructure.Repositories;
 
 namespace MilkMaster.Infrastructure.Services
 {
-    public class CattleCategoriesService:BaseService<CattleCategories, CattleCategoriesDto, CattleCategoriesCreateDto, CattleCategoriesUpdateDto, int>, ICattleCategoriesService
+    public class CattleCategoriesService
+        :BaseService<CattleCategories, CattleCategoriesDto, CattleCategoriesCreateDto, CattleCategoriesUpdateDto, CattleCategoriesQueryFilter, int>,
+        ICattleCategoriesService
     {
         private readonly ICattleCategoriesRepository _cattleCategoriesRepository;
         private readonly IAuthService _authService;

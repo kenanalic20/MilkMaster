@@ -4,10 +4,11 @@ using MilkMaster.Application.Interfaces.Services;
 using MilkMaster.Application.Interfaces.Repositories;
 using AutoMapper;
 using System.Security.Claims;
+using MilkMaster.Application.Filters;
 
 namespace MilkMaster.Infrastructure.Services
 {
-    public class UserAddressService : BaseService<UserAddress, UserAddressDto, UserAddressCreateDto, UserAddressUpdateDto, string>, IUserAddressService
+    public class UserAddressService : BaseService<UserAddress, UserAddressDto, UserAddressCreateDto, UserAddressUpdateDto, EmptyQueryFilter, string>, IUserAddressService
     {
         private readonly IUserAddressRepository _userAddressRepository;
         private readonly IAuthService _authService;

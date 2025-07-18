@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MilkMaster.Application.DTOs;
+using MilkMaster.Application.Filters;
 using MilkMaster.Application.Interfaces.Services;
 using MilkMaster.Domain.Models;
 //Temporary
@@ -8,7 +9,7 @@ namespace MilkMaster.API.Controllers
 {
     [Authorize]
     [ApiController]
-    public class SettingsController : BaseController<Settings, SettingsDto, SettingsCreateDto, SettingsUpdateDto, string>
+    public class SettingsController : BaseController<Settings, SettingsDto, SettingsCreateDto, SettingsUpdateDto, EmptyQueryFilter, string>
     {
         public SettingsController(ISettingsService service) : base(service)
         {
@@ -30,7 +31,7 @@ namespace MilkMaster.API.Controllers
 
         [HttpGet]
         [ApiExplorerSettings(IgnoreApi = true)]
-        public override Task<IActionResult> GetAll()
+        public override Task<IActionResult> GetAll(EmptyQueryFilter? queryFilter)
         {
             return Task.FromResult<IActionResult>(BadRequest());
         }

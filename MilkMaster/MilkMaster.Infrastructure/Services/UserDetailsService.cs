@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MilkMaster.Application.DTOs;
+using MilkMaster.Application.Filters;
 using MilkMaster.Application.Interfaces.Repositories;
 using MilkMaster.Application.Interfaces.Services;
 using MilkMaster.Domain.Models;
@@ -7,7 +8,7 @@ using System.Security.Claims;
 
 namespace MilkMaster.Infrastructure.Services
 {
-    public class UserDetailsService : BaseService<UserDetails, UserDetailsDto, UserDetailsCreateDto, UserDetailsUpdateDto, string>, IUserDetailsService
+    public class UserDetailsService : BaseService<UserDetails, UserDetailsDto, UserDetailsCreateDto, UserDetailsUpdateDto, EmptyQueryFilter, string>, IUserDetailsService
     {
         private readonly IUserDetailsRepository _userDetailsRepository;
         public readonly IAuthService _authService;

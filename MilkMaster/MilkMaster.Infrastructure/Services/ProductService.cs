@@ -1,14 +1,16 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using MilkMaster.Application.DTOs;
 using MilkMaster.Application.Exceptions;
+using MilkMaster.Application.Filters;
 using MilkMaster.Application.Interfaces.Repositories;
 using MilkMaster.Application.Interfaces.Services;
 using MilkMaster.Domain.Models;
 
 namespace MilkMaster.Infrastructure.Services
 {
-    public class ProductService:BaseService<Products, ProductsDto, ProductsCreateDto, ProductsUpdateDto, int>,IProductsService
+    public class ProductService:BaseService<Products, ProductsDto, ProductsCreateDto, ProductsUpdateDto, ProductQueryFilter, int>,IProductsService
     {
         private readonly IProductsRepository _productRepository;
         private readonly IAuthService _authService;
@@ -91,7 +93,29 @@ namespace MilkMaster.Infrastructure.Services
         {
             await _productRepository.RecalculateCategoryCountsAsync();
         }
+        protected override IQueryable<Products> ApplyFilter(IQueryable<Products> query, ProductQueryFilter? filter)
+        {
+            query = query.Include(p => p.ProductCategories)
+                        .Include(p => p.CattleCategory);
 
+            if (filter == null)
+                return query;
+
+            if (!string.IsNullOrWhiteSpace(filter.Title))
+                query = query.Where(p => p.Title.ToLower().Contains(filter.Title.ToLower()));
+
+            if (filter.ProductCategoryId.HasValue)
+                query = query.Where(p => p.ProductCategories.Any(pc => pc.ProductCategoryId == filter.ProductCategoryId));
+
+            if (filter.CattleCategoryId.HasValue)
+                query = query.Where(p => p.CattleCategoryId == filter.CattleCategoryId);
+
+            query = filter.SortDescending
+                ? query.OrderByDescending(p => p.CreatedAt)
+                : query.OrderBy(p => p.CreatedAt);
+
+            return query;
+        }
 
 
     }

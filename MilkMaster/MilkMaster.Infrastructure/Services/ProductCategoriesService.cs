@@ -5,10 +5,11 @@ using MilkMaster.Application.Interfaces.Repositories;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using MilkMaster.Application.Exceptions;
+using MilkMaster.Application.Filters;
 
 namespace MilkMaster.Infrastructure.Services
 {
-    public class ProductCategoriesService:BaseService<ProductCategories, ProductCategoriesDto, ProductCategoriesCreateDto, ProductCategoriesUpdateDto, int>, IProductCategoriesService
+    public class ProductCategoriesService:BaseService<ProductCategories, ProductCategoriesDto, ProductCategoriesCreateDto, ProductCategoriesUpdateDto, EmptyQueryFilter, int>, IProductCategoriesService
     {
         private readonly IProductCategoriesRepository _productCategoriesRepository;
         private readonly IAuthService _authService;
@@ -59,7 +60,7 @@ namespace MilkMaster.Infrastructure.Services
                 throw new UnauthorizedAccessException("User is not admin.");
         }
 
-        public override async Task<IEnumerable<ProductCategoriesDto>> GetAllAsync()
+        public override async Task<IEnumerable<ProductCategoriesDto>> GetAllAsync(EmptyQueryFilter? queryFilter)
         {
             var entities = await _repository.GetAllAsync();
 

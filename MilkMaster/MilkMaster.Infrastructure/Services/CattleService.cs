@@ -1,15 +1,16 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using MilkMaster.Application.DTOs;
 using MilkMaster.Application.Exceptions;
+using MilkMaster.Application.Filters;
 using MilkMaster.Application.Interfaces.Repositories;
 using MilkMaster.Application.Interfaces.Services;
 using MilkMaster.Domain.Models;
-using MilkMaster.Infrastructure.Repositories;
 
 namespace MilkMaster.Infrastructure.Services
 {
-    public class CattleService : BaseService<Cattle, CattleDto, CattleCreateDto, CattleUpdateDto, int>, ICattleService
+    public class CattleService : BaseService<Cattle, CattleDto, CattleCreateDto, CattleUpdateDto, CattleQueryFilter, int>, ICattleService
     {
         private readonly ICattleRepository _cattleRepository;
         private readonly IAuthService _authService;
@@ -91,6 +92,22 @@ namespace MilkMaster.Infrastructure.Services
             var isAdmin = await _authService.IsAdminAsync(user);
             if (!isAdmin)
                 throw new UnauthorizedAccessException("User is not admin.");
+        }
+
+        protected override IQueryable<Cattle> ApplyFilter(IQueryable<Cattle> query, CattleQueryFilter? filter)
+        {
+            query = query.Include(p => p.CattleCategory);
+
+            if (filter == null)
+                return query;
+
+            if (!string.IsNullOrWhiteSpace(filter.Name))
+                query = query.Where(p => p.Name.ToLower().Contains(filter.Name.ToLower()));
+
+            if (filter.CattleCategoryId.HasValue)
+                query = query.Where(p => p.CattleCategoryId == filter.CattleCategoryId);
+
+            return query;
         }
 
         private int CalculateAge(DateTime birthDate)
