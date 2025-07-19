@@ -1,20 +1,19 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MilkMaster.Application.Common;
 using MilkMaster.Application.Interfaces.Services;
 
 namespace MilkMaster.API.Controllers
 {
     [Route("[controller]")]
-    [ApiController]
-    public class BaseController<T, TDto, TCreateDto, TUpdateDto, TKey> : ControllerBase
+    public class BaseController<T, TDto, TCreateDto, TUpdateDto, TQueryFilter, TKey> : ControllerBase
         where T : class
         where TDto : class
         where TCreateDto : class
         where TUpdateDto : class
+        where TQueryFilter : class
     {
-        private readonly IService<T, TDto, TCreateDto, TUpdateDto, TKey> _service;
+        private readonly IService<T, TDto, TCreateDto, TUpdateDto, TQueryFilter, TKey> _service;
 
-        public BaseController(IService<T, TDto, TCreateDto, TUpdateDto, TKey> service)
+        public BaseController(IService<T, TDto, TCreateDto, TUpdateDto, TQueryFilter, TKey> service)
         {
             _service = service;
         }
@@ -22,21 +21,15 @@ namespace MilkMaster.API.Controllers
         [HttpGet("{id}")]
         public virtual async Task<IActionResult> GetById(TKey id)
         {
-            var response = await _service.GetByIdAsync(id);
-            if (!response.Success)
-                return StatusCode(response.StatusCode, response.Message);
-
-            return Ok(response.Data);
+            var result = await _service.GetByIdAsync(id);
+            return Ok(result);
         }
 
         [HttpGet]
-        public virtual async Task<IActionResult> GetAll()
+        public virtual async Task<IActionResult> GetAll([FromQuery] TQueryFilter? queryFilter = null)
         {
-            var response = await _service.GetAllAsync();
-            if (!response.Success)
-                return StatusCode(response.StatusCode, response.Message);
-
-            return Ok(response.Data);
+            var result = await _service.GetAllAsync(queryFilter);
+            return Ok(result);
         }
 
         [HttpPost]
@@ -45,11 +38,9 @@ namespace MilkMaster.API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var response = await _service.CreateAsync(dto);
-            if (!response.Success)
-                return StatusCode(response.StatusCode, response.Message);
-
-            return Created(string.Empty, response.Data);
+            var result = await _service.CreateAsync(dto);
+           
+            return Ok(result);
         }
 
         [HttpPut("{id}")]
@@ -58,21 +49,16 @@ namespace MilkMaster.API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var response = await _service.UpdateAsync(id, dto);
-            if (!response.Success)
-                return StatusCode(response.StatusCode, response.Message);
-
-            return Ok(response.Data);
+            var result = await _service.UpdateAsync(id, dto);
+            return Ok(result);
         }
 
         [HttpDelete("{id}")]
         public virtual async Task<IActionResult> Delete(TKey id)
         {
-            var response = await _service.DeleteAsync(id);
-            if (!response.Success)
-                return StatusCode(response.StatusCode, response.Message);
-
+            await _service.DeleteAsync(id);
             return NoContent();
         }
+
     }
 }

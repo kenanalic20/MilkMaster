@@ -16,7 +16,7 @@ namespace MilkMaster.Infrastructure.Extensions
             services.AddTransient<IAuthService, AuthService>();
             services.AddSingleton<IRabbitMqPublisher>(sp => new RabbitMqPublisherService(rabbitMqHost));
             services.AddScoped(typeof(IRepository<,>), typeof(BaseRepository<,>));
-            services.AddScoped(typeof(IService<,,,,>), typeof(BaseService<,,,,>));
+            services.AddScoped(typeof(IService<,,,,,>), typeof(BaseService<,,,,,>));
             services.AddScoped<ISettingsRepository,SettingsRepository>();
             services.AddScoped<ISettingsService, SettingsService>();
             services.AddScoped<IUserDetailsRepository, UserDetailsRepository>();
@@ -25,6 +25,16 @@ namespace MilkMaster.Infrastructure.Extensions
             services.AddScoped<IUserAddressService, UserAddressService>();
             services.AddScoped<IProductCategoriesRepository, ProductCategoriesRepository>();
             services.AddScoped<IProductCategoriesService, ProductCategoriesService>();
+            services.AddTransient<IFileService, FileService>();
+            services.AddScoped<ICattleCategoriesRepository, CattleCategoriesRepository>();
+            services.AddScoped<ICattleCategoriesService, CattleCategoriesService>();
+            services.AddScoped<IProductsRepository, ProductRepository>();
+            services.AddScoped<IProductsService, ProductService>();
+            services.AddScoped<ICattleRepository, CattleRepository>();
+            services.AddScoped<ICattleService, CattleService>();
+            services.AddScoped<IGeneralSearchService, GeneralSearchService>();
+
+
 
             return services;
         }

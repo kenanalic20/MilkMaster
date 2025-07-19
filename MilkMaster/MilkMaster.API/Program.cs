@@ -4,6 +4,7 @@ using MilkMaster.Domain.Data;
 using MilkMaster.Infrastructure.Seeders;
 using MilkMaster.API.Extensions;
 using MilkMaster.Application.Extensions;
+using MilkMaster.API.Middleware;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,7 +21,6 @@ builder.Services.AddSwaggerService();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString, b => b.MigrationsAssembly("MilkMaster.Domain")));
 
-builder.Services.AddIdentityServices();
 builder.Services.AddAutoMapperService();
 builder.Services.AddServices(builder.Configuration);
 builder.Services.AddSeeders();
@@ -30,24 +30,33 @@ builder.Services.AddAuthService(builder.Configuration);
 var app = builder.Build();
 
 app.UseStaticFiles();
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "MilkMaster API v1");
+    });
 }
 
 
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    try
+    for (int i = 0; i < 10; i++)
     {
-        context.Database.Migrate();
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Migration failed: {ex.Message}");
+        try
+        {
+            context.Database.Migrate();
+            break;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Migration failed: {ex.Message}");
+            Thread.Sleep(5000);
+        }
     }
 
     var roleSeeder = scope.ServiceProvider.GetRequiredService<RoleSeeder>();
@@ -55,9 +64,11 @@ using (var scope = app.Services.CreateScope())
 
     var productCategorySeeder = scope.ServiceProvider.GetRequiredService<ProductCategoriesSeeder>();
     await productCategorySeeder.SeedProductCategoriesAsync();
+
+    var cattleCategorySeeder = scope.ServiceProvider.GetRequiredService<CattleCategoriesSeeder>();
+    await cattleCategorySeeder.SeedCattleCategoriesAsync();
 }
 
-app.UseHttpsRedirection();
 
 app.UseAuthentication();
 

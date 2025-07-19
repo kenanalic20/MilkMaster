@@ -9,6 +9,7 @@ namespace MilkMaster.Infrastructure.Repositories
         private readonly ApplicationDbContext _context;
         public ProductCategoriesRepository(ApplicationDbContext context) : base(context)
         {
+            _context = context;
         }
     }
 }

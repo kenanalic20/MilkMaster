@@ -1,18 +1,23 @@
-﻿using MilkMaster.Application.Common;
+﻿
+using MilkMaster.Application.Common;
 
 namespace MilkMaster.Application.Interfaces.Services
 {
-    public interface IService<T, TDto, TCreateDto, TUpdateDto, TKey>
+    public interface IService<T, TDto, TCreateDto, TUpdateDto, TQueryFilter, TKey>
     where T : class
     where TDto : class
     where TCreateDto : class
     where TUpdateDto : class
+    where TQueryFilter : class
     {
-        Task<ServiceResponse<TDto>> GetByIdAsync(TKey id);
-        Task<ServiceResponse<IEnumerable<TDto>>> GetAllAsync();
-        Task<ServiceResponse<TDto>> CreateAsync(TCreateDto dto, bool returnDto = true);
-        Task<ServiceResponse<TDto>> UpdateAsync(TKey id, TUpdateDto dto);
-        Task<ServiceResponse<bool>> DeleteAsync(TKey id);
-        Task<ServiceResponse<bool>> ExistsAsync(TKey id);
+        Task<TDto> GetByIdAsync(TKey id);
+        Task<IEnumerable<TDto>> GetAllAsync(TQueryFilter? queryFilter);
+        Task<TDto> CreateAsync(TCreateDto dto, bool returnDto = true);
+        Task<TDto> UpdateAsync(TKey id, TUpdateDto dto);
+        Task DeleteAsync(TKey id);
+        Task<PagedResult<TDto>> GetPagedAsync(PaginationRequest pagination, TQueryFilter? filter = null);
+
+        Task<bool> ExistsAsync(TKey id);
+        void EnableSeedingMode();
     }
 }

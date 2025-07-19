@@ -1,16 +1,14 @@
 ﻿using AutoMapper;
 using MilkMaster.Application.DTOs;
+using MilkMaster.Application.Filters;
 using MilkMaster.Application.Interfaces.Repositories;
 using MilkMaster.Application.Interfaces.Services;
 using MilkMaster.Domain.Models;
-using MilkMaster.Application.Common;
-using System.Threading.Tasks;
-using MilkMaster.Infrastructure.Repositories;
 using System.Security.Claims;
 
 namespace MilkMaster.Infrastructure.Services
 {
-    public class UserDetailsService : BaseService<UserDetails, UserDetailsDto, UserDetailsCreateDto, UserDetailsUpdateDto, string>, IUserDetailsService
+    public class UserDetailsService : BaseService<UserDetails, UserDetailsDto, UserDetailsCreateDto, UserDetailsUpdateDto, EmptyQueryFilter, string>, IUserDetailsService
     {
         private readonly IUserDetailsRepository _userDetailsRepository;
         public readonly IAuthService _authService;
@@ -21,34 +19,32 @@ namespace MilkMaster.Infrastructure.Services
             _authService = authService;
         }
 
-        public async Task<ServiceResponse<UserDetailsDto>> GetByIdAsync(string id, ClaimsPrincipal user)
+        public async Task<UserDetailsDto> GetByIdAsync(string id, ClaimsPrincipal user)
         {
-            var userAddress = await _userDetailsRepository.GetByIdAsync(id);
+            var userDetails = await _userDetailsRepository.GetByIdAsync(id);
 
-            if (userAddress == null)
-                return ServiceResponse<UserDetailsDto>.FailureResponse("Address not found", 404);
+            if (userDetails == null)
+                throw new KeyNotFoundException("User details not found");
 
             var isAdmin = await _authService.IsAdminAsync(user);
             var currentUserId = await _authService.GetUserIdAsync(user);
 
-            if (!isAdmin && userAddress.UserId != currentUserId)
-                return ServiceResponse<UserDetailsDto>.FailureResponse("Forbidden", 403);
+            if (!isAdmin && userDetails.UserId != currentUserId)
+                throw new UnauthorizedAccessException("Forbidden");
 
-            var dto = _mapper.Map<UserDetailsDto>(userAddress);
-            return ServiceResponse<UserDetailsDto>.SuccessResponse(dto);
+            return _mapper.Map<UserDetailsDto>(userDetails);
         }
 
-        public override async Task<ServiceResponse<UserDetailsDto>> CreateAsync(UserDetailsCreateDto dto, bool returnDto = true)
+
+        public override async Task<UserDetailsDto?> CreateAsync(UserDetailsCreateDto dto, bool returnDto = true)
         {
             var exists = await _userDetailsRepository.ExistsAsync(dto.UserId);
             if (exists)
-            {
-                return ServiceResponse<UserDetailsDto>.FailureResponse("User details already exist", 400);
-            }
+                throw new InvalidOperationException("User details already exist");
 
-            var baseResponse = await base.CreateAsync(dto, returnDto);
-            return ServiceResponse<UserDetailsDto>.SuccessResponse(baseResponse.Data, "User details created successfully");
+            return await base.CreateAsync(dto, returnDto);
         }
+
 
     }
 }
