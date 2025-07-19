@@ -36,10 +36,10 @@ namespace MilkMaster.API.Controllers
         [HttpGet("user")]
         public async Task<IActionResult> GetUser()
         {
-            var userDto = await _authService.GetUserAsync(HttpContext.User);
+            var userDto = await _authService.GetUserAsync(User);
             return Ok(new { user = userDto });
         }
-
+        //temporary
         [HttpGet("RabbitMq")]
         public async Task<IActionResult> RabbitMQPublisher()
         {

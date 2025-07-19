@@ -33,11 +33,10 @@ namespace MilkMaster.Infrastructure.Services
         }
         public async Task<string> RegisterAsync(RegisterDto register)
         {
-            string username = register.Email.Split('@')[0];
 
             var user = new IdentityUser
             {
-                UserName = username,
+                UserName = register.Username,
                 Email = register.Email,
             };
 
@@ -65,7 +64,7 @@ namespace MilkMaster.Infrastructure.Services
 
         public async Task<string> LoginAsync(LoginDto login)
         {
-            var user = await _userManager.FindByEmailAsync(login.Email);
+            var user = await _userManager.FindByNameAsync(login.Username);
             if (user == null)
                 throw new KeyNotFoundException("User not found");
 
