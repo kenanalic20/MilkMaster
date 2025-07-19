@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MilkMaster.Application.Common;
 using MilkMaster.Application.Interfaces.Repositories;
 using MilkMaster.Domain.Data;
 
@@ -43,6 +44,23 @@ namespace MilkMaster.Infrastructure.Repositories
         public virtual IQueryable<T> AsQueryable()
         {
             return _dbSet.AsQueryable();
+        }
+
+        public virtual async Task<PagedResult<T>> GetPagedAsync(IQueryable<T> query, PaginationRequest pagination)
+        {
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .Skip((pagination.PageNumber - 1) * pagination.PageSize)
+                .Take(pagination.PageSize)
+                .ToListAsync();
+
+            return new PagedResult<T>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                PageNumber = pagination.PageNumber,
+            };
         }
 
         public virtual async Task<bool> ExistsAsync(TKey id)

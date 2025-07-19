@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using MilkMaster.Application.Common;
 using MilkMaster.Application.Interfaces.Repositories;
 using MilkMaster.Application.Interfaces.Services;
 using System.Collections.Generic;
@@ -86,6 +87,25 @@ namespace MilkMaster.Infrastructure.Services
             await AfterDeleteAsync(entity);
         }
 
+        public virtual async Task<PagedResult<TDto>> GetPagedAsync(PaginationRequest pagination, TQueryFilter? filter = null)
+        {
+            var query = _repository.AsQueryable();
+            query = ApplyFilter(query, filter);
+
+            await BeforePagedAsync(query);
+
+            var pagedEntities = await _repository.GetPagedAsync(query, pagination);
+
+            await AfterPagedAsync(pagedEntities.Items);
+
+            return new PagedResult<TDto>
+            {
+                Items = _mapper.Map<List<TDto>>(pagedEntities.Items),
+                TotalCount = pagedEntities.TotalCount,
+                PageNumber = pagedEntities.PageNumber,
+            };
+        }
+
         public virtual async Task<bool> ExistsAsync(TKey id)
         {
             return await _repository.ExistsAsync(id);
@@ -107,6 +127,9 @@ namespace MilkMaster.Infrastructure.Services
 
         protected virtual Task BeforeDeleteAsync(T entity) => Task.CompletedTask;
         protected virtual Task AfterDeleteAsync(T entity) => Task.CompletedTask;
+
+        protected virtual Task BeforePagedAsync(IQueryable<T> query) => Task.CompletedTask;
+        protected virtual Task AfterPagedAsync(List<T> entities) => Task.CompletedTask;
 
         protected virtual Task AfterGetAsync(T entity) => Task.CompletedTask;
         protected virtual Task AfterGetAllAsync(IEnumerable<T> entities) => Task.CompletedTask;
