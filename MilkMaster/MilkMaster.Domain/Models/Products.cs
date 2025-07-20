@@ -1,4 +1,6 @@
 ﻿
+using Microsoft.EntityFrameworkCore;
+
 namespace MilkMaster.Domain.Models
 {
     public class Products
@@ -10,8 +12,10 @@ namespace MilkMaster.Domain.Models
         public CattleCategories? CattleCategory { get; set; }
         public Nutritions? Nutrition { get; set; }
         public ICollection<ProductCategoriesProducts>? ProductCategories { get; set; } = new List<ProductCategoriesProducts>();
+        [Precision(18, 2)]
         public decimal PricePerUnit { get; set; }
-        public string Unit { get; set; }
+        public int UnitId { get; set; }
+        public Units Unit { get; set; } = default!;
         public int Quantity { get; set; }
         public string? Description { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

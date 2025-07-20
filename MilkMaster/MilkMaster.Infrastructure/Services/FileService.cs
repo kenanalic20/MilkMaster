@@ -61,7 +61,8 @@ namespace MilkMaster.Infrastructure.Services
 
             if (File.Exists(fullPath))
             {
-                File.Delete(fullPath);
+                var fileInfo = new FileInfo(fullPath);
+                await Task.Run(() => fileInfo.Delete());
                 return true;
             }
 

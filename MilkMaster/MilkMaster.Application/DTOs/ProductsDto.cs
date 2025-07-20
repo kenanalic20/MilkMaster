@@ -6,7 +6,7 @@
         public string ImageUrl { get; set; }
         public string Title { get; set; }
         public decimal PricePerUnit { get; set; }
-        public string Unit { get; set; }
+        public UnitsDto? Unit { get; set; }
         public int Quantity { get; set; }
         public string? Description { get; set; }
         public ICollection<ProductCategoriesDto>? ProductCategories { get; set; } = new List<ProductCategoriesDto>();
@@ -18,7 +18,7 @@
         public string ImageUrl { get; set; }
         public string Title { get; set; }
         public decimal PricePerUnit { get; set; }
-        public string Unit { get; set; }
+        public int UnitId { get; set; }
         public int Quantity { get; set; }
         public string? Description { get; set; }
         public ICollection<int>? ProductCategories { get; set; } = new List<int>();
@@ -30,7 +30,7 @@
         public string ImageUrl { get; set; }
         public string Title { get; set; }
         public decimal PricePerUnit { get; set; }
-        public string Unit { get; set; }
+        public int UnitId { get; set; }
         public int Quantity { get; set; }
         public string? Description { get; set; }
         public ICollection<int>? ProductCategories { get; set; } = new List<int>();

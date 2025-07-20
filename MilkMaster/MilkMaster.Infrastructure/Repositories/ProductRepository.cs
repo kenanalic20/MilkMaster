@@ -14,11 +14,7 @@ namespace MilkMaster.Infrastructure.Repositories
         }
         public override async Task<IEnumerable<Products>> GetAllAsync()
         {
-            return await _context.Products
-                .Include(p => p.ProductCategories)
-                    .ThenInclude(pc => pc.ProductCategory)
-                .Include(p => p.CattleCategory)
-                .ToListAsync();
+            return await _context.Products.ToListAsync();
         }
         public override async Task<Products> GetByIdAsync(int id)
         {
@@ -27,6 +23,7 @@ namespace MilkMaster.Infrastructure.Repositories
                         .ThenInclude(pc => pc.ProductCategory)
                     .Include(p => p.CattleCategory)
                     .Include(p => p.Nutrition)
+                    .Include(p => p.Unit)
                     .FirstOrDefaultAsync(p => p.Id == id);
         }
 
