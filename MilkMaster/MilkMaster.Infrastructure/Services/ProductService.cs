@@ -41,8 +41,6 @@ namespace MilkMaster.Infrastructure.Services
             if (string.IsNullOrEmpty(dto.Title))
                 throw new MilkMasterValidationException("Product name cannot be empty.");
 
-            if (string.IsNullOrEmpty(dto.Unit))
-                throw new MilkMasterValidationException("Unit cannot be empty.");
 
             if (dto.Nutrition != null)
             {
@@ -69,8 +67,6 @@ namespace MilkMaster.Infrastructure.Services
             if (string.IsNullOrEmpty(dto.Title))
                 throw new MilkMasterValidationException("Product name cannot be empty.");
 
-            if (string.IsNullOrEmpty(dto.Unit))
-                throw new MilkMasterValidationException("Unit cannot be empty.");
 
             if (dto.Nutrition != null)
             {
@@ -96,7 +92,9 @@ namespace MilkMaster.Infrastructure.Services
         protected override IQueryable<Products> ApplyFilter(IQueryable<Products> query, ProductQueryFilter? filter)
         {
             query = query.Include(p => p.ProductCategories)
-                        .Include(p => p.CattleCategory);
+                            .ThenInclude(pc => pc.ProductCategory)
+                        .Include(p => p.CattleCategory).
+                        Include(p=>p.Unit);
 
             if (filter == null)
                 return query;
