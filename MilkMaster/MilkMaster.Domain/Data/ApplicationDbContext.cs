@@ -101,7 +101,7 @@ namespace MilkMaster.Domain.Data
             //Products - OrderItems
             builder.Entity<OrderItems>()
             .HasOne(i => i.Product)
-            .WithMany() 
+            .WithMany(p => p.OrderItems) 
             .HasForeignKey(i => i.ProductId);
 
             //Products - Units
@@ -109,14 +109,6 @@ namespace MilkMaster.Domain.Data
             .HasOne(p => p.Unit)
             .WithMany()
             .HasForeignKey(p => p.UnitId)
-            .IsRequired()
-            .OnDelete(DeleteBehavior.NoAction);
-
-            //OrderItems - Units
-            builder.Entity<OrderItems>()
-            .HasOne(o => o.Unit)
-            .WithMany()
-            .HasForeignKey(o => o.UnitId)
             .IsRequired()
             .OnDelete(DeleteBehavior.NoAction);
 

@@ -16,11 +16,11 @@ namespace MilkMaster.Domain.Models
         public int Quantity { get; set; }
         [Precision(18, 2)]
         public decimal UnitSize { get; set; }
-        public int UnitId { get; set; }
-        public Units Unit { get; set; } = default!;
+       
         [Precision(18, 2)]
         public decimal PricePerUnit { get; set; }
         [Precision(18, 2)]
-        public decimal TotalPrice => Quantity * UnitSize * PricePerUnit;
+        public decimal TotalPrice { get; set; }
+
     }
 }

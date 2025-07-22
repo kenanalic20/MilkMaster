@@ -8,8 +8,7 @@ namespace MilkMaster.Domain.Models
     {
         public int Id { get; set; }
         public string OrderNumber { get; set; }
-        public string UserId { get; set; }
-        public IdentityUser? User { get; set; }
+        public string Username { get; set; }
 
         public ICollection<OrderItems> Items { get; set; } = new List<OrderItems>();
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

@@ -1,5 +1,6 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace MilkMaster.Domain.Models
 {
@@ -15,9 +16,13 @@ namespace MilkMaster.Domain.Models
         [Precision(18, 2)]
         public decimal PricePerUnit { get; set; }
         public int UnitId { get; set; }
-        public Units Unit { get; set; } = default!;
+        public Units? Unit { get; set; }
         public int Quantity { get; set; }
         public string? Description { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public ICollection<OrderItems> OrderItems { get; set; } = new List<OrderItems>();
+        [Timestamp]
+        public byte[] RowVersion { get; set; }
+
     }
 }
