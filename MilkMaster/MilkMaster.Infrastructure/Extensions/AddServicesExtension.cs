@@ -11,7 +11,7 @@ namespace MilkMaster.Infrastructure.Extensions
     {
         public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
         {
-            var rabbitMqHost = configuration.GetValue<string>("RabbitMq:ConnectionString")??"localhost";
+            var rabbitMqHost = Environment.GetEnvironmentVariable("RabbitMQ__ConnectionString")??"localhost";
             services.AddTransient<IJwtService, JwtService>();
             services.AddTransient<IAuthService, AuthService>();
             services.AddSingleton<IRabbitMqPublisher>(sp => new RabbitMqPublisherService(rabbitMqHost));

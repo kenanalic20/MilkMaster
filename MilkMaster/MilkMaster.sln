@@ -19,6 +19,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Dockerfile = Dockerfile
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MilkMaster.Messages", "MilkMaster.Messages\MilkMaster.Messages.csproj", "{9EE8CD26-5039-49DF-8ED5-973E65F26C4B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{B7BC3079-DCA9-4EB8-97E2-43B2832C8F4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B7BC3079-DCA9-4EB8-97E2-43B2832C8F4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B7BC3079-DCA9-4EB8-97E2-43B2832C8F4F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9EE8CD26-5039-49DF-8ED5-973E65F26C4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EE8CD26-5039-49DF-8ED5-973E65F26C4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EE8CD26-5039-49DF-8ED5-973E65F26C4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EE8CD26-5039-49DF-8ED5-973E65F26C4B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

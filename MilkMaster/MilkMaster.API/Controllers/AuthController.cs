@@ -2,6 +2,8 @@
 using MilkMaster.Application.DTOs;
 using MilkMaster.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
+using MilkMaster.Application.Common;
+using MilkMaster.Messages;
 
 namespace MilkMaster.API.Controllers
 {
@@ -43,10 +45,11 @@ namespace MilkMaster.API.Controllers
         [HttpGet("RabbitMq")]
         public async Task<IActionResult> RabbitMQPublisher()
         {
-            var message = new SettingsCreateDto
+            var message = new EmailMessage
             {
-                NotificationsEnabled = true,
-                PushNotificationsEnabled = true
+                Email = "kenanalic20@gmail.com",
+                Subject = "Test Email",
+                Body = "This is a test email message sent from RabbitMQ publisher in MilkMaster API."
             };
             
             await _rabbitMqPublisher.PublishAsync(message);
