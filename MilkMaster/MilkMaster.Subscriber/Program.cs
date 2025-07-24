@@ -28,7 +28,7 @@ for (int i = 0; i < 10; i++)
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"❌ Failed to start consumer: {ex.Message}. Retrying in 5 seconds...");
+        Console.WriteLine($"Waiting for API to start. Retrying in 5 seconds...");
         await Task.Delay(5000);
     }
 }
