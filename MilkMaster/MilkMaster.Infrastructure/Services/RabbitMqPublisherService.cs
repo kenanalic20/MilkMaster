@@ -14,10 +14,7 @@ namespace MilkMaster.Infrastructure.Services
 
         public async Task PublishAsync<T>(T message, string ? role = null, string? action = "*")
         {
-            var dtoName = typeof(T).Name
-            .Replace("MilkMaster.Application.Dtos.", "")
-            .Replace("Dto", "") 
-            .ToLower();  
+            var dtoName = typeof(T).Name.ToLower();  
 
             Console.WriteLine($"Publishing dtoName: {dtoName}");
 

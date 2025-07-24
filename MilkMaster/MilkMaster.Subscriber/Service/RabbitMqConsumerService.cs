@@ -1,4 +1,5 @@
 ﻿using EasyNetQ;
+using MilkMaster.Messages;
 using Newtonsoft.Json.Linq;
 
 namespace MilkMaster.Subscriber.Service
@@ -6,18 +7,20 @@ namespace MilkMaster.Subscriber.Service
     public class RabbitMqConsumerService
     {
         private readonly IBus _bus;
+        private readonly EmailService _emailService;
 
-        public RabbitMqConsumerService(string hostName = "localhost")
+        public RabbitMqConsumerService(EmailService emailService, string hostName = "localhost")
         {
-            _bus = RabbitHutch.CreateBus($"host={hostName}");
+            if (hostName == "localhost")
+                _bus = RabbitHutch.CreateBus($"host={hostName}");
+            else
+                _bus = RabbitHutch.CreateBus(hostName);
+
+            _emailService = emailService;
         }
-        //will change
         public async Task StartListening<T>(string? role = null, string action = "*")
         {
-            var dtoName = typeof(T).Name
-            .Replace("MilkMaster.Application.Dtos.", "") 
-            .Replace("Dto", "") 
-            .ToLower(); 
+            var dtoName = typeof(T).Name.ToLower(); 
 
             
             var routingKey = role == null
@@ -47,16 +50,26 @@ namespace MilkMaster.Subscriber.Service
 
         private async Task HandleMessageAsync<T>(T message)
         {
-            var error = new
+            if (message == null)
             {
-                text = "There is no message"
-            };
+                Console.WriteLine("⚠️ Received null message.");
+                return;
+            }
 
-            JObject jsonMessage = JObject.FromObject(message??(object)error);
+            switch (message)
+            {
+                case EmailMessage emailMessage:
+                    bool sent = await _emailService.SendEmailAsync(emailMessage);
+                    Console.WriteLine(sent
+                        ? $"✅ Email sent to: {emailMessage.Email}"
+                        : $"❌ Failed to send email to: {emailMessage.Email}");
+                    break;
 
-            await Task.Delay(1000);
-
-            Console.WriteLine($"Handled message: {jsonMessage}");
+                default:
+                    JObject jsonMessage = JObject.FromObject(message);
+                    Console.WriteLine($"ℹ️ Received unhandled message: {jsonMessage}");
+                    break;
+            }
         }
     }
 }

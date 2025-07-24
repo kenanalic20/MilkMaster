@@ -1,15 +1,15 @@
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
-EXPOSE 5068
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 COPY . .
+RUN dotnet restore "MilkMaster.Subscriber/MilkMaster.Subscriber.csproj"
 
 FROM build AS publish
-RUN dotnet publish "MilkMaster.API/MilkMaster.API.csproj" -c Release -o /app
+RUN dotnet publish "MilkMaster.Subscriber/MilkMaster.Subscriber.csproj" -c Release -o /app
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app .
-ENTRYPOINT ["dotnet", "MilkMaster.API.dll"]
+ENTRYPOINT ["dotnet", "MilkMaster.Subscriber.dll"]

@@ -21,6 +21,7 @@ namespace MilkMaster.Infrastructure.Repositories
                 .Include(o => o.Items)
                     .ThenInclude(p => p.Product)
                     .ThenInclude(u => u.Unit)
+                .Include(o => o.Status)
                 .FirstOrDefaultAsync(o => o.Id == id);
         }
 
