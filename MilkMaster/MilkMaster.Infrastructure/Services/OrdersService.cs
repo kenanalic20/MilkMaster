@@ -266,6 +266,20 @@ namespace MilkMaster.Infrastructure.Services
             return query;
         }
 
+        public async Task RecalculateOrderTotalAsync(int orderId)
+        {
+            var order = await _orderRepository.AsQueryable()
+                .Include(o => o.Items)
+                .FirstOrDefaultAsync(o => o.Id == orderId);
+
+            if (order != null)
+            {
+                order.Total = order.Items.Sum(i => i.TotalPrice);
+                order.ItemCount = order.Items.Count;
+                await _orderRepository.UpdateAsync(order);
+            }
+        }
+
         private async Task<string> GenerateOrderNumberAsync()
         {
             var lastOrder = await _orderRepository.AsQueryable()
