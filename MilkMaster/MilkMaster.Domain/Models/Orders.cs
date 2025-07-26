@@ -7,6 +7,8 @@ namespace MilkMaster.Domain.Models
     public class Orders
     {
         public int Id { get; set; }
+        public string? UserId { get; set; }
+        public IdentityUser? User { get; set; }
         public string OrderNumber { get; set; }
         public string Customer { get; set; }
         public string Email {  get; set; }

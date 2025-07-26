@@ -12,8 +12,7 @@ namespace MilkMaster.Application.Mappings
             CreateMap<OrderStatus,OrderStatusDto>().ReverseMap();
             CreateMap<Orders, OrdersDto>();
             CreateMap<OrdersCreateDto, Orders>()
-                .ForMember(dest => dest.Items, opt => opt.Ignore())
-                .ForMember(dest => dest.StatusId , opt => opt.Ignore());
+                .ForMember(dest => dest.Items, opt => opt.Ignore());
             CreateMap<OrdersUpdateDto, Orders>();
         }
     }

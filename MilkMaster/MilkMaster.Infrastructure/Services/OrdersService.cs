@@ -8,7 +8,6 @@ using MilkMaster.Application.Interfaces.Repositories;
 using MilkMaster.Application.Interfaces.Services;
 using MilkMaster.Domain.Models;
 using MilkMaster.Messages;
-using System.Security.Claims;
 
 namespace MilkMaster.Infrastructure.Services
 {
@@ -19,7 +18,7 @@ namespace MilkMaster.Infrastructure.Services
         private readonly IUserDetailsRepository _userDetailsRepository;
         private readonly IAuthService _authService;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IRabbitMqPublisher _rabbitMqPublisher;
+        private readonly IEmailService _emailService;
         public OrdersService(
             IOrdersRepository orderRepository,
             IProductsRepository productRepository,
@@ -27,7 +26,7 @@ namespace MilkMaster.Infrastructure.Services
             IMapper mapper,
             IAuthService authService,
             IHttpContextAccessor httpContextAccessor,
-            IRabbitMqPublisher rabbitMqPublisher
+            IEmailService emailService
             )
             : base(orderRepository, mapper)
         {
@@ -36,7 +35,7 @@ namespace MilkMaster.Infrastructure.Services
             _userDetailsRepository = userDetailsRepository;
             _authService = authService;
             _httpContextAccessor = httpContextAccessor;
-            _rabbitMqPublisher = rabbitMqPublisher;
+            _emailService = emailService;
         }
         protected override async Task AfterGetAsync(Orders entity)
         {
@@ -69,20 +68,26 @@ namespace MilkMaster.Infrastructure.Services
                 Subject = $"Order: {entity.OrderNumber} updated",
                 Body = $"Your order is updated!\n\n" +
                 $"Order Number: {entity.OrderNumber}.\n" +
-                $"Status: {entity.Status}.\n\n" +
+                $"Status: {entity.Status?.Name}.\n\n" +
                 $"We will notify you of any updates regarding your order.\n\n" +
                 $"If you have any questions, feel free to contact us at any time."
             };
 
-            await _rabbitMqPublisher.PublishAsync(email);
+            await _emailService.SendEmailAsync(entity.UserId, email);
         }
 
         protected override async Task BeforeCreateAsync(Orders entity, OrdersCreateDto dto)
         {
-            var userName = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.Name)?.Value;
-            var userId = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var userEmail = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.Email)?.Value;
-            var userPhone = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.MobilePhone)?.Value;
+            var userClaim = _httpContextAccessor.HttpContext?.User;
+
+            if (userClaim == null)
+                throw new UnauthorizedAccessException("User is not authenticated.");
+
+            var user =await _authService.GetUserAsync(userClaim);
+            var userName = user.UserName;
+            var userId = user.Id;
+            var userEmail = user.Email;
+            var userPhone = user.PhoneNumber;
 
             if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(userEmail) || string.IsNullOrEmpty(userId))
                 throw new UnauthorizedAccessException("User is not authenticated.");
@@ -94,68 +99,92 @@ namespace MilkMaster.Infrastructure.Services
             else
                 entity.Customer = $"{userDetails.FirstName} {userDetails.LastName}".Trim();
 
+            entity.UserId = userId;
+
             entity.Email = userEmail;
 
             entity.PhoneNumber = string.IsNullOrEmpty(userPhone) ? "Phone number not set" : userPhone;
 
             entity.OrderNumber = await GenerateOrderNumberAsync();
 
-            foreach (var item in dto.Items)
+            var originalQuantities = new Dictionary<int, int>();
+
+            try
             {
-                var product = await _productRepository.GetByIdAsync(item.ProductId);
-                if (product == null)
-                    throw new KeyNotFoundException("Product not found");
-
-                if (item.Quantity <= 0)
-                    throw new MilkMasterValidationException("Quantity must be greater than zero.");
-
-                if (item.Quantity > product.Quantity)
-                    throw new MilkMasterValidationException($"Product '{product.Title}' out of stock");
-
-                if (item.UnitSize <= 0)
-                    throw new MilkMasterValidationException("Unit size must be greater than zero.");
-
-
-                var orderItem = new OrderItems
+                foreach (var item in dto.Items)
                 {
-                    ProductId = product.Id,
-                    Quantity = item.Quantity,
-                    UnitSize = item.UnitSize,
-                    PricePerUnit = product.PricePerUnit,
-                    TotalPrice = item.Quantity * product.PricePerUnit * item.UnitSize,
-                };
+                    var product = await _productRepository.GetByIdAsync(item.ProductId);
 
-                entity.Items.Add(orderItem);
+                    if (product == null)
+                        throw new KeyNotFoundException("Product not found");
 
-                try
-                {
+                    if (item.Quantity <= 0)
+                        throw new MilkMasterValidationException("Quantity must be greater than zero.");
+
+                    if (item.Quantity > product.Quantity)
+                        throw new MilkMasterValidationException($"Product '{product.Title}' out of stock");
+
+                    if (item.UnitSize <= 0)
+                        throw new MilkMasterValidationException("Unit size must be greater than zero.");
+
+                    if (!originalQuantities.ContainsKey(product.Id))
+                    {
+                        originalQuantities[product.Id] = product.Quantity;
+                    }
+
+                    var orderItem = new OrderItems
+                    {
+                        ProductId = product.Id,
+                        Quantity = item.Quantity,
+                        UnitSize = item.UnitSize,
+                        PricePerUnit = product.PricePerUnit,
+                        TotalPrice = item.Quantity * product.PricePerUnit * item.UnitSize,
+                    };
+
+                    entity.Items.Add(orderItem);
+
                     product.Quantity -= item.Quantity;
                     await _productRepository.UpdateAsync(product);
+                }
 
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    throw new MilkMasterValidationException($"Product '{product.Title}' is out of stock or has been updated by another user.");
-                }
+                entity.ItemCount = entity.Items.Count;
+                entity.Total = entity.Items.Sum(i => i.TotalPrice);
             }
-            entity.ItemCount = entity.Items.Count;
-            entity.Total = entity.Items.Sum(i => i.TotalPrice);
+            catch (Exception ex)
+            {
+                foreach (var kvp in originalQuantities)
+                {
+                    var product = await _productRepository.GetByIdAsync(kvp.Key);
+                    if (product != null)
+                    {
+                        product.Quantity = kvp.Value;
+                        await _productRepository.UpdateAsync(product);
+                    }
+                }
+                throw new MilkMasterValidationException($"Quantity limit exceeded!");
+
+            }
         }
 
         protected override async Task AfterCreateAsync(Orders entity, OrdersCreateDto dto) 
         {
+            var orderWithStatus = await _orderRepository.AsQueryable()
+                .Include(o => o.Status)
+                .FirstOrDefaultAsync(o => o.Id == entity.Id);
+
             var email = new EmailMessage
             {
                 Email = entity.Email,
                 Subject = $"Order: {entity.OrderNumber} created",
                 Body = $"Thank you for your order!\n\n" +
                $"Order Number: {entity.OrderNumber}.\n" +
-               $"Status: {entity.Status}.\n\n" +
+               $"Status: {orderWithStatus.Status.Name}.\n\n" +
                $"We will notify you of any updates regarding your order.\n\n" +
                $"If you have any questions, feel free to contact us at any time."
             };
 
-            await _rabbitMqPublisher.PublishAsync(email);
+            await _emailService.SendEmailAsync(entity.UserId, email);
+
         }
 
         protected override async Task BeforeDeleteAsync(Orders entity)
@@ -187,7 +216,8 @@ namespace MilkMaster.Infrastructure.Services
                $"We will notify you of any updates regarding your order.\n\n" +
                $"If you have any questions, feel free to contact us at any time."
             };
-            await _rabbitMqPublisher.PublishAsync(email);
+
+            await _emailService.SendEmailAsync(entity.UserId, email);
         }
 
 

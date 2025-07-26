@@ -39,6 +39,8 @@ namespace MilkMaster.Infrastructure.Extensions
             services.AddScoped<IOrderItemsRepository, OrderItemsRepository>();
             services.AddScoped<IOrderItemsService, OrderItemsService>();
 
+            services.AddTransient<IEmailService, EmailService>();
+
 
 
             return services;
