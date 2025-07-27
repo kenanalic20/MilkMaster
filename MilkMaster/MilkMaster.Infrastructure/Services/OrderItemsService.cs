@@ -87,6 +87,7 @@ namespace MilkMaster.Infrastructure.Services
         {
             await _ordersService.RecalculateOrderTotalAsync(entity.OrderId);
         }
+
         protected override IQueryable<OrderItems> ApplyFilter(IQueryable<OrderItems> query, OrderItemsQueryFilter? filter)
         {
             query = query.Include(o => o.Order);
