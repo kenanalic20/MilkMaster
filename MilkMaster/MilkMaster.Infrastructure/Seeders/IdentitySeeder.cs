@@ -48,5 +48,22 @@ public class IdentitySeeder
             await _userManager.CreateAsync(appUser, "Test1234!");
             await _userManager.AddToRoleAsync(appUser, "User");
         }
+
+        for (var i = 0; i < 9; i++) 
+        {
+            var userEmailLoop = $"user{i+1}@milk.com";
+            var appUserLoop = await _userManager.FindByEmailAsync(userEmail);
+            if (appUser == null)
+            {
+                appUser = new IdentityUser
+                {
+                    UserName = $"mobile{i+1}",
+                    Email = userEmail,
+                    EmailConfirmed = true
+                };
+                await _userManager.CreateAsync(appUser, "Test1234!");
+                await _userManager.AddToRoleAsync(appUser, "User");
+            }
+        }
     }
 }
