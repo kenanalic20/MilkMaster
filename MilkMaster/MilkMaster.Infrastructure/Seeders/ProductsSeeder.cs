@@ -58,6 +58,21 @@ namespace MilkMaster.Infrastructure.Seeders
                 }
             };
 
+            for(int i = 0; i<7; i++)
+            {
+                defaultProducts.Add(new ProductsCreateDto
+                {
+                    Title = $"Product {i + 1}",
+                    ImageUrl = $"{_baseUrl}/Images/Products/Cheese.jpg",
+                    CattleCategoryId = 1,
+                    UnitId = 1,
+                    PricePerUnit = 5.0m + i,
+                    Quantity = 2*i,
+                    Description = $"Description for Product {i + 1}",
+                    ProductCategories = new List<int> { 1, 2 }
+                });
+            }
+
             foreach (var product in defaultProducts)
             {
                 await _productsService.CreateAsync(product);

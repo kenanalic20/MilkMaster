@@ -5,6 +5,7 @@ namespace MilkMaster.Application.DTOs
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public string ImageUrl { get; set; }
         public string MilkCartonUrl { get; set; }
         public CattleCategoriesDto CattleCategory { get; set; } = null!;
         public string? BreedOfCattle { get; set; }
@@ -20,6 +21,7 @@ namespace MilkMaster.Application.DTOs
     public class CattleCreateDto
     {
         public string Name { get; set; }
+        public string ImageUrl { get; set; }
         public string MilkCartonUrl { get; set; }
         public int CattleCategoryId { get; set; }
         public string? BreedOfCattle { get; set; }
@@ -34,6 +36,7 @@ namespace MilkMaster.Application.DTOs
     public class CattleUpdateDto
     {
         public string Name { get; set; }
+        public string ImageUrl { get; set; }
         public string MilkCartonUrl { get; set; }
         public int CattleCategoryId { get; set; }
         public string? BreedOfCattle { get; set; }
