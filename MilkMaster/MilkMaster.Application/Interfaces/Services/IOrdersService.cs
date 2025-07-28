@@ -7,5 +7,6 @@ namespace MilkMaster.Application.Interfaces.Services
     public interface IOrdersService : IService<Orders, OrdersDto, OrdersCreateDto, OrdersUpdateDto, OrderQueryFilter, int>
     {
         Task RecalculateOrderTotalAsync(int orderId);
+        Task<string> GenerateOrderNumberAsync();
     }
 }

@@ -13,10 +13,10 @@ namespace MilkMaster.API.Controllers
     public class ProductController : BaseController<Products, ProductsDto, ProductsCreateDto, ProductsUpdateDto, ProductQueryFilter, int>
     {
         private readonly IProductsService _productService;
-        public ProductController(IProductsService service):base(service)
-       {
+        public ProductController(IProductsService service) : base(service)
+        {
             _productService = service;
-       }
+        }
 
         [HttpGet]
         public override async Task<IActionResult> GetAll([FromQuery] ProductQueryFilter? queryFilter = null)
@@ -40,5 +40,14 @@ namespace MilkMaster.API.Controllers
             return Ok(result);
         }
 
+        [HttpGet("recommend")]
+        public async Task<IActionResult> Recommend()
+        {
+            var recommendations = await _productService.Recommand();
+            if (recommendations == null || !recommendations.Any())
+                return NotFound("No recommanded products found for this user.");
+            return Ok(recommendations);
+
+        }
     }
 }

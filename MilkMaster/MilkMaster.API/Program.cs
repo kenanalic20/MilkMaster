@@ -76,6 +76,9 @@ using (var scope = app.Services.CreateScope())
 
     var cattleSeeder = scope.ServiceProvider.GetRequiredService<CattleSeeder>();
     await cattleSeeder.SeedCattleAsync();
+
+    var ordersSeeder = scope.ServiceProvider.GetRequiredService<OrdersSeeder>();
+    await ordersSeeder.SeedOrdersAsync();
 }
 
 

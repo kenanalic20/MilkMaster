@@ -14,6 +14,7 @@ namespace MilkMaster.Application.Mappings
             CreateMap<OrdersCreateDto, Orders>()
                 .ForMember(dest => dest.Items, opt => opt.Ignore());
             CreateMap<OrdersUpdateDto, Orders>();
+            CreateMap<OrdersSeederDto, Orders>();
         }
     }
 }

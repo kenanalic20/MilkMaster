@@ -128,11 +128,11 @@ namespace MilkMaster.Infrastructure.Services
         static MLContext mlContext = null;
         static ITransformer model = null;
 
-        public async Task<List<ProductsDto>> Recommand(int id)
+        public async Task<List<ProductsDto>> Recommand()
         {
             var user = _httpContextAccessor.HttpContext?.User!;
             var realUserId = await _authService.GetUserIdAsync(user);
-            var numericUserId = MapUserId(realUserId); // convert to uint
+            var numericUserId = MapUserId(realUserId);
 
             lock (isLocked)
             {
@@ -147,7 +147,7 @@ namespace MilkMaster.Infrastructure.Services
                     {
                         if (order.UserId == null) continue;
 
-                        var mappedUserId = MapUserId(order.UserId); // convert to uint
+                        var mappedUserId = MapUserId(order.UserId);
 
                         foreach (var item in order.Items)
                         {
@@ -179,7 +179,12 @@ namespace MilkMaster.Infrastructure.Services
                 }
             }
 
-            var allProducts = _productRepository.AsQueryable().ToList();
+            var allProducts = _productRepository.AsQueryable()
+                .Include(p => p.ProductCategories)
+                    .ThenInclude(pc => pc.ProductCategory)
+                .Include(p => p.CattleCategory)
+                .ToList();
+
             var predictionResults = new List<(Products, float)>();
 
             foreach (var product in allProducts)
@@ -197,7 +202,7 @@ namespace MilkMaster.Infrastructure.Services
 
             var finalResults = predictionResults
                 .OrderByDescending(x => x.Item2)
-                .Take(5)
+                .Take(3)
                 .Select(x => _mapper.Map<ProductsDto>(x.Item1))
                 .ToList();
 

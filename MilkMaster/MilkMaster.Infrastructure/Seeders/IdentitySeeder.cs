@@ -52,17 +52,17 @@ public class IdentitySeeder
         for (var i = 0; i < 9; i++) 
         {
             var userEmailLoop = $"user{i+1}@milk.com";
-            var appUserLoop = await _userManager.FindByEmailAsync(userEmail);
-            if (appUser == null)
+            var appUserLoop = await _userManager.FindByEmailAsync(userEmailLoop);
+            if (appUserLoop == null)
             {
-                appUser = new IdentityUser
+                appUserLoop = new IdentityUser
                 {
                     UserName = $"mobile{i+1}",
-                    Email = userEmail,
+                    Email = userEmailLoop,
                     EmailConfirmed = true
                 };
-                await _userManager.CreateAsync(appUser, "Test1234!");
-                await _userManager.AddToRoleAsync(appUser, "User");
+                await _userManager.CreateAsync(appUserLoop, "Test1234!");
+                await _userManager.AddToRoleAsync(appUserLoop, "User");
             }
         }
     }

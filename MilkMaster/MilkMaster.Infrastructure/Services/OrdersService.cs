@@ -78,6 +78,9 @@ namespace MilkMaster.Infrastructure.Services
 
         protected override async Task BeforeCreateAsync(Orders entity, OrdersCreateDto dto)
         {
+            if (_isSeeding)
+                return;
+
             var userClaim = _httpContextAccessor.HttpContext?.User;
 
             if (userClaim == null)
@@ -168,6 +171,8 @@ namespace MilkMaster.Infrastructure.Services
 
         protected override async Task AfterCreateAsync(Orders entity, OrdersCreateDto dto) 
         {
+            if (_isSeeding)
+                return;
             var orderWithStatus = await _orderRepository.AsQueryable()
                 .Include(o => o.Status)
                 .FirstOrDefaultAsync(o => o.Id == entity.Id);
@@ -280,7 +285,7 @@ namespace MilkMaster.Infrastructure.Services
             }
         }
 
-        private async Task<string> GenerateOrderNumberAsync()
+        public async Task<string> GenerateOrderNumberAsync()
         {
             var lastOrder = await _orderRepository.AsQueryable()
                 .OrderByDescending(o => o.Id)

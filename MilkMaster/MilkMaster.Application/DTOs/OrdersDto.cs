@@ -25,6 +25,19 @@ namespace MilkMaster.Application.DTOs
     {
         public string Customer { get; set; }
         public string PhoneNumber { get; set; }
-        public int OrderStatusId { get; set; }
+        public int StatusId { get; set; }
+    }
+
+    public class  OrdersSeederDto:OrdersCreateDto
+    {
+        public string UserId { get; set; }
+        public string OrderNumber { get; set; }
+        public string Customer { get; set; }
+        public string Email { get; set; }
+        public string PhoneNumber { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public decimal Total { get; set; }
+        public int ItemCount { get; set; }
+        public int StatusId { get; set; }
     }
 }
