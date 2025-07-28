@@ -9,8 +9,10 @@ namespace MilkMaster.Application.Mappings
     {
         public OrdersMappingProfile() 
         {
-            CreateMap<Orders, OrdersDto>().ReverseMap();
-            CreateMap<OrdersCreateDto, Orders>();
+            CreateMap<OrderStatus,OrderStatusDto>().ReverseMap();
+            CreateMap<Orders, OrdersDto>();
+            CreateMap<OrdersCreateDto, Orders>()
+                .ForMember(dest => dest.Items, opt => opt.Ignore());
             CreateMap<OrdersUpdateDto, Orders>();
         }
     }

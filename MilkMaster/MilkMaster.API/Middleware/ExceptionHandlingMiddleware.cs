@@ -25,8 +25,7 @@ namespace MilkMaster.API.Middleware
         private static Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
             var statusCode = (int)HttpStatusCode.InternalServerError;
-            //remove it later
-            string stackTrace = exception.StackTrace;
+            string stackTrace = exception.ToString();
             string message = "An unexpected error occurred.";
 
             switch (exception)

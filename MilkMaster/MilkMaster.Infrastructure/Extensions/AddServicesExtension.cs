@@ -11,7 +11,7 @@ namespace MilkMaster.Infrastructure.Extensions
     {
         public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
         {
-            var rabbitMqHost = configuration.GetValue<string>("RabbitMq:ConnectionString")??"localhost";
+            var rabbitMqHost = Environment.GetEnvironmentVariable("RabbitMQ__ConnectionString")??"localhost";
             services.AddTransient<IJwtService, JwtService>();
             services.AddTransient<IAuthService, AuthService>();
             services.AddSingleton<IRabbitMqPublisher>(sp => new RabbitMqPublisherService(rabbitMqHost));
@@ -33,6 +33,13 @@ namespace MilkMaster.Infrastructure.Extensions
             services.AddScoped<ICattleRepository, CattleRepository>();
             services.AddScoped<ICattleService, CattleService>();
             services.AddScoped<IGeneralSearchService, GeneralSearchService>();
+            services.AddScoped<IOrdersRepository, OrdersRepository>();
+            services.AddScoped<IOrdersService, OrdersService>();
+            //temporary
+            services.AddScoped<IOrderItemsRepository, OrderItemsRepository>();
+            services.AddScoped<IOrderItemsService, OrderItemsService>();
+
+            services.AddTransient<IEmailService, EmailService>();
 
 
 

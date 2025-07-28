@@ -22,6 +22,7 @@ namespace MilkMaster.Domain.Data
         public DbSet<Orders> Orders { get; set; }
         public DbSet<OrderItems> OrderItems { get; set; }
         public DbSet<Units> Units { get; set; }
+        public DbSet<OrderStatus> OrderStatuses { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
@@ -101,7 +102,7 @@ namespace MilkMaster.Domain.Data
             //Products - OrderItems
             builder.Entity<OrderItems>()
             .HasOne(i => i.Product)
-            .WithMany() 
+            .WithMany(p => p.OrderItems) 
             .HasForeignKey(i => i.ProductId);
 
             //Products - Units
@@ -112,11 +113,11 @@ namespace MilkMaster.Domain.Data
             .IsRequired()
             .OnDelete(DeleteBehavior.NoAction);
 
-            //OrderItems - Units
-            builder.Entity<OrderItems>()
-            .HasOne(o => o.Unit)
+            //Order - Order statuses
+            builder.Entity<Orders>()
+            .HasOne(p => p.Status)
             .WithMany()
-            .HasForeignKey(o => o.UnitId)
+            .HasForeignKey(p => p.StatusId)
             .IsRequired()
             .OnDelete(DeleteBehavior.NoAction);
 
@@ -127,6 +128,14 @@ namespace MilkMaster.Domain.Data
                 new Units { Id = 3, Symbol = "g" },
                 new Units { Id = 4, Symbol = "ml" }
              );
+
+            //Seed data for statuses
+            builder.Entity<OrderStatus>().HasData(
+                new OrderStatus { Id = 1, Name = "Pending", ColorCode = "#EA580C" },
+                new OrderStatus { Id = 2, Name = "Processing", ColorCode = "#2563EB" },
+                new OrderStatus { Id = 3, Name = "Completed", ColorCode = "#16A34A" },
+                new OrderStatus { Id = 4, Name = "Cancelled", ColorCode = "#EF4444" }
+            );
         }
     }
 }
