@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:milkmaster_desktop/main.dart';
 import 'package:milkmaster_desktop/providers/auth_provider.dart';
+import 'package:milkmaster_desktop/screens/products_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -8,13 +10,13 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _authProvider = AuthProvider();
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _usernameController.dispose();
     _passwordController.dispose();
     _authProvider.dispose();
     super.dispose();
@@ -44,9 +46,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 TextFormField(
-                  controller: _emailController,
+                  controller: _usernameController,
                   decoration: InputDecoration(
-                    labelText: 'Email',
+                    labelText: 'Username',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -55,10 +57,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
-                    }
-                    if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+').hasMatch(value)) {
-                      return 'Enter a valid email';
+                      return 'Please enter your username';
                     }
                     return null;
                   },
@@ -90,10 +89,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
                       // Access input values:
-                      final email = _emailController.text;
+                      final username = _usernameController.text;
                       final password = _passwordController.text;
-                      final success = await _authProvider.login(email, password);
-
+                      final success = await _authProvider.login(username, password);
 
                       if (!success) {
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -101,9 +99,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         );
                         return;
                       }
+                      Navigator.of(context).pushReplacementNamed('/products');
 
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Logging in as: ' + email)),
+                        SnackBar(content: Text('Logging in as: ' + username)),
                       );
                     }
                   },

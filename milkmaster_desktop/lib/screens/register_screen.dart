@@ -9,6 +9,7 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _authProvider = AuthProvider();
@@ -44,6 +45,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     fit: BoxFit.contain,
                   ),
                 ),
+                TextFormField(
+                  controller: _usernameController,
+                  decoration: InputDecoration(
+                    labelText: 'Username',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    filled: true,
+                    fillColor:
+                        Theme.of(context).colorScheme.surface.withOpacity(0.04),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your username';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 16),
                 TextFormField(
                   controller: _emailController,
                   decoration: InputDecoration(
@@ -89,6 +111,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     if (value.length < 8) {
                       return 'Password must be at least 8 characters';
                     }
+                    if (!RegExp(r'^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$')
+                        .hasMatch(value)) {
+                      return 'Password must contain at least one uppercase letter and one number';
+                    }
                     return null;
                   },
                 ),
@@ -114,6 +140,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     if (value != _passwordController.text) {
                       return 'Passwords do not match';
                     }
+
                     return null;
                   },
                 ),
@@ -121,9 +148,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ElevatedButton(
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
+                      final username = _usernameController.text;
                       final email = _emailController.text;
                       final password = _passwordController.text;
-                      final success =await _authProvider.register(email, password,'desktop');
+                      final success =await _authProvider.register(username, email, password,'desktop');
                       if (!success) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text('Registration failed')),

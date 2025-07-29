@@ -7,11 +7,11 @@ class AuthProvider with ChangeNotifier {
   final _storage = FlutterSecureStorage();
   final String baseUrl = ApiConstants.baseUrl;
 
-  Future<bool> login(String email, String password) async {
+  Future<bool> login(String username, String password) async {
     final response = await http.post(
       Uri.parse('$baseUrl/Auth/login'),
       headers: {'Content-Type': 'application/json'},
-      body: '{"email": "$email", "password": "$password"}',
+      body: '{"username": "$username", "password": "$password"}',
     );
 
     if (response.statusCode == 200) {
@@ -30,17 +30,18 @@ class AuthProvider with ChangeNotifier {
     return false;
   }
 
-  Future<bool> register(String email, String password, String platform) async {
+  Future<bool> register(String username,String email, String password, String platform) async {
     final response = await http.post(
       Uri.parse('$baseUrl/Auth/register'),
       headers: {'Content-Type': 'application/json'},
-      body: '{"email": "$email", "password": "$password", "platform": "$platform"}',
+      body: '{"username":"$username","email": "$email", "password": "$password", "platform": "$platform"}',
     );
 
     if (response.statusCode == 200) {
       final data = response.body; // Assuming the token is in the response body
       await _storage.write(key: 'jwt', value: data);
       notifyListeners();
+      print('Registration successful: $data');
       return true;
     }
     
