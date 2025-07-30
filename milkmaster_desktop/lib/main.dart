@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:milkmaster_desktop/providers/auth_provider.dart';
 import 'package:milkmaster_desktop/providers/products_provider.dart';
+import 'package:milkmaster_desktop/screens/dashboard_screen.dart';
 import 'package:milkmaster_desktop/screens/products_screen.dart';
 import 'package:provider/provider.dart';
 import 'screens/login_screen.dart';
@@ -30,7 +31,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme(
           brightness: Brightness.light,
-          primary: Color(0xFFFFC107),         
+          primary: Color.fromRGBO(253, 216, 53, 1),         
           onPrimary: Colors.black,            
           secondary: Color(0xFF212121),      
           onSecondary: Colors.white,          
@@ -52,7 +53,7 @@ class MyApp extends StatelessWidget {
         textTheme: TextTheme(
           headlineLarge: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.black),
           headlineMedium: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
-          bodyLarge: TextStyle(fontSize: 18, color: Colors.black),
+          bodyLarge: TextStyle(fontSize: 18, color: Colors.grey),
           bodyMedium: TextStyle(fontSize: 14, color: Colors.black),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
@@ -95,31 +96,10 @@ class MyApp extends StatelessWidget {
       initialRoute: '/login',
       routes: {
         '/login': (context) => LoginScreen(),
+        '/dashboard': (context) => DashboardScreen(),
         '/register': (context) => RegisterScreen(),
         '/products': (context) => ProductScreen(),
       },
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  @override
-  Widget build(BuildContext context) {
-
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
     );
   }
 }

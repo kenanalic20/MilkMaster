@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:milkmaster_desktop/providers/auth_provider.dart';
+import 'package:provider/provider.dart';
 
 class RegisterScreen extends StatefulWidget {
   @override
@@ -12,8 +13,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  final _authProvider = AuthProvider();
+  late AuthProvider _authProvider;
 
+  @override
+  void initState() {
+    super.initState();
+    _authProvider = Provider.of<AuthProvider>(context, listen: false);
+  }
+  
   @override
   void dispose() {
     _emailController.dispose();

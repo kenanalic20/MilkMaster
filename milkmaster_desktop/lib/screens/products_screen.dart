@@ -39,7 +39,7 @@ class _ProductScreenState extends State<ProductScreen> {
               final product = provider.items[index];
               return ListTile(
                 title: Text(product.title),
-                subtitle: Text('${product.pricePerUnit} KM'),
+                subtitle: Text('${product.pricePerUnit} BAM'),
               );
             },
           ),

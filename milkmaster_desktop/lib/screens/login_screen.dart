@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:milkmaster_desktop/main.dart';
 import 'package:milkmaster_desktop/providers/auth_provider.dart';
 import 'package:milkmaster_desktop/screens/products_screen.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -12,7 +13,13 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _authProvider = AuthProvider();
+  late AuthProvider _authProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    _authProvider = Provider.of<AuthProvider>(context, listen: false);
+  }
 
   @override
   void dispose() {
@@ -92,15 +99,16 @@ class _LoginScreenState extends State<LoginScreen> {
                       final username = _usernameController.text;
                       final password = _passwordController.text;
                       final success = await _authProvider.login(username, password);
-
+                       
                       if (!success) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text('Login failed')),
                         );
                         return;
                       }
-                      Navigator.of(context).pushReplacementNamed('/products');
 
+                      Navigator.of(context).pushReplacementNamed('/dashboard');
+                    
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Logging in as: ' + username)),
                       );
