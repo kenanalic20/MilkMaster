@@ -100,7 +100,10 @@ class _LoginScreenState extends State<LoginScreen> {
                        
                       if (!success) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Login failed')),
+                          SnackBar(
+                            content: Text('Login failed. Username or password is incorrect'),
+                            backgroundColor: Theme.of(context).colorScheme.error,
+                          ),
                         );
                         return;
                       }
@@ -108,7 +111,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       Navigator.of(context).pushReplacementNamed('/home');
                     
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Logging in as: ' + username)),
+                        SnackBar(
+                          content: Text('Logging in as: ' + username, style: TextStyle(color: Colors.black),),
+                          backgroundColor: Theme.of(context).colorScheme.secondary,
+                          ),
                       );
                     }
                   },

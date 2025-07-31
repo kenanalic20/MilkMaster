@@ -22,7 +22,7 @@ class _HomeShellState extends State<HomeShell> {
     'Dashboard',
     'Products',
     'Cattle',
-    'Categories',
+    'Product categories',
     'Orders',
     'Customers',
   ];
@@ -31,9 +31,18 @@ class _HomeShellState extends State<HomeShell> {
     'Overview of your dashboard',
     'Manage your products',
     'Manage your cattle',
-    'Manage your categories',
+    'Manage your product categories',
     'Track orders',
     'Manage your customers',
+  ];
+
+  final List<Widget?> _headerActions = [
+    Text('Dashboard headeraction'), // Products
+    null, // Dashboard
+    null, // Cattle
+    Text('Categories headeraction'), // Categories
+    null, // Orders
+    null, // Customers
   ];
 
   final List<Widget> _pages = [
@@ -65,6 +74,7 @@ class _HomeShellState extends State<HomeShell> {
               title: _titles[_selectedIndex],
               subtitle: _subtitles[_selectedIndex],
               body: _pages[_selectedIndex],
+              headerActions: _headerActions[_selectedIndex],
             ),
           ),
         ],
@@ -72,4 +82,3 @@ class _HomeShellState extends State<HomeShell> {
     );
   }
 }
-

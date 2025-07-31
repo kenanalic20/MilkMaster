@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:milkmaster_desktop/providers/auth_provider.dart';
+import 'package:milkmaster_desktop/providers/cattle_category_provider.dart';
 import 'package:milkmaster_desktop/providers/orders_provider.dart';
+import 'package:milkmaster_desktop/providers/product_category_provider.dart';
 import 'package:milkmaster_desktop/providers/products_provider.dart';
-import 'package:milkmaster_desktop/screens/dashboard_screen.dart';
-import 'package:milkmaster_desktop/screens/orders_screen.dart';
-import 'package:milkmaster_desktop/screens/products_screen.dart';
 import 'package:milkmaster_desktop/widgets/home_shell.dart';
 import 'package:provider/provider.dart';
 import 'screens/login_screen.dart';
@@ -17,6 +16,8 @@ void main() {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => ProductProvider()),
         ChangeNotifierProvider(create: (_) => OrdersProvider()),
+        ChangeNotifierProvider(create: (_) => CattleCategoryProvider()),
+        ChangeNotifierProvider(create: (_) => ProductCategoryProvider()),
       ],
 
       child: const MyApp(),
@@ -37,7 +38,7 @@ class MyApp extends StatelessWidget {
           brightness: Brightness.light,
           primary: Color.fromRGBO(253, 216, 53, 1),         
           onPrimary: Colors.black,            
-          secondary: Color(0xFF212121),      
+          secondary: Color.fromRGBO(249, 168, 37, 1),      
           onSecondary: Colors.white,   
           tertiary: Colors.grey,       
           surface: Colors.white,         

@@ -30,7 +30,6 @@ class BaseProvider<T> with ChangeNotifier {
       final Map<String, dynamic> tokenMap = json.decode(tokenJson);
       token = tokenMap['token'];
     }
-    print('Token: $token');
     return {
       'Content-Type': 'application/json',
       if (token != null) 'Authorization': 'Bearer $token',
@@ -38,35 +37,44 @@ class BaseProvider<T> with ChangeNotifier {
   }
 
   Future<void> fetchAll({Map<String, dynamic>? queryParams}) async {
-    _isLoading = true;
-    final headers = await _getHeaders();
-    Uri uri = Uri.parse('$_baseUrl/$_endPoint');
+  _isLoading = true;
+  notifyListeners();
 
-    if (queryParams != null && queryParams.isNotEmpty) {
-      uri = uri.replace(
-        queryParameters: {
-          ...uri.queryParameters,
-          ...queryParams.map((key, value) => MapEntry(key, value.toString())),
-        },
-      );
-    }
+  final headers = await _getHeaders();
+  Uri uri = Uri.parse('$_baseUrl/$_endPoint');
 
-    final response = await http.get(uri, headers: headers);
-
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> jsonMap = json.decode(response.body);
-
-      // ✅ Extract the actual list of items
-      final List<dynamic> data = jsonMap['items'];
-
-      items = data.map((json) => fromJson(json)).toList();
-      notifyListeners();
-    } else {
-      throw Exception('Failed to fetch items');
-    }
-    _isLoading = false;
-    notifyListeners();
+  if (queryParams != null && queryParams.isNotEmpty) {
+    uri = uri.replace(
+      queryParameters: {
+        ...uri.queryParameters,
+        ...queryParams.map((key, value) => MapEntry(key, value.toString())),
+      },
+    );
   }
+
+  final response = await http.get(uri, headers: headers);
+
+  if (response.statusCode == 200) {
+    final decoded = json.decode(response.body);
+
+    if (decoded is List) {
+      // Raw array
+      items = decoded.map((json) => fromJson(json)).toList();
+    } else if (decoded is Map<String, dynamic> && decoded.containsKey('items')) {
+      // Object with 'items' field
+      items = (decoded['items'] as List).map((json) => fromJson(json)).toList();
+    } else {
+      throw Exception('Unexpected response format');
+    }
+
+    notifyListeners();
+  } else {
+    throw Exception('Failed to fetch items');
+  }
+
+  _isLoading = false;
+  notifyListeners();
+}
 
   Future<T?> getById(String id) async {
     final headers = await _getHeaders();

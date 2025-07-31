@@ -30,21 +30,35 @@ class NavigationSidebar extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            _navItem(context, 0, Icons.home, 'Dashboard'),
-            _navItem(context, 1, 'assets/icons/milk_icon.png', 'Products'),
-            _navItem(context, 2, Icons.shopping_cart, 'Cattle'),
-            _navItem(context, 3, Icons.shopping_cart, 'Categories'),
-            _navItem(context, 4, Icons.shopping_cart, 'Orders'),
-            _navItem(context, 5, Icons.shopping_cart, 'Customers'),
+            NavItem(index: 0, icon: Icons.home, label: 'Dashboard', selectedIndex: selectedIndex, onItemSelected: onItemSelected),
+            NavItem(index: 1, icon: 'assets/icons/milk_icon.png', label: 'Products', selectedIndex: selectedIndex, onItemSelected: onItemSelected),
+            NavItem(index: 2, icon: 'assets/icons/cow_icon.png', label: 'Cattle', selectedIndex: selectedIndex, onItemSelected: onItemSelected),
+            NavItem(index: 3, icon: 'assets/icons/stacks.png', label: 'Categories', selectedIndex: selectedIndex, onItemSelected: onItemSelected),
+            NavItem(index: 4, icon: Icons.shopping_cart_outlined, label: 'Orders', selectedIndex: selectedIndex, onItemSelected: onItemSelected),
+            NavItem(index: 5, icon: Icons.group_outlined, label: 'Customers', selectedIndex: selectedIndex, onItemSelected: onItemSelected),
+
             SizedBox(height: 30),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
               onPressed: () async {
                 final authProvider = context.read<AuthProvider>();
                 await authProvider.logout();
                 Navigator.of(context).pushReplacementNamed('/login');
               },
-              child: const Text(
-                'Logout',
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.logout, color: Colors.black),
+                  SizedBox(width: 8),
+                  Text('Logout', style: TextStyle(color: Colors.black)),
+                ],
               ),
             ),
           ],
@@ -52,50 +66,75 @@ class NavigationSidebar extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _navItem(BuildContext context, int index, dynamic icon, String label) {
-    final bool isSelected = selectedIndex == index;
+class NavItem extends StatefulWidget {
+  final int index;
+  final dynamic icon;
+  final String label;
+  final int selectedIndex;
+  final ValueChanged<int> onItemSelected;
+
+  const NavItem({
+    super.key,
+    required this.index,
+    required this.icon,
+    required this.label,
+    required this.selectedIndex,
+    required this.onItemSelected,
+  });
+
+  @override
+  State<NavItem> createState() => _NavItemState();
+}
+
+class _NavItemState extends State<NavItem> {
+
+  @override
+  Widget build(BuildContext context) {
+    final isSelected = widget.selectedIndex == widget.index;
     final spacing = Theme.of(context).extension<AppSpacing>()!;
 
     return GestureDetector(
-      onTap: () => onItemSelected(index),
-      child: FractionallySizedBox(
-        widthFactor: 0.66,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-          margin: EdgeInsets.symmetric(vertical: spacing.medium),
-          padding: EdgeInsets.symmetric(
-            vertical: isSelected ? 20 : 0,
-            horizontal: isSelected ? 21 : 20,
-          ),
-          decoration: BoxDecoration(
-            color:
-                isSelected
-                    ? const Color.fromRGBO(250, 167, 13, 1)
-                    : Colors.transparent,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              leadingIcon(icon),
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: const TextStyle(color: Colors.black),
-                textAlign: TextAlign.center,
+        onTap: () => widget.onItemSelected(widget.index),
+        child: FractionallySizedBox(
+          widthFactor: 0.66,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            margin: EdgeInsets.symmetric(vertical: spacing.medium),
+            padding: EdgeInsets.symmetric(
+              vertical: isSelected ? 15 : 0,
+            ),
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? const Color.fromRGBO(250, 167, 13, 1)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _leadingIcon(widget.icon),
+                  const SizedBox(width: 8),
+                  Text(
+                    widget.label,
+                    style: const TextStyle(color: Colors.black),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
-      ),
     );
   }
 
-  Widget leadingIcon(dynamic icon) {
+  Widget _leadingIcon(dynamic icon) {
     if (icon is IconData) {
-      return Icon(icon, color: const Color.fromRGBO(27, 27, 27,1));
+      return Icon(icon, color: const Color.fromRGBO(27, 27, 27, 1));
     } else if (icon is String) {
       return Image.asset(icon, width: 24, height: 24, fit: BoxFit.contain);
     } else {
