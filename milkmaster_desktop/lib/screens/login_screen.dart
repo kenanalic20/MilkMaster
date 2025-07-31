@@ -25,7 +25,6 @@ class _LoginScreenState extends State<LoginScreen> {
   void dispose() {
     _usernameController.dispose();
     _passwordController.dispose();
-    _authProvider.dispose();
     super.dispose();
   }
 
@@ -43,7 +42,6 @@ class _LoginScreenState extends State<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Logo
                 Padding(
                   padding: const EdgeInsets.only(bottom: 32.0),
                   child: Image.asset(

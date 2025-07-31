@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:milkmaster_desktop/screens/categories_screen.dart';
+import 'package:milkmaster_desktop/screens/cattle_screen.dart';
+import 'package:milkmaster_desktop/screens/customers_screen.dart';
 import 'package:milkmaster_desktop/widgets/master_screen.dart';
 import 'package:milkmaster_desktop/widgets/nav_sidebar.dart';
 import '../screens/dashboard_screen.dart';
@@ -18,19 +21,28 @@ class _HomeShellState extends State<HomeShell> {
   final List<String> _titles = [
     'Dashboard',
     'Products',
+    'Cattle',
+    'Categories',
     'Orders',
+    'Customers',
   ];
 
   final List<String> _subtitles = [
     'Overview of your dashboard',
     'Manage your products',
+    'Manage your cattle',
+    'Manage your categories',
     'Track orders',
+    'Manage your customers',
   ];
 
   final List<Widget> _pages = [
     const DashboardScreen(),
     const ProductScreen(),
+    const CattleScreen(),
+    const CategoriesScreen(),
     const OrdersScreen(),
+    const CustomersScreen(),
   ];
 
   void _onNavItemSelected(int index) {

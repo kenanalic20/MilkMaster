@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:milkmaster_desktop/main.dart';
+import 'package:milkmaster_desktop/providers/auth_provider.dart';
+import 'package:provider/provider.dart';
 
 class NavigationSidebar extends StatelessWidget {
   final int selectedIndex;
@@ -30,11 +32,21 @@ class NavigationSidebar extends StatelessWidget {
             const SizedBox(height: 16),
             _navItem(context, 0, Icons.home, 'Dashboard'),
             _navItem(context, 1, 'assets/icons/milk_icon.png', 'Products'),
-            // _navItem(context, 2, Icons.shopping_cart, 'Cattle'),
-            // _navItem(context, 3, Icons.shopping_cart, 'Categories'),
-            _navItem(context, 2, Icons.shopping_cart, 'Orders'),
-
-            // _navItem(context, 5, Icons.shopping_cart, 'Customers'),
+            _navItem(context, 2, Icons.shopping_cart, 'Cattle'),
+            _navItem(context, 3, Icons.shopping_cart, 'Categories'),
+            _navItem(context, 4, Icons.shopping_cart, 'Orders'),
+            _navItem(context, 5, Icons.shopping_cart, 'Customers'),
+            SizedBox(height: 30),
+            ElevatedButton(
+              onPressed: () async {
+                final authProvider = context.read<AuthProvider>();
+                await authProvider.logout();
+                Navigator.of(context).pushReplacementNamed('/login');
+              },
+              child: const Text(
+                'Logout',
+              ),
+            ),
           ],
         ),
       ),
