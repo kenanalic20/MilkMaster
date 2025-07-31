@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:milkmaster_desktop/providers/auth_provider.dart';
+import 'package:milkmaster_desktop/providers/orders_provider.dart';
 import 'package:milkmaster_desktop/providers/products_provider.dart';
 import 'package:milkmaster_desktop/screens/dashboard_screen.dart';
+import 'package:milkmaster_desktop/screens/orders_screen.dart';
 import 'package:milkmaster_desktop/screens/products_screen.dart';
+import 'package:milkmaster_desktop/widgets/home_shell.dart';
 import 'package:provider/provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
@@ -13,6 +16,7 @@ void main() {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => ProductProvider()),
+        ChangeNotifierProvider(create: (_) => OrdersProvider()),
       ],
 
       child: const MyApp(),
@@ -34,7 +38,8 @@ class MyApp extends StatelessWidget {
           primary: Color.fromRGBO(253, 216, 53, 1),         
           onPrimary: Colors.black,            
           secondary: Color(0xFF212121),      
-          onSecondary: Colors.white,          
+          onSecondary: Colors.white,   
+          tertiary: Colors.grey,       
           surface: Colors.white,         
           onSurface: Color(0xFF212121),       
           error: Color(0xFFD32F2F),           
@@ -53,7 +58,7 @@ class MyApp extends StatelessWidget {
         textTheme: TextTheme(
           headlineLarge: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.black),
           headlineMedium: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
-          bodyLarge: TextStyle(fontSize: 18, color: Colors.grey),
+          bodyLarge: TextStyle(fontSize: 18, color: Colors.black),
           bodyMedium: TextStyle(fontSize: 14, color: Colors.black),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
@@ -61,7 +66,7 @@ class MyApp extends StatelessWidget {
             backgroundColor: Color(0xFFFFC107),
             foregroundColor: Colors.black,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(12),
             ),
             textStyle: TextStyle(fontWeight: FontWeight.bold),
           ),
@@ -96,9 +101,8 @@ class MyApp extends StatelessWidget {
       initialRoute: '/login',
       routes: {
         '/login': (context) => LoginScreen(),
-        '/dashboard': (context) => DashboardScreen(),
         '/register': (context) => RegisterScreen(),
-        '/products': (context) => ProductScreen(),
+        '/home': (context) => HomeShell()
       },
     );
   }

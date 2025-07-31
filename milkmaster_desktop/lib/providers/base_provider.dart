@@ -8,8 +8,11 @@ class BaseProvider<T> with ChangeNotifier {
   String? _endPoint;
   final T Function(Map<String, dynamic>) fromJson;
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
-
+  
   List<T> items = [];
+
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
 
   BaseProvider(String endPoint, {required this.fromJson}) {
     _endPoint = endPoint;
@@ -35,6 +38,7 @@ class BaseProvider<T> with ChangeNotifier {
   }
 
   Future<void> fetchAll({Map<String, dynamic>? queryParams}) async {
+    _isLoading = true;
     final headers = await _getHeaders();
     Uri uri = Uri.parse('$_baseUrl/$_endPoint');
 
@@ -60,6 +64,8 @@ class BaseProvider<T> with ChangeNotifier {
     } else {
       throw Exception('Failed to fetch items');
     }
+    _isLoading = false;
+    notifyListeners();
   }
 
   Future<T?> getById(String id) async {

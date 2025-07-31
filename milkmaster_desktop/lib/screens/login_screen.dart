@@ -107,7 +107,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         return;
                       }
 
-                      Navigator.of(context).pushReplacementNamed('/dashboard');
+                      Navigator.of(context).pushReplacementNamed('/home');
                     
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Logging in as: ' + username)),
