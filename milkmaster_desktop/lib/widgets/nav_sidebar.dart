@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:milkmaster_desktop/main.dart';
 import 'package:milkmaster_desktop/providers/auth_provider.dart';
+import 'package:milkmaster_desktop/utils/widget_helpers.dart';
 import 'package:provider/provider.dart';
 
 class NavigationSidebar extends StatelessWidget {
@@ -30,12 +31,48 @@ class NavigationSidebar extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            NavItem(index: 0, icon: Icons.home, label: 'Dashboard', selectedIndex: selectedIndex, onItemSelected: onItemSelected),
-            NavItem(index: 1, icon: 'assets/icons/milk_icon.png', label: 'Products', selectedIndex: selectedIndex, onItemSelected: onItemSelected),
-            NavItem(index: 2, icon: 'assets/icons/cow_icon.png', label: 'Cattle', selectedIndex: selectedIndex, onItemSelected: onItemSelected),
-            NavItem(index: 3, icon: 'assets/icons/stacks.png', label: 'Categories', selectedIndex: selectedIndex, onItemSelected: onItemSelected),
-            NavItem(index: 4, icon: Icons.shopping_cart_outlined, label: 'Orders', selectedIndex: selectedIndex, onItemSelected: onItemSelected),
-            NavItem(index: 5, icon: Icons.group_outlined, label: 'Customers', selectedIndex: selectedIndex, onItemSelected: onItemSelected),
+            NavItem(
+              index: 0,
+              icon: Icons.home,
+              label: 'Dashboard',
+              selectedIndex: selectedIndex,
+              onItemSelected: onItemSelected,
+            ),
+            NavItem(
+              index: 1,
+              icon: 'assets/icons/milk_icon.png',
+              label: 'Products',
+              selectedIndex: selectedIndex,
+              onItemSelected: onItemSelected,
+            ),
+            NavItem(
+              index: 2,
+              icon: 'assets/icons/cow_icon.png',
+              label: 'Cattle',
+              selectedIndex: selectedIndex,
+              onItemSelected: onItemSelected,
+            ),
+            NavItem(
+              index: 3,
+              icon: 'assets/icons/stacks.png',
+              label: 'Categories',
+              selectedIndex: selectedIndex,
+              onItemSelected: onItemSelected,
+            ),
+            NavItem(
+              index: 4,
+              icon: Icons.shopping_cart_outlined,
+              label: 'Orders',
+              selectedIndex: selectedIndex,
+              onItemSelected: onItemSelected,
+            ),
+            NavItem(
+              index: 5,
+              icon: Icons.group_outlined,
+              label: 'Customers',
+              selectedIndex: selectedIndex,
+              onItemSelected: onItemSelected,
+            ),
 
             SizedBox(height: 30),
             ElevatedButton(
@@ -89,56 +126,45 @@ class NavItem extends StatefulWidget {
 }
 
 class _NavItemState extends State<NavItem> {
-
   @override
   Widget build(BuildContext context) {
     final isSelected = widget.selectedIndex == widget.index;
     final spacing = Theme.of(context).extension<AppSpacing>()!;
 
     return GestureDetector(
-        onTap: () => widget.onItemSelected(widget.index),
-        child: FractionallySizedBox(
-          widthFactor: 0.66,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-            margin: EdgeInsets.symmetric(vertical: spacing.medium),
-            padding: EdgeInsets.symmetric(
-              vertical: isSelected ? 15 : 0,
-            ),
-            decoration: BoxDecoration(
-              color: isSelected
-                  ? const Color.fromRGBO(250, 167, 13, 1)
-                  : Colors.transparent,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _leadingIcon(widget.icon),
-                  const SizedBox(width: 8),
-                  Text(
-                    widget.label,
-                    style: const TextStyle(color: Colors.black),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
+      onTap: () => widget.onItemSelected(widget.index),
+      child: FractionallySizedBox(
+        widthFactor: 0.66,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+          margin: EdgeInsets.symmetric(vertical: spacing.medium),
+          padding: EdgeInsets.symmetric(vertical: isSelected ? 15 : 0),
+          decoration: BoxDecoration(
+            color:
+                isSelected
+                    ? const Color.fromRGBO(250, 167, 13, 1)
+                    : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                leadingIcon(widget.icon),
+                const SizedBox(width: 8),
+                Text(
+                  widget.label,
+                  style: const TextStyle(color: Colors.black),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
           ),
         ),
+      ),
     );
   }
 
-  Widget _leadingIcon(dynamic icon) {
-    if (icon is IconData) {
-      return Icon(icon, color: const Color.fromRGBO(27, 27, 27, 1));
-    } else if (icon is String) {
-      return Image.asset(icon, width: 24, height: 24, fit: BoxFit.contain);
-    } else {
-      return const SizedBox();
-    }
-  }
 }

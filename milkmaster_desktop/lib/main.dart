@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:milkmaster_desktop/providers/auth_provider.dart';
 import 'package:milkmaster_desktop/providers/cattle_category_provider.dart';
@@ -6,10 +8,19 @@ import 'package:milkmaster_desktop/providers/product_category_provider.dart';
 import 'package:milkmaster_desktop/providers/products_provider.dart';
 import 'package:milkmaster_desktop/widgets/home_shell.dart';
 import 'package:provider/provider.dart';
+import 'package:window_manager/window_manager.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  windowManager.ensureInitialized();
+
+  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+    WindowManager.instance.setMinimumSize(const Size(1366, 768));
+    WindowManager.instance.setSize(const Size(1366, 768));
+  }
+
   runApp(
     MultiProvider(
       providers: [
@@ -21,7 +32,7 @@ void main() {
       ],
 
       child: const MyApp(),
-    )
+    ),
   );
 }
 
@@ -36,15 +47,15 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme(
           brightness: Brightness.light,
-          primary: Color.fromRGBO(253, 216, 53, 1),         
-          onPrimary: Colors.black,            
-          secondary: Color.fromRGBO(249, 168, 37, 1),      
-          onSecondary: Colors.white,   
-          tertiary: Colors.grey,       
-          surface: Colors.white,         
-          onSurface: Color(0xFF212121),       
-          error: Color(0xFFD32F2F),           
-          onError: const Color.fromARGB(255, 0, 0, 0), 
+          primary: Color.fromRGBO(253, 216, 53, 1),
+          onPrimary: Colors.black,
+          secondary: Color.fromRGBO(249, 168, 37, 1),
+          onSecondary: Colors.white,
+          tertiary: Colors.grey,
+          surface: Colors.white,
+          onSurface: Color(0xFF212121),
+          error: Color(0xFFD32F2F),
+          onError: const Color.fromARGB(255, 0, 0, 0),
         ),
         appBarTheme: AppBarTheme(
           backgroundColor: Colors.white,
@@ -57,8 +68,16 @@ class MyApp extends StatelessWidget {
           ),
         ),
         textTheme: TextTheme(
-          headlineLarge: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.black),
-          headlineMedium: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
+          headlineLarge: TextStyle(
+            fontSize: 30,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+          headlineMedium: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
           bodyLarge: TextStyle(fontSize: 18, color: Colors.black),
           bodyMedium: TextStyle(fontSize: 14, color: Colors.black),
         ),
@@ -92,18 +111,14 @@ class MyApp extends StatelessWidget {
         iconTheme: IconThemeData(color: Color(0xFF212121)),
         // Example of custom spacing extension
         extensions: <ThemeExtension<dynamic>>[
-          AppSpacing(
-            small: 8.0,
-            medium: 16.0,
-            large: 32.0,
-          ),
+          AppSpacing(small: 8.0, medium: 16.0, large: 32.0),
         ],
       ),
       initialRoute: '/login',
       routes: {
         '/login': (context) => LoginScreen(),
         '/register': (context) => RegisterScreen(),
-        '/home': (context) => HomeShell()
+        '/home': (context) => HomeShell(),
       },
     );
   }
@@ -121,11 +136,7 @@ class AppSpacing extends ThemeExtension<AppSpacing> {
   });
 
   @override
-  AppSpacing copyWith({
-    double? small,
-    double? medium,
-    double? large,
-  }) {
+  AppSpacing copyWith({double? small, double? medium, double? large}) {
     return AppSpacing(
       small: small ?? this.small,
       medium: medium ?? this.medium,

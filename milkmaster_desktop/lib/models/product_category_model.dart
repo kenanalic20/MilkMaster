@@ -25,11 +25,11 @@ class ProductCategoryAdmin extends ProductCategory {
   final int count;
 
   ProductCategoryAdmin({
-    required int id,
-    required String imageUrl,
-    required String name,
+    required super.id,
+    required super.imageUrl,
+    required super.name,
     required this.count,
-  }) : super(id: id, imageUrl: imageUrl, name: name);
+  });
 
   factory ProductCategoryAdmin.fromJson(Map<String, dynamic> json) =>
       _$ProductCategoryAdminFromJson(json);

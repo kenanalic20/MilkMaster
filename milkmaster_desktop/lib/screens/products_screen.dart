@@ -15,8 +15,15 @@ class _ProductScreenState extends State<ProductScreen> {
   @override
   void initState() {
     super.initState();
-    _productProvider = Provider.of<ProductProvider>(context, listen: false);
-    loadData();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // loadData();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _productProvider = Provider.of<ProductProvider>(context);
   }
 
   Future<void> loadData() async {

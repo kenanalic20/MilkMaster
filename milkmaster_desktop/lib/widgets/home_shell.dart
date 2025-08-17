@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:milkmaster_desktop/screens/animal_categories.dart';
 import 'package:milkmaster_desktop/screens/categories_screen.dart';
 import 'package:milkmaster_desktop/screens/cattle_screen.dart';
 import 'package:milkmaster_desktop/screens/customers_screen.dart';
@@ -69,12 +70,24 @@ class _HomeShellState extends State<HomeShell> {
             selectedIndex: _selectedIndex,
             onItemSelected: _onNavItemSelected,
           ),
-          Expanded(
-            child: MasterWidget(
-              title: _titles[_selectedIndex],
-              subtitle: _subtitles[_selectedIndex],
-              body: _pages[_selectedIndex],
-              headerActions: _headerActions[_selectedIndex],
+
+          Container(
+            height: MediaQuery.of(context).size.height,
+            child: SingleChildScrollView(
+              child: Wrap(
+                
+                direction: Axis.vertical,
+                children: [
+                  MasterWidget(
+                    title: _titles[_selectedIndex],
+                    subtitle: _subtitles[_selectedIndex],
+                    body: _pages[_selectedIndex],
+                    headerActions: _headerActions[_selectedIndex],
+                  ),
+                  if (_selectedIndex == 3)
+                    AnimalCategoriesScreen(),
+                ],
+              ),
             ),
           ),
         ],

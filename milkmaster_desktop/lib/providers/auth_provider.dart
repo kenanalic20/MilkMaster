@@ -48,7 +48,6 @@ class AuthProvider with ChangeNotifier {
       print('Registration successful: $data');
       return true;
     }
-    
     return false;
   }
 

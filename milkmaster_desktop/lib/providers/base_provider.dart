@@ -36,9 +36,8 @@ class BaseProvider<T> with ChangeNotifier {
     };
   }
 
-  Future<void> fetchAll({Map<String, dynamic>? queryParams}) async {
+  Future<List<T>> fetchAll({Map<String, dynamic>? queryParams}) async {
   _isLoading = true;
-  notifyListeners();
 
   final headers = await _getHeaders();
   Uri uri = Uri.parse('$_baseUrl/$_endPoint');
@@ -56,25 +55,29 @@ class BaseProvider<T> with ChangeNotifier {
 
   if (response.statusCode == 200) {
     final decoded = json.decode(response.body);
+    late final List<T> fetchedItems;
 
     if (decoded is List) {
       // Raw array
-      items = decoded.map((json) => fromJson(json)).toList();
+      fetchedItems = decoded.map((json) => fromJson(json)).toList();
     } else if (decoded is Map<String, dynamic> && decoded.containsKey('items')) {
       // Object with 'items' field
-      items = (decoded['items'] as List).map((json) => fromJson(json)).toList();
+      fetchedItems = (decoded['items'] as List).map((json) => fromJson(json)).toList();
     } else {
       throw Exception('Unexpected response format');
     }
 
-    notifyListeners();
+    items = fetchedItems;
+
+    _isLoading = false;
+
+    return fetchedItems;
   } else {
+    _isLoading = false;
     throw Exception('Failed to fetch items');
   }
-
-  _isLoading = false;
-  notifyListeners();
 }
+
 
   Future<T?> getById(String id) async {
     final headers = await _getHeaders();
@@ -110,7 +113,7 @@ class BaseProvider<T> with ChangeNotifier {
     return response.statusCode == 204 || response.statusCode == 200;
   }
 
-  Future<bool> delete(String id) async {
+  Future<bool> delete(int id) async {
     final headers = await _getHeaders();
     final response = await http.delete(
       Uri.parse('$_baseUrl/$_endPoint/$id'),
