@@ -144,7 +144,6 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                                   'assets/icons/pentool_icon.png',
                                 ),
                                 onTap: () {
-                                  print('Edit category: ${category.name}');
                                   widget.openForm(
                                     MasterWidget(
                                       title: 'Edit Category',
@@ -235,6 +234,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                         ),
                       );
                       body['imageUrl'] = uploadedUrl;
+                    }else {
+                      body['imageUrl'] = category.imageUrl;
                     }
 
                     if (category == null) {
