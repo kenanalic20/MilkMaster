@@ -1,14 +1,26 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:milkmaster_desktop/models/cattle_category_model.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:milkmaster_desktop/main.dart';
+import 'package:milkmaster_desktop/models/file_model.dart';
 import 'package:milkmaster_desktop/models/product_category_model.dart';
-import 'package:milkmaster_desktop/providers/cattle_category_provider.dart';
+import 'package:milkmaster_desktop/providers/file_provider.dart';
 import 'package:milkmaster_desktop/providers/product_category_provider.dart';
+import 'package:milkmaster_desktop/screens/animal_categories.dart';
 import 'package:milkmaster_desktop/utils/widget_helpers.dart';
 import 'package:milkmaster_desktop/widgets/master_screen.dart';
 import 'package:provider/provider.dart';
 
 class CategoriesScreen extends StatefulWidget {
-  const CategoriesScreen({super.key});
+  final void Function(Widget form) openForm;
+  final void Function() closeForm;
+
+  const CategoriesScreen({
+    super.key,
+    required this.openForm,
+    required this.closeForm,
+  });
 
   @override
   State<CategoriesScreen> createState() => _CategoriesScreenState();
@@ -16,13 +28,16 @@ class CategoriesScreen extends StatefulWidget {
 
 class _CategoriesScreenState extends State<CategoriesScreen> {
   late ProductCategoryProvider _productCategoryProvider;
+  late FileProvider _fileProvider;
   List<ProductCategoryAdmin> _productCategories = [];
   int? _hoveredCategoryId;
-
+  final _formKey = GlobalKey<FormBuilderState>();
+  File? _uploadedImageFile;
   @override
   void initState() {
     super.initState();
     _productCategoryProvider = context.read<ProductCategoryProvider>();
+    _fileProvider = context.read<FileProvider>();
     _fetchProductCategories();
   }
 
@@ -122,10 +137,18 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                                 child: leadingIcon(
                                   'assets/icons/pentool_icon.png',
                                 ),
-                                onTap:
-                                    () => print(
-                                      'Edit category: ${category.name}',
+                                onTap: () {
+                                  print('Edit category: ${category.name}');
+                                  widget.openForm(
+                                    MasterWidget(
+                                      title: 'Edit Category',
+                                      subtitle: category.name,
+                                      body: _buildProductCategoryForm(
+                                        category: category,
+                                      ),
                                     ),
+                                  );
+                                },
                               ),
                             ),
                             const SizedBox(width: 8),
@@ -163,17 +186,84 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     );
   }
 
+  FormBuilder _buildProductCategoryForm({category = null}) {
+    return FormBuilder(
+      key: _formKey,
+      child: Column(
+        children: [
+          FormBuilderTextField(
+            name: 'name',
+            initialValue: category.name ?? '',
+            decoration: const InputDecoration(labelText: 'Category Name'),
+          ),
+          Row(
+            children: [
+              FilePickerWithPreview(
+                onFileSelected: (file) {
+                  _uploadedImageFile = file;
+                },
+              ),
+              const SizedBox(width: 10),
+              ElevatedButton(
+                onPressed: () {
+                  widget.closeForm(); // close form
+                },
+                child: const Text('Cancel'),
+              ),
+              const SizedBox(width: 10),
+              ElevatedButton(
+                onPressed: () async {
+                  if (_formKey.currentState?.saveAndValidate() ?? false) {
+                    final formData = _formKey.currentState!.value;
 
+                    if (_uploadedImageFile != null) {
+                      final uploadedUrl = await _fileProvider.updateFile(
+                        FileUpdateModel(oldFileUrl: category.imageUrl,file: _uploadedImageFile!,subfolder: 'Images/Categories'),
+                      );
+                      
+                      formData['imageUrl'] = uploadedUrl;
+                    }
+
+                    if (category == null) {
+                      await _productCategoryProvider.create(formData);
+                    } else {
+                      await _productCategoryProvider.update(
+                        category['id'],
+                        formData,
+                      );
+                    }
+
+                    await _fetchProductCategories();
+                    widget.closeForm();
+                  }
+                },
+                child: Text(
+                  category == null ? 'Add Category' : 'Update Category',
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     if (_productCategoryProvider.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
+
     if (_productCategories.isEmpty) {
-      return const Center(child: Text('No categories found'));
+      return NoDataWidget();
     }
-    return _buildProductCategories();
-    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildProductCategories(),
+        SizedBox(height: Theme.of(context).extension<AppSpacing>()!.large),
+        AnimalCategoriesScreen(),
+      ],
+    );
   }
 }

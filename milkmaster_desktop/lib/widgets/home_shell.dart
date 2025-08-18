@@ -16,8 +16,35 @@ class HomeShell extends StatefulWidget {
   State<HomeShell> createState() => _HomeShellState();
 }
 
-class _HomeShellState extends State<HomeShell> {
+class _HomeShellState extends State<HomeShell>
+    with SingleTickerProviderStateMixin {
   int _selectedIndex = 0;
+  Widget? _activeFormWidget;
+  late AnimationController _slideController;
+  late Animation<Offset> _slideAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _slideController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(1, 0),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(parent: _slideController, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _slideController.dispose();
+    super.dispose();
+  }
 
   final List<String> _titles = [
     'Dashboard',
@@ -46,14 +73,42 @@ class _HomeShellState extends State<HomeShell> {
     null, // Customers
   ];
 
-  final List<Widget> _pages = [
-    const DashboardScreen(),
-    const ProductScreen(),
-    const CattleScreen(),
-    const CategoriesScreen(),
-    const OrdersScreen(),
-    const CustomersScreen(),
-  ];
+  Widget get _currentPage {
+    switch (_selectedIndex) {
+      case 0:
+        return const DashboardScreen();
+      case 1:
+        return const ProductScreen();
+      case 2:
+        return const CattleScreen();
+      case 3:
+        return CategoriesScreen(
+          openForm: _onFormOpened,
+          closeForm: _onFormClosed,
+        ); // pass callback here
+      case 4:
+        return const OrdersScreen();
+      case 5:
+        return const CustomersScreen();
+      default:
+        return const DashboardScreen();
+    }
+  }
+
+  void _onFormOpened(Widget form) {
+    setState(() {
+      _activeFormWidget = form;
+    });
+    _slideController.forward(from: 0); // trigger the slide animation
+  }
+
+  void _onFormClosed() {
+    _slideController.reverse().then((_) {
+      setState(() {
+        _activeFormWidget = null;
+      });
+    });
+  }
 
   void _onNavItemSelected(int index) {
     setState(() {
@@ -75,17 +130,28 @@ class _HomeShellState extends State<HomeShell> {
             height: MediaQuery.of(context).size.height,
             child: SingleChildScrollView(
               child: Wrap(
-                
                 direction: Axis.vertical,
                 children: [
-                  MasterWidget(
-                    title: _titles[_selectedIndex],
-                    subtitle: _subtitles[_selectedIndex],
-                    body: _pages[_selectedIndex],
-                    headerActions: _headerActions[_selectedIndex],
-                  ),
-                  if (_selectedIndex == 3)
-                    AnimalCategoriesScreen(),
+                  if (_activeFormWidget != null) ...[
+                    SlideTransition(
+                      position: _slideAnimation,
+                      child: Material(
+                        elevation: 8,
+                        color: Colors.white,
+                        child: Container(
+                          height: MediaQuery.of(context).size.height,
+                          child: _activeFormWidget,
+                        ),
+                      ),
+                    ),
+                  ] else ...[
+                    MasterWidget(
+                      title: _titles[_selectedIndex],
+                      subtitle: _subtitles[_selectedIndex],
+                      body: _currentPage,
+                      headerActions: _headerActions[_selectedIndex],
+                    ),
+                  ],
                 ],
               ),
             ),

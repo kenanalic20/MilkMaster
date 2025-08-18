@@ -16,6 +16,7 @@ class _AnimalCategoriesScreenState extends State<AnimalCategoriesScreen> {
   late CattleCategoryProvider _cattleCategoryProvider;
   List<CattleCategory> _cattleCategories = [];
   int? _hoveredCategoryId;
+  bool _showForm = false;
 
   @override
   void initState() {
@@ -45,11 +46,12 @@ class _AnimalCategoriesScreenState extends State<AnimalCategoriesScreen> {
         category.title,
         style: TextStyle(
           fontSize: Theme.of(context).textTheme.headlineMedium?.fontSize,
-          color:Color.fromRGBO(245, 127, 23, 1),
+          color: Color.fromRGBO(245, 127, 23, 1),
           fontWeight: Theme.of(context).textTheme.headlineMedium?.fontWeight,
-        ),),
-      Text(category.description)
-      ],
+        ),
+      ),
+      Text(category.description),
+    ],
   );
 
   Widget _buildCattleCategories() {
@@ -57,6 +59,8 @@ class _AnimalCategoriesScreenState extends State<AnimalCategoriesScreen> {
       title: 'Animal Categories',
       subtitle: 'Manage your cattle categories',
       headerActions: Text('Cattle Categories Header Action'),
+      hasData: _cattleCategories.isNotEmpty,
+      padding: 0,
       body: Wrap(
         spacing: 30,
         runSpacing: 20,
@@ -70,7 +74,7 @@ class _AnimalCategoriesScreenState extends State<AnimalCategoriesScreen> {
                   index % 2 == 0
                       ? [
                         Container(
-                          width: MediaQuery.of(context).size.width * 0.2555,
+                          width: MediaQuery.of(context).size.width * 0.254,
                           padding: const EdgeInsets.fromLTRB(10, 15, 10, 40),
                           child: ColumnWidget(category),
                         ),
@@ -88,9 +92,12 @@ class _AnimalCategoriesScreenState extends State<AnimalCategoriesScreen> {
                           height: 127,
                         ),
                         Container(
-                          width: MediaQuery.of(context).size.width * 0.2555,
+                          width: MediaQuery.of(context).size.width * 0.254,
                           padding: const EdgeInsets.fromLTRB(10, 15, 10, 40),
-                          child: ColumnWidget(category),
+                          child: Container(
+                            padding: const EdgeInsets.only(left: 60),
+                            child: ColumnWidget(category),
+                          ),
                         ),
                       ];
 
@@ -146,7 +153,7 @@ class _AnimalCategoriesScreenState extends State<AnimalCategoriesScreen> {
 
   Positioned actionIcons(CattleCategory category, {String direction = 'left'}) {
     return Positioned(
-      bottom: 16,
+      bottom: 10,
       left: direction == 'left' ? 16 : null, // use left if direction is left
       right: direction == 'right' ? 16 : null,
       child: Row(
@@ -162,7 +169,13 @@ class _AnimalCategoriesScreenState extends State<AnimalCategoriesScreen> {
                 ),
                 child: leadingIcon('assets/icons/pentool_icon.png'),
               ),
-              onTap: () => print('Edit category: ${category.name}'),
+              onTap: (){
+                // Open edit form
+                print('Edit category: ${category.name}');
+                setState(() {
+                  _showForm = true;
+                });
+              },
             ),
           ),
           const SizedBox(width: 8),
@@ -176,7 +189,18 @@ class _AnimalCategoriesScreenState extends State<AnimalCategoriesScreen> {
                 ),
                 child: leadingIcon('assets/icons/trash_icon.png'),
               ),
-              onTap: () async {},
+              onTap: () async {
+                await showCustomDialog(
+                  context: context,
+                  title: "Delete Category",
+                  message:
+                      "Are you sure you want to delete '${category.name}'?",
+                  onConfirm: () async {
+                    await _cattleCategoryProvider.delete(category.id);
+                    await _fetchCattleCategories();
+                  },
+                );
+              },
             ),
           ),
         ],
@@ -186,10 +210,6 @@ class _AnimalCategoriesScreenState extends State<AnimalCategoriesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_cattleCategories.isEmpty) {
-      return Center(child: Text('No categories found'));
-    }
-
     return _buildCattleCategories();
   }
 }

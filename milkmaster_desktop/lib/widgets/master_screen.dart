@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:milkmaster_desktop/main.dart';
+import 'package:milkmaster_desktop/utils/widget_helpers.dart';
 
 class MasterWidget extends StatelessWidget {
   final String? title;
@@ -7,6 +8,7 @@ class MasterWidget extends StatelessWidget {
   final Widget? headerActions;
   final Widget body;
   final double? padding;
+  final bool hasData;
 
   const MasterWidget({
     super.key,
@@ -15,6 +17,7 @@ class MasterWidget extends StatelessWidget {
     required this.body,
     this.headerActions,
     this.padding,
+    this.hasData = true,
   });
 
   @override
@@ -54,7 +57,8 @@ class MasterWidget extends StatelessWidget {
               ],
             ),
             SizedBox(height: spacing.large),
-            body
+            
+            hasData? body : NoDataWidget()
           ],
         ),
       ),

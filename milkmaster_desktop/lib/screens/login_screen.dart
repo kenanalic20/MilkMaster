@@ -152,6 +152,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Text('Login'),
                 ),
                 TextButton(
+                  style: TextButton.styleFrom(
+                    foregroundColor: Theme.of(context).colorScheme.secondary,
+                  ),
                   onPressed: () {
                     Navigator.pushNamed(context, '/register');
                   },

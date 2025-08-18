@@ -82,6 +82,7 @@ class NavigationSidebar extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
+                side: BorderSide(color: Colors.transparent)
               ),
               onPressed: () async {
                 final authProvider = context.read<AuthProvider>();

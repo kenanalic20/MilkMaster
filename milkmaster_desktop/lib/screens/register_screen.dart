@@ -187,6 +187,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: Text('Register'),
                 ),
                 TextButton(
+                  style: TextButton.styleFrom(
+                    foregroundColor: Theme.of(context).colorScheme.secondary,
+                  ),
                   onPressed: () {
                     Navigator.pop(context);
                   },

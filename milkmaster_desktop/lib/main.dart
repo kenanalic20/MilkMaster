@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:milkmaster_desktop/providers/auth_provider.dart';
 import 'package:milkmaster_desktop/providers/cattle_category_provider.dart';
+import 'package:milkmaster_desktop/providers/file_provider.dart';
 import 'package:milkmaster_desktop/providers/orders_provider.dart';
 import 'package:milkmaster_desktop/providers/product_category_provider.dart';
 import 'package:milkmaster_desktop/providers/products_provider.dart';
@@ -18,6 +19,8 @@ void main() {
 
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
     WindowManager.instance.setMinimumSize(const Size(1366, 768));
+    WindowManager.instance.setTitle('MilkMaster');
+    WindowManager.instance.setMaximumSize(const Size(1366, 768));
     WindowManager.instance.setSize(const Size(1366, 768));
   }
 
@@ -29,6 +32,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => OrdersProvider()),
         ChangeNotifierProvider(create: (_) => CattleCategoryProvider()),
         ChangeNotifierProvider(create: (_) => ProductCategoryProvider()),
+        ChangeNotifierProvider(create: (_) => FileProvider()),
       ],
 
       child: const MyApp(),
@@ -82,14 +86,7 @@ class MyApp extends StatelessWidget {
           bodyMedium: TextStyle(fontSize: 14, color: Colors.black),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Color(0xFFFFC107),
-            foregroundColor: Colors.black,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            textStyle: TextStyle(fontWeight: FontWeight.bold),
-          ),
+          style: AppButtonStyles.primary,
         ),
         inputDecorationTheme: InputDecorationTheme(
           border: OutlineInputBorder(
@@ -122,6 +119,42 @@ class MyApp extends StatelessWidget {
       },
     );
   }
+}
+
+class AppButtonStyles {
+
+  static ButtonStyle primary = ElevatedButton.styleFrom(
+    foregroundColor:  Color.fromRGBO(249,168,37,1),
+    shadowColor: Colors.transparent,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+    side: BorderSide(
+      color: Color.fromRGBO(249,168,37,1),
+    ),
+    textStyle: const TextStyle(fontWeight: FontWeight.bold),
+  );
+
+  static ButtonStyle secondary = ElevatedButton.styleFrom(
+    backgroundColor: Color(0xFFFFC107),
+    foregroundColor: Colors.black,
+    shadowColor: Colors.transparent,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+    textStyle: const TextStyle(fontWeight: FontWeight.bold),
+  );
+
+  // Danger / Delete button
+  static ButtonStyle danger = ElevatedButton.styleFrom(
+    backgroundColor: Color(0xFFD32F2F),
+    foregroundColor: Colors.white,
+    shadowColor: Colors.transparent,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+    textStyle: const TextStyle(fontWeight: FontWeight.bold),
+  );
 }
 
 class AppSpacing extends ThemeExtension<AppSpacing> {
