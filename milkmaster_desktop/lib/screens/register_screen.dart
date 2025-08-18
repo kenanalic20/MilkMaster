@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:milkmaster_desktop/providers/auth_provider.dart';
+import 'package:provider/provider.dart';
 
 class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
+
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
 }
@@ -12,14 +15,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  final _authProvider = AuthProvider();
+  late AuthProvider _authProvider;
 
+  @override
+  void initState() {
+    super.initState();
+  }
+  
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
-    _authProvider.dispose(); 
     super.dispose();
   }
 
@@ -111,8 +118,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     if (value.length < 8) {
                       return 'Password must be at least 8 characters';
                     }
-                    if (!RegExp(r'^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$')
-                        .hasMatch(value)) {
+                     if (!RegExp(
+                      r'^(?=.*[A-Z])(?=.*\d).{8,}$',
+                    ).hasMatch(value)) {
                       return 'Password must contain at least one uppercase letter and one number';
                     }
                     return null;
@@ -147,25 +155,41 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: () async {
+                    _authProvider = Provider.of<AuthProvider>(context, listen: false);
                     if (_formKey.currentState!.validate()) {
                       final username = _usernameController.text;
                       final email = _emailController.text;
                       final password = _passwordController.text;
-                      final success =await _authProvider.register(username, email, password,'desktop');
+                      final platform = String.fromEnvironment('PLATFORM', defaultValue: 'desktop');
+                      final success =await _authProvider.register(username, email, password, platform);
                       if (!success) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Registration failed')),
+                        showDialog(
+                          context: context,
+                          builder:
+                              (BuildContext context) => AlertDialog(
+                                title: Text("Regist Failed"),
+                                content: Text("Regist failed. User already exists."),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: Text("OK"),
+                                  ),
+                                ],
+                              ),
                         );
                         return;
                       }
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Registering: ' + email)),
+                        SnackBar(content: Text('Registering: $email')),
                       );
                     }
                   },
                   child: Text('Register'),
                 ),
                 TextButton(
+                  style: TextButton.styleFrom(
+                    foregroundColor: Theme.of(context).colorScheme.secondary,
+                  ),
                   onPressed: () {
                     Navigator.pop(context);
                   },

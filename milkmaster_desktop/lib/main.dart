@@ -1,21 +1,42 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:milkmaster_desktop/providers/auth_provider.dart';
+import 'package:milkmaster_desktop/providers/cattle_category_provider.dart';
+import 'package:milkmaster_desktop/providers/file_provider.dart';
+import 'package:milkmaster_desktop/providers/orders_provider.dart';
+import 'package:milkmaster_desktop/providers/product_category_provider.dart';
 import 'package:milkmaster_desktop/providers/products_provider.dart';
-import 'package:milkmaster_desktop/screens/products_screen.dart';
+import 'package:milkmaster_desktop/widgets/home_shell.dart';
 import 'package:provider/provider.dart';
+import 'package:window_manager/window_manager.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  windowManager.ensureInitialized();
+
+  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+    WindowManager.instance.setMinimumSize(const Size(1366, 768));
+    WindowManager.instance.setTitle('MilkMaster');
+    WindowManager.instance.setMaximumSize(const Size(1366, 768));
+    WindowManager.instance.setSize(const Size(1366, 768));
+  }
+
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => ProductProvider()),
+        ChangeNotifierProvider(create: (_) => OrdersProvider()),
+        ChangeNotifierProvider(create: (_) => CattleCategoryProvider()),
+        ChangeNotifierProvider(create: (_) => ProductCategoryProvider()),
+        ChangeNotifierProvider(create: (_) => FileProvider()),
       ],
 
       child: const MyApp(),
-    )
+    ),
   );
 }
 
@@ -30,14 +51,15 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme(
           brightness: Brightness.light,
-          primary: Color(0xFFFFC107),         
-          onPrimary: Colors.black,            
-          secondary: Color(0xFF212121),      
-          onSecondary: Colors.white,          
-          surface: Colors.white,         
-          onSurface: Color(0xFF212121),       
-          error: Color(0xFFD32F2F),           
-          onError: const Color.fromARGB(255, 0, 0, 0), 
+          primary: Color.fromRGBO(253, 216, 53, 1),
+          onPrimary: Colors.black,
+          secondary: Color.fromRGBO(249, 168, 37, 1),
+          onSecondary: Colors.white,
+          tertiary: Colors.grey,
+          surface: Colors.white,
+          onSurface: Color(0xFF212121),
+          error: Color(0xFFD32F2F),
+          onError: const Color.fromARGB(255, 0, 0, 0),
         ),
         appBarTheme: AppBarTheme(
           backgroundColor: Colors.white,
@@ -50,20 +72,21 @@ class MyApp extends StatelessWidget {
           ),
         ),
         textTheme: TextTheme(
-          headlineLarge: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.black),
-          headlineMedium: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
+          headlineLarge: TextStyle(
+            fontSize: 30,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+          headlineMedium: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
           bodyLarge: TextStyle(fontSize: 18, color: Colors.black),
           bodyMedium: TextStyle(fontSize: 14, color: Colors.black),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Color(0xFFFFC107),
-            foregroundColor: Colors.black,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            textStyle: TextStyle(fontWeight: FontWeight.bold),
-          ),
+          style: AppButtonStyles.primary,
         ),
         inputDecorationTheme: InputDecorationTheme(
           border: OutlineInputBorder(
@@ -85,43 +108,53 @@ class MyApp extends StatelessWidget {
         iconTheme: IconThemeData(color: Color(0xFF212121)),
         // Example of custom spacing extension
         extensions: <ThemeExtension<dynamic>>[
-          AppSpacing(
-            small: 8.0,
-            medium: 16.0,
-            large: 32.0,
-          ),
+          AppSpacing(small: 8.0, medium: 16.0, large: 32.0),
         ],
       ),
       initialRoute: '/login',
       routes: {
         '/login': (context) => LoginScreen(),
         '/register': (context) => RegisterScreen(),
-        '/products': (context) => ProductScreen(),
+        '/home': (context) => HomeShell(),
       },
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+class AppButtonStyles {
 
-  final String title;
+  static ButtonStyle primary = ElevatedButton.styleFrom(
+    foregroundColor:  Color.fromRGBO(249,168,37,1),
+    shadowColor: Colors.transparent,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+    side: BorderSide(
+      color: Color.fromRGBO(249,168,37,1),
+    ),
+    textStyle: const TextStyle(fontWeight: FontWeight.bold),
+  );
 
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
+  static ButtonStyle secondary = ElevatedButton.styleFrom(
+    backgroundColor: Color(0xFFFFC107),
+    foregroundColor: Colors.black,
+    shadowColor: Colors.transparent,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+    textStyle: const TextStyle(fontWeight: FontWeight.bold),
+  );
 
-class _MyHomePageState extends State<MyHomePage> {
-  @override
-  Widget build(BuildContext context) {
-
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-    );
-  }
+  // Danger / Delete button
+  static ButtonStyle danger = ElevatedButton.styleFrom(
+    backgroundColor: Color(0xFFD32F2F),
+    foregroundColor: Colors.white,
+    shadowColor: Colors.transparent,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+    textStyle: const TextStyle(fontWeight: FontWeight.bold),
+  );
 }
 
 class AppSpacing extends ThemeExtension<AppSpacing> {
@@ -136,11 +169,7 @@ class AppSpacing extends ThemeExtension<AppSpacing> {
   });
 
   @override
-  AppSpacing copyWith({
-    double? small,
-    double? medium,
-    double? large,
-  }) {
+  AppSpacing copyWith({double? small, double? medium, double? large}) {
     return AppSpacing(
       small: small ?? this.small,
       medium: medium ?? this.medium,

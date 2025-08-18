@@ -8,8 +8,11 @@ class BaseProvider<T> with ChangeNotifier {
   String? _endPoint;
   final T Function(Map<String, dynamic>) fromJson;
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
-
+  
   List<T> items = [];
+
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
 
   BaseProvider(String endPoint, {required this.fromJson}) {
     _endPoint = endPoint;
@@ -27,40 +30,54 @@ class BaseProvider<T> with ChangeNotifier {
       final Map<String, dynamic> tokenMap = json.decode(tokenJson);
       token = tokenMap['token'];
     }
-    print('Token: $token');
     return {
       'Content-Type': 'application/json',
       if (token != null) 'Authorization': 'Bearer $token',
     };
   }
 
-  Future<void> fetchAll({Map<String, dynamic>? queryParams}) async {
-    final headers = await _getHeaders();
-    Uri uri = Uri.parse('$_baseUrl/$_endPoint');
+  Future<List<T>> fetchAll({Map<String, dynamic>? queryParams}) async {
+  _isLoading = true;
 
-    if (queryParams != null && queryParams.isNotEmpty) {
-      uri = uri.replace(
-        queryParameters: {
-          ...uri.queryParameters,
-          ...queryParams.map((key, value) => MapEntry(key, value.toString())),
-        },
-      );
-    }
+  final headers = await _getHeaders();
+  Uri uri = Uri.parse('$_baseUrl/$_endPoint');
 
-    final response = await http.get(uri, headers: headers);
-
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> jsonMap = json.decode(response.body);
-
-      // ✅ Extract the actual list of items
-      final List<dynamic> data = jsonMap['items'];
-
-      items = data.map((json) => fromJson(json)).toList();
-      notifyListeners();
-    } else {
-      throw Exception('Failed to fetch items');
-    }
+  if (queryParams != null && queryParams.isNotEmpty) {
+    uri = uri.replace(
+      queryParameters: {
+        ...uri.queryParameters,
+        ...queryParams.map((key, value) => MapEntry(key, value.toString())),
+      },
+    );
   }
+
+  final response = await http.get(uri, headers: headers);
+
+  if (response.statusCode == 200) {
+    final decoded = json.decode(response.body);
+    late final List<T> fetchedItems;
+
+    if (decoded is List) {
+      // Raw array
+      fetchedItems = decoded.map((json) => fromJson(json)).toList();
+    } else if (decoded is Map<String, dynamic> && decoded.containsKey('items')) {
+      // Object with 'items' field
+      fetchedItems = (decoded['items'] as List).map((json) => fromJson(json)).toList();
+    } else {
+      throw Exception('Unexpected response format');
+    }
+
+    items = fetchedItems;
+
+    _isLoading = false;
+
+    return fetchedItems;
+  } else {
+    _isLoading = false;
+    throw Exception('Failed to fetch items');
+  }
+}
+
 
   Future<T?> getById(String id) async {
     final headers = await _getHeaders();
@@ -86,7 +103,7 @@ class BaseProvider<T> with ChangeNotifier {
     return response.statusCode == 201 || response.statusCode == 200;
   }
 
-  Future<bool> update(String id, Map<String, dynamic> body) async {
+  Future<bool> update(int id, Map<String, dynamic> body) async {
     final headers = await _getHeaders();
     final response = await http.put(
       Uri.parse('$_baseUrl/$_endPoint/$id'),
@@ -96,7 +113,7 @@ class BaseProvider<T> with ChangeNotifier {
     return response.statusCode == 204 || response.statusCode == 200;
   }
 
-  Future<bool> delete(String id) async {
+  Future<bool> delete(int id) async {
     final headers = await _getHeaders();
     final response = await http.delete(
       Uri.parse('$_baseUrl/$_endPoint/$id'),

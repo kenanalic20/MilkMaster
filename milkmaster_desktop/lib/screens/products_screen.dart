@@ -15,8 +15,15 @@ class _ProductScreenState extends State<ProductScreen> {
   @override
   void initState() {
     super.initState();
-    _productProvider = Provider.of<ProductProvider>(context, listen: false);
-    loadData();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // loadData();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _productProvider = Provider.of<ProductProvider>(context);
   }
 
   Future<void> loadData() async {
@@ -30,21 +37,25 @@ class _ProductScreenState extends State<ProductScreen> {
   @override
   Widget build(BuildContext context) {
     return Consumer<ProductProvider>(
-      builder: (context, provider, child) {
-        return Scaffold(
-          appBar: AppBar(title: const Text('Products')),
-          body: ListView.builder(
+        builder: (context, provider, child) {
+          if (provider.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (provider.items.isEmpty) {
+            return const Center(child: Text('No products available.'));
+          }
+          return ListView.builder(
             itemCount: provider.items.length,
             itemBuilder: (context, index) {
               final product = provider.items[index];
               return ListTile(
                 title: Text(product.title),
-                subtitle: Text('${product.pricePerUnit} KM'),
+                subtitle: Text('${product.pricePerUnit} BAM'),
               );
             },
-          ),
-        );
-      },
-    );
+          );
+        },
+      );
   }
 }
+
