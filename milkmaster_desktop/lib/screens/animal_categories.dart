@@ -171,7 +171,6 @@ class _AnimalCategoriesScreenState extends State<AnimalCategoriesScreen> {
               ),
               onTap: (){
                 // Open edit form
-                print('Edit category: ${category.name}');
                 setState(() {
                   _showForm = true;
                 });

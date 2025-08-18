@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:milkmaster_desktop/main.dart';
 import 'package:milkmaster_desktop/models/file_model.dart';
 import 'package:milkmaster_desktop/models/product_category_model.dart';
@@ -41,6 +42,11 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     _fetchProductCategories();
   }
 
+  Future<void> _deleteCategory(category) async {
+    await _productCategoryProvider.delete(category.id);
+    await _fetchProductCategories();
+    await _fileProvider.deleteFile( FileDeleteModel(fileUrl: category.imageUrl, subfolder: 'Images/Categories'));
+  }
   Future<void> _fetchProductCategories() async {
     try {
       var fetchedItems = await _productCategoryProvider.fetchAll();
@@ -166,10 +172,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                                     message:
                                         "Are you sure you want to delete '${category.name}'?",
                                     onConfirm: () async {
-                                      await _productCategoryProvider.delete(
-                                        category.id,
-                                      );
-                                      await _fetchProductCategories();
+                                      _deleteCategory(category);
                                     },
                                   );
                                 },
@@ -195,6 +198,11 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
             name: 'name',
             initialValue: category.name ?? '',
             decoration: const InputDecoration(labelText: 'Category Name'),
+            validator: FormBuilderValidators.compose([
+              FormBuilderValidators.required(
+                errorText: 'Category name is required',
+              ),
+            ]),
           ),
           Row(
             children: [
@@ -214,23 +222,25 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               ElevatedButton(
                 onPressed: () async {
                   if (_formKey.currentState?.saveAndValidate() ?? false) {
-                    final formData = _formKey.currentState!.value;
+                    final body = Map<String, dynamic>.from(
+                      _formKey.currentState!.value,
+                    );
 
                     if (_uploadedImageFile != null) {
                       final uploadedUrl = await _fileProvider.updateFile(
-                        FileUpdateModel(oldFileUrl: category.imageUrl,file: _uploadedImageFile!,subfolder: 'Images/Categories'),
+                        FileUpdateModel(
+                          oldFileUrl: category.imageUrl,
+                          file: _uploadedImageFile!,
+                          subfolder: 'Images/Categories',
+                        ),
                       );
-                      
-                      formData['imageUrl'] = uploadedUrl;
+                      body['imageUrl'] = uploadedUrl;
                     }
 
                     if (category == null) {
-                      await _productCategoryProvider.create(formData);
+                      await _productCategoryProvider.create(body);
                     } else {
-                      await _productCategoryProvider.update(
-                        category['id'],
-                        formData,
-                      );
+                      await _productCategoryProvider.update(category.id, body);
                     }
 
                     await _fetchProductCategories();

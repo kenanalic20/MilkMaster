@@ -103,7 +103,7 @@ class BaseProvider<T> with ChangeNotifier {
     return response.statusCode == 201 || response.statusCode == 200;
   }
 
-  Future<bool> update(String id, Map<String, dynamic> body) async {
+  Future<bool> update(int id, Map<String, dynamic> body) async {
     final headers = await _getHeaders();
     final response = await http.put(
       Uri.parse('$_baseUrl/$_endPoint/$id'),
