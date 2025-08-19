@@ -34,19 +34,42 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   int? _hoveredCategoryId;
   final _formKey = GlobalKey<FormBuilderState>();
   File? _uploadedImageFile;
+  String? _imageWarning;
+
   @override
   void initState() {
     super.initState();
     _productCategoryProvider = context.read<ProductCategoryProvider>();
     _fileProvider = context.read<FileProvider>();
+    setState(() {
+      _imageWarning = null;
+    });
     _fetchProductCategories();
+  }
+
+  void openAddForm() {
+    _uploadedImageFile = null;
+    _formKey.currentState?.reset();
+    widget.openForm(
+      MasterWidget(
+        title: 'Add Category',
+        subtitle: '',
+        body: _buildProductCategoryForm(category: null),
+      ),
+    );
   }
 
   Future<void> _deleteCategory(category) async {
     await _productCategoryProvider.delete(category.id);
     await _fetchProductCategories();
-    await _fileProvider.deleteFile( FileDeleteModel(fileUrl: category.imageUrl, subfolder: 'Images/Categories'));
+    await _fileProvider.deleteFile(
+      FileDeleteModel(
+        fileUrl: category.imageUrl,
+        subfolder: 'Images/Categories',
+      ),
+    );
   }
+
   Future<void> _fetchProductCategories() async {
     try {
       var fetchedItems = await _productCategoryProvider.fetchAll();
@@ -188,71 +211,169 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     );
   }
 
-  FormBuilder _buildProductCategoryForm({category = null}) {
+  
+
+  FormBuilder _buildProductCategoryForm({category=null}) {
+    final isEdit = category != null;
     return FormBuilder(
       key: _formKey,
       child: Column(
         children: [
-          FormBuilderTextField(
-            name: 'name',
-            initialValue: category.name ?? '',
-            decoration: const InputDecoration(labelText: 'Category Name'),
-            validator: FormBuilderValidators.compose([
-              FormBuilderValidators.required(
-                errorText: 'Category name is required',
-              ),
-            ]),
-          ),
-          Row(
-            children: [
-              FilePickerWithPreview(
-                onFileSelected: (file) {
-                  _uploadedImageFile = file;
-                },
-              ),
-              const SizedBox(width: 10),
-              ElevatedButton(
-                onPressed: () {
-                  widget.closeForm(); // close form
-                },
-                child: const Text('Cancel'),
-              ),
-              const SizedBox(width: 10),
-              ElevatedButton(
-                onPressed: () async {
-                  if (_formKey.currentState?.saveAndValidate() ?? false) {
-                    final body = Map<String, dynamic>.from(
-                      _formKey.currentState!.value,
-                    );
-
-                    if (_uploadedImageFile != null) {
-                      final uploadedUrl = await _fileProvider.updateFile(
-                        FileUpdateModel(
-                          oldFileUrl: category.imageUrl,
-                          file: _uploadedImageFile!,
-                          subfolder: 'Images/Categories',
+          FormBuilderField<File?>(
+            name: 'image',
+            initialValue: category != null && category.imageUrl.isNotEmpty ? null : null,
+            validator: (val) {
+              if (!isEdit && (val == null)) {
+                return 'Image is required for new categories';
+              }
+              return null;
+            },
+            builder: (field) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  FilePickerWithPreview(
+                    imageUrl: category?.imageUrl,
+                    onFileSelected: (file) {
+                      _uploadedImageFile = file;
+                      field.didChange(file);
+                      field.validate();
+                    },
+                  ),
+                  if (field.errorText != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 6),
+                      child: Center(
+                        child: Text(
+                          field.errorText!,
+                          style: TextStyle(
+                            color: Theme.of(field.context).colorScheme.error,
+                            fontSize: 12,
+                          ),
                         ),
-                      );
-                      body['imageUrl'] = uploadedUrl;
-                    }else {
-                      body['imageUrl'] = category.imageUrl;
-                    }
-
-                    if (category == null) {
-                      await _productCategoryProvider.create(body);
-                    } else {
-                      await _productCategoryProvider.update(category.id, body);
-                    }
-
-                    await _fetchProductCategories();
-                    widget.closeForm();
-                  }
-                },
-                child: Text(
-                  category == null ? 'Add Category' : 'Update Category',
-                ),
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
+          SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+          Center(
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.5,
+              child: FormBuilderTextField(
+                name: 'name',
+                initialValue: category?.name ?? '',
+                decoration: const InputDecoration(labelText: 'Category Name'),
+                validator: FormBuilderValidators.compose([
+                  FormBuilderValidators.required(
+                    errorText: 'Category name is required',
+                  ),
+                ]),
               ),
-            ],
+            ),
+          ),
+          SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+          Center(
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.5,
+              child: Row(
+                children: [
+                  Spacer(),
+                  ElevatedButton(
+                    onPressed: () {
+                      widget.closeForm(); // close form
+                    },
+                    child: const Text('Cancel'),
+                  ),
+                  SizedBox(
+                    width: Theme.of(context).extension<AppSpacing>()!.medium,
+                  ),
+                  Builder(builder: (dialogContext) {
+                    return ElevatedButton(
+                      onPressed: () async {
+                        if (_formKey.currentState?.saveAndValidate() ?? false) {
+                          final body = Map<String, dynamic>.from(
+                            _formKey.currentState!.value,
+                          );
+                          body.remove('image');
+
+                          if (isEdit) {
+                            // update flow (existing behavior)
+                            if (_uploadedImageFile != null) {
+                              final uploadedUrl = await _fileProvider.updateFile(
+                                FileUpdateModel(
+                                  oldFileUrl: category!.imageUrl,
+                                  file: _uploadedImageFile!,
+                                  subfolder: 'Images/Categories',
+                                ),
+                              );
+                              body['imageUrl'] = uploadedUrl;
+                            } else {
+                              body['imageUrl'] = category!.imageUrl;
+                            }
+                            await showCustomDialog(
+                              context: dialogContext,
+                              title: "Update Category",
+                              message:
+                                  "Are you sure you want to update '${category!.name}'?",
+                              onConfirm: () async {
+                                await _productCategoryProvider.update(
+                                  category.id,
+                                  body,
+                                );
+                                await _fetchProductCategories();
+                                widget.closeForm();
+                              },
+                            );
+                          } else {
+                            // add flow
+                            if (_uploadedImageFile != null) {
+                              final uploadedUrl = await _fileProvider.uploadFile(
+                                FileModel(
+                                  file: _uploadedImageFile!,
+                                  subfolder: 'Images/Categories',
+                                ),
+                              );
+                              body['imageUrl'] = uploadedUrl;
+                            } else {
+                              body['imageUrl'] = null;
+                            }
+
+                            await showCustomDialog(
+                              context: dialogContext,
+                              title: "Create Category",
+                              message:
+                                  "Are you sure you want to create '${body['name']}'?",
+                              onConfirm: () async {
+                                if (body['imageUrl'] == null) {
+                                  if (mounted) {
+                                    setState(() {
+                                      _imageWarning =
+                                          'Image is required for new categories';
+                                    });
+                                  }
+                                } else {
+                                  await _productCategoryProvider.create(body);
+                                  await _fetchProductCategories();
+                                  widget.closeForm();
+                                  if (mounted) {
+                                    setState(() {
+                                      _imageWarning = null;
+                                    });
+                                  }
+                                }
+                              },
+                            );
+                          }
+                        }
+                      },
+                      child: Text(isEdit ? 'Update Category' : 'Create Category'),
+                    );
+                  }),
+                ],
+              ),
+            ),
           ),
         ],
       ),

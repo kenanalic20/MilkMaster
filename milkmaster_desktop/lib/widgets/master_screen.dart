@@ -39,8 +39,6 @@ class MasterWidget extends StatelessWidget {
                     children: [
                           if (title != null)
                             Text(title!, style: Theme.of(context).textTheme.headlineLarge),
-                          if (title != null && subtitle != null)
-                            SizedBox(height: spacing.small),
                           if (subtitle != null)
                             Text(
                               subtitle!,
@@ -50,8 +48,10 @@ class MasterWidget extends StatelessWidget {
                             ),
                     ],
                   ),
+                Spacer(),
                 if (headerActions != null) ...[
-                  SizedBox(width: spacing.large),
+                  // SizedBox(width: spacing.large),
+                  // Expanded(child: headerActions!),
                   headerActions!,
                 ],
               ],

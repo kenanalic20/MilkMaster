@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:milkmaster_desktop/main.dart';
 
 Widget leadingIcon(dynamic icon, {double width = 25, double height = 25}) {
   if (icon is IconData) {
@@ -22,51 +23,52 @@ Future<void> showCustomDialog({
 }) async {
   return showDialog(
     context: context,
-    builder: (BuildContext dialogContext) => AlertDialog(
-      title: Text(title),
-      content: Text(message),
-      actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.of(dialogContext).pop();
-            onConfirm();
-          },
-          child: const Text("OK"),
+    builder:
+        (BuildContext dialogContext) => AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                onConfirm();
+              },
+              child: const Text("OK"),
+            ),
+            if (showCancel)
+              TextButton(
+                onPressed: () {
+                  Navigator.of(dialogContext).pop();
+                },
+                child: const Text("Cancel"),
+              ),
+          ],
         ),
-        if (showCancel)
-          TextButton(
-            onPressed: () {
-              Navigator.of(dialogContext).pop();
-            },
-            child: const Text("Cancel"),
-          ),
-      ],
-    ),
   );
 }
 
 class NoDataWidget extends StatelessWidget {
-  const NoDataWidget({
-    super.key,
-  });
+  const NoDataWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Center(
-            child: Text(
-              'No data available',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.tertiary,
-                  ),
-            ),
-          );
+      child: Text(
+        'No data available',
+        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+          color: Theme.of(context).colorScheme.tertiary,
+        ),
+      ),
+    );
   }
 }
 
 class FilePickerWithPreview extends StatefulWidget {
   final void Function(File? file)? onFileSelected;
+  final String? imageUrl; // 👈 optional initial image from backend
 
-  const FilePickerWithPreview({Key? key, this.onFileSelected}) : super(key: key);
+  const FilePickerWithPreview({Key? key, this.onFileSelected, this.imageUrl})
+    : super(key: key);
 
   @override
   State<FilePickerWithPreview> createState() => _FilePickerWithPreviewState();
@@ -85,34 +87,49 @@ class _FilePickerWithPreviewState extends State<FilePickerWithPreview> {
         _selectedFile = File(result.files.first.path!);
       });
 
-      if (widget.onFileSelected != null) {
-        widget.onFileSelected!(_selectedFile);
-      }
+      widget.onFileSelected?.call(_selectedFile);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final bool hasLocalFile = _selectedFile != null;
+    final bool hasNetworkImage =
+        widget.imageUrl != null && widget.imageUrl!.isNotEmpty;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ElevatedButton(
-          onPressed: _pickFile,
-          child: Text(_selectedFile == null ? 'Select Image' : 'Change Image'),
-        ),
-        const SizedBox(height: 10),
-        if (_selectedFile != null)
-          Container(
-            width: 150,
-            height: 150,
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey),
-            ),
-            child: Image.file(
-              _selectedFile!,
-              fit: BoxFit.cover,
+        if (hasLocalFile || hasNetworkImage)
+          Center(
+            child: Container(
+              width: 300,
+              height: 300,
+              clipBehavior: Clip.hardEdge,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(100),
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+              child:
+                  hasLocalFile
+                      ? Image.file(_selectedFile!, fit: BoxFit.cover)
+                      : Image.network(
+                        widget.imageUrl!,
+                        fit: BoxFit.cover,
+                        errorBuilder:
+                            (context, error, stackTrace) =>
+                                const Icon(Icons.broken_image),
+                      ),
             ),
           ),
+        SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+        Center(
+          child: ElevatedButton(
+            onPressed: _pickFile,
+            child: Text(hasLocalFile ? 'Change Image' : 'Select Image'),
+          ),
+        ),
+        SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
       ],
     );
   }

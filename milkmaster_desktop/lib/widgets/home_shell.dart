@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:milkmaster_desktop/screens/animal_categories.dart';
+import 'package:milkmaster_desktop/main.dart';
 import 'package:milkmaster_desktop/screens/categories_screen.dart';
 import 'package:milkmaster_desktop/screens/cattle_screen.dart';
 import 'package:milkmaster_desktop/screens/customers_screen.dart';
@@ -22,6 +22,9 @@ class _HomeShellState extends State<HomeShell>
   Widget? _activeFormWidget;
   late AnimationController _slideController;
   late Animation<Offset> _slideAnimation;
+
+  // add a key to access CategoriesScreen state
+  final GlobalKey _categoriesScreenKey = GlobalKey();
 
   @override
   void initState() {
@@ -64,14 +67,24 @@ class _HomeShellState extends State<HomeShell>
     'Manage your customers',
   ];
 
-  final List<Widget?> _headerActions = [
-    Text('Dashboard headeraction'), // Products
-    null, // Dashboard
-    null, // Cattle
-    Text('Categories headeraction'), // Categories
-    null, // Orders
-    null, // Customers
-  ];
+  // replace the final list with a getter so we can reference local methods / key
+  List<Widget?> get _headerActions => [
+        Text('Dashboard headeraction'), // Products
+        null, // Dashboard
+        null, // Cattle
+        ProductCategoriesHeaderAction(
+          onPressed: () {
+            // ensure the categories tab is visible first
+            setState(() => _selectedIndex = 3);
+            // call openAddForm on CategoriesScreen state after frame
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              (_categoriesScreenKey.currentState as dynamic)?.openAddForm();
+            });
+          },
+        ), // Categories
+        null, // Orders
+        null, // Customers
+      ];
 
   Widget get _currentPage {
     switch (_selectedIndex) {
@@ -82,7 +95,9 @@ class _HomeShellState extends State<HomeShell>
       case 2:
         return const CattleScreen();
       case 3:
+        // pass the key so HomeShell can call openAddForm()
         return CategoriesScreen(
+          key: _categoriesScreenKey,
           openForm: _onFormOpened,
           closeForm: _onFormClosed,
         ); // pass callback here
@@ -125,7 +140,6 @@ class _HomeShellState extends State<HomeShell>
             selectedIndex: _selectedIndex,
             onItemSelected: _onNavItemSelected,
           ),
-
           Container(
             height: MediaQuery.of(context).size.height,
             child: SingleChildScrollView(
@@ -158,6 +172,29 @@ class _HomeShellState extends State<HomeShell>
           ),
         ],
       ),
+    );
+  }
+}
+
+// update ProductCategoriesHeaderAction to accept onPressed
+class ProductCategoriesHeaderAction extends StatelessWidget {
+  final VoidCallback? onPressed;
+  const ProductCategoriesHeaderAction({
+    super.key,
+    this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 45,
+      margin: EdgeInsets.only(top: Theme.of(context).extension<AppSpacing>()!.medium),
+      child: 
+        ElevatedButton(
+        onPressed: onPressed ?? () async => {},
+        child: Text('Add Product Category'),
+      ),
+      
     );
   }
 }
