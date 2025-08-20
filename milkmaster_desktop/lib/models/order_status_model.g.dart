@@ -8,8 +8,8 @@ part of 'order_status_model.dart';
 
 OrderStatus _$OrderStatusFromJson(Map<String, dynamic> json) => OrderStatus(
   id: (json['id'] as num).toInt(),
-  name: json['name'] as String?,
-  colorCode: json['colorCode'] as String?,
+  name: json['name'] as String,
+  colorCode: json['colorCode'] as String,
 );
 
 Map<String, dynamic> _$OrderStatusToJson(OrderStatus instance) =>

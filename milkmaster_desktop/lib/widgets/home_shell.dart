@@ -63,7 +63,7 @@ class _HomeShellState extends State<HomeShell>
     'Manage your products',
     'Manage your cattle',
     'Manage your product categories',
-    'Track orders',
+    'Manage and track customer orders',
     'Manage your customers',
   ];
 

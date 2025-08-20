@@ -5,13 +5,13 @@ part 'order_status_model.g.dart';
 @JsonSerializable()
 class OrderStatus {
   final int id;
-  final String? name;
-  final String? colorCode;
+  final String name;
+  final String colorCode;
 
   OrderStatus({
     required this.id,
-    this.name,
-    this.colorCode,
+    required this.name,
+    required this.colorCode,
   });
 
   factory OrderStatus.fromJson(Map<String, dynamic> json) =>
