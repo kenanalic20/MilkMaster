@@ -34,20 +34,24 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   int? _hoveredCategoryId;
   final _formKey = GlobalKey<FormBuilderState>();
   File? _uploadedImageFile;
-  String? _imageWarning;
+  final GlobalKey _animalCategoriesKey = GlobalKey();
+  
+ 
 
   @override
   void initState() {
     super.initState();
     _productCategoryProvider = context.read<ProductCategoryProvider>();
     _fileProvider = context.read<FileProvider>();
-    setState(() {
-      _imageWarning = null;
-    });
     _fetchProductCategories();
   }
 
-  void openAddForm() {
+  void openAnimalForm() {
+    // forward to the nested AnimalCategoriesScreen state
+    (_animalCategoriesKey.currentState as dynamic)?.openForm();
+  }
+
+  void openForm() {
     _uploadedImageFile = null;
     _formKey.currentState?.reset();
     widget.openForm(
@@ -346,22 +350,10 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                               message:
                                   "Are you sure you want to create '${body['name']}'?",
                               onConfirm: () async {
-                                if (body['imageUrl'] == null) {
-                                  if (mounted) {
-                                    setState(() {
-                                      _imageWarning =
-                                          'Image is required for new categories';
-                                    });
-                                  }
-                                } else {
+                                if (body['imageUrl'] != null) {
                                   await _productCategoryProvider.create(body);
                                   await _fetchProductCategories();
                                   widget.closeForm();
-                                  if (mounted) {
-                                    setState(() {
-                                      _imageWarning = null;
-                                    });
-                                  }
                                 }
                               },
                             );
@@ -394,7 +386,11 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       children: [
         _buildProductCategories(),
         SizedBox(height: Theme.of(context).extension<AppSpacing>()!.large),
-        AnimalCategoriesScreen(),
+        AnimalCategoriesScreen(
+          key: _animalCategoriesKey,
+          openForm: widget.openForm,
+          closeForm: widget.closeForm,
+          ),
       ],
     );
   }

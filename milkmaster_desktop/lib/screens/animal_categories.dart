@@ -1,12 +1,26 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:milkmaster_desktop/main.dart';
 import 'package:milkmaster_desktop/models/cattle_category_model.dart';
+import 'package:milkmaster_desktop/models/file_model.dart';
 import 'package:milkmaster_desktop/providers/cattle_category_provider.dart';
+import 'package:milkmaster_desktop/providers/file_provider.dart';
 import 'package:milkmaster_desktop/utils/widget_helpers.dart';
 import 'package:milkmaster_desktop/widgets/master_screen.dart';
 import 'package:provider/provider.dart';
 
 class AnimalCategoriesScreen extends StatefulWidget {
-  const AnimalCategoriesScreen({super.key});
+  final void Function(Widget form) openForm;
+  final void Function() closeForm;
+
+  const AnimalCategoriesScreen({
+    super.key,
+    required this.openForm,
+    required this.closeForm,
+  });
 
   @override
   State<AnimalCategoriesScreen> createState() => _AnimalCategoriesScreenState();
@@ -14,15 +28,31 @@ class AnimalCategoriesScreen extends StatefulWidget {
 
 class _AnimalCategoriesScreenState extends State<AnimalCategoriesScreen> {
   late CattleCategoryProvider _cattleCategoryProvider;
+  late FileProvider _fileProvider;
   List<CattleCategory> _cattleCategories = [];
   int? _hoveredCategoryId;
-  bool _showForm = false;
+  final _formKey = GlobalKey<FormBuilderState>();
+  File? _uploadedImageFile;
 
   @override
   void initState() {
     super.initState();
     _cattleCategoryProvider = context.read<CattleCategoryProvider>();
     _fetchCattleCategories();
+  }
+
+  void openForm() {
+    _uploadedImageFile = null;
+    _fileProvider = context.read<FileProvider>();
+    widget.openForm(
+      SingleChildScrollView(
+        child: MasterWidget(
+          title: 'Add Animal Category',
+          subtitle: '',
+          body: _buildCattleCategoryForm(),
+        ),
+      ),
+    );
   }
 
   Future<void> _fetchCattleCategories() async {
@@ -54,11 +84,213 @@ class _AnimalCategoriesScreenState extends State<AnimalCategoriesScreen> {
     ],
   );
 
+  FormBuilder _buildCattleCategoryForm({category = null}) {
+    final isEdit = category != null;
+    return FormBuilder(
+      key: _formKey,
+      child: Column(
+        children: [
+          FormBuilderField<File?>(
+            name: 'image',
+            initialValue:
+                category != null && category.imageUrl.isNotEmpty ? null : null,
+            validator: (val) {
+              if (!isEdit && (val == null)) {
+                return 'Image is required for new categories';
+              }
+              return null;
+            },
+            builder: (field) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  FilePickerWithPreview(
+                    imageUrl: category?.imageUrl,
+                    onFileSelected: (file) {
+                      _uploadedImageFile = file;
+                      field.didChange(file);
+                      field.validate();
+                    },
+                  ),
+                  if (field.errorText != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 6),
+                      child: Center(
+                        child: Text(
+                          field.errorText!,
+                          style: TextStyle(
+                            color: Theme.of(field.context).colorScheme.error,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
+          SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+          Center(
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.5,
+              child: FormBuilderTextField(
+                name: 'title',
+                initialValue: category?.title ?? '',
+                decoration: const InputDecoration(labelText: 'Category Title'),
+                validator: FormBuilderValidators.compose([
+                  FormBuilderValidators.required(
+                    errorText: 'Category title is required',
+                  ),
+                ]),
+              ),
+            ),
+          ),
+          SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+          Center(
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.5,
+              child: FormBuilderTextField(
+                name: 'name',
+                initialValue: category?.name ?? '',
+                decoration: const InputDecoration(labelText: 'Category Name'),
+                validator: FormBuilderValidators.compose([
+                  FormBuilderValidators.required(
+                    errorText: 'Category name is required',
+                  ),
+                ]),
+              ),
+            ),
+          ),
+          SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+          Center(
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.5,
+              child: FormBuilderTextField(
+                name: 'description',
+                maxLines: 5,
+                initialValue: category?.description ?? '',
+                decoration: const InputDecoration(
+                  labelText: 'Category description',
+                ),
+                validator: FormBuilderValidators.compose([
+                  FormBuilderValidators.required(
+                    errorText: 'Category name is required',
+                  ),
+                ]),
+              ),
+            ),
+          ),
+          SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+          Center(
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.5,
+              child: Row(
+                children: [
+                  Spacer(),
+                  ElevatedButton(
+                    onPressed: () {
+                      widget.closeForm(); // close form
+                    },
+                    child: const Text('Cancel'),
+                  ),
+                  SizedBox(
+                    width: Theme.of(context).extension<AppSpacing>()!.medium,
+                  ),
+                  Builder(
+                    builder: (dialogContext) {
+                      return ElevatedButton(
+                        onPressed: () async {
+                          if (_formKey.currentState?.saveAndValidate() ??
+                              false) {
+                            final body = Map<String, dynamic>.from(
+                              _formKey.currentState!.value,
+                            );
+                            body.remove('image');
+
+                            if (isEdit) {
+                              // update flow (existing behavior)
+                              if (_uploadedImageFile != null) {
+                                final uploadedUrl = await _fileProvider
+                                    .updateFile(
+                                      FileUpdateModel(
+                                        oldFileUrl: category!.imageUrl,
+                                        file: _uploadedImageFile!,
+                                        subfolder: 'Images/Categories',
+                                      ),
+                                    );
+                                body['imageUrl'] = uploadedUrl;
+                              } else {
+                                body['imageUrl'] = category!.imageUrl;
+                              }
+                              await showCustomDialog(
+                                context: dialogContext,
+                                title: "Update Cattle Category",
+                                message:
+                                    "Are you sure you want to update '${category!.name}'?",
+                                onConfirm: () async {
+                                  await _cattleCategoryProvider.update(
+                                    category.id,
+                                    body,
+                                  );
+                                  await _fetchCattleCategories();
+                                  widget.closeForm();
+                                },
+                              );
+                            } else {
+                              // add flow
+                              if (_uploadedImageFile != null) {
+                                final uploadedUrl = await _fileProvider
+                                    .uploadFile(
+                                      FileModel(
+                                        file: _uploadedImageFile!,
+                                        subfolder: 'Images/Categories',
+                                      ),
+                                    );
+                                body['imageUrl'] = uploadedUrl;
+                              } else {
+                                body['imageUrl'] = null;
+                              }
+
+                              await showCustomDialog(
+                                context: dialogContext,
+                                title: "Create Category",
+                                message:
+                                    "Are you sure you want to create '${body['name']}'?",
+                                onConfirm: () async {
+                                  if (body['imageUrl'] != null) {
+                                    await _cattleCategoryProvider.create(body);
+                                    await _fetchCattleCategories();
+                                    widget.closeForm();
+                                  }
+                                },
+                              );
+                            }
+                          }
+                        },
+                        child: Text(
+                          isEdit ? 'Update Category' : 'Create Category',
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildCattleCategories() {
     return MasterWidget(
       title: 'Animal Categories',
       subtitle: 'Manage your cattle categories',
-      headerActions: Text('Cattle Categories Header Action'),
+      headerActions: CattleCategoriesHeaderAction(
+        onPressed: () {
+          openForm();
+        },
+      ),
       hasData: _cattleCategories.isNotEmpty,
       padding: 0,
       body: Wrap(
@@ -169,11 +401,16 @@ class _AnimalCategoriesScreenState extends State<AnimalCategoriesScreen> {
                 ),
                 child: leadingIcon('assets/icons/pentool_icon.png'),
               ),
-              onTap: (){
-                // Open edit form
-                setState(() {
-                  _showForm = true;
-                });
+              onTap: () {
+                widget.openForm(
+                  SingleChildScrollView(
+                    child: MasterWidget(
+                      title: 'Edit Category',
+                      subtitle: category.name,
+                      body: _buildCattleCategoryForm(category: category),
+                    ),
+                  ),
+                );
               },
             ),
           ),
@@ -210,5 +447,24 @@ class _AnimalCategoriesScreenState extends State<AnimalCategoriesScreen> {
   @override
   Widget build(BuildContext context) {
     return _buildCattleCategories();
+  }
+}
+
+class CattleCategoriesHeaderAction extends StatelessWidget {
+  final VoidCallback? onPressed;
+  const CattleCategoriesHeaderAction({super.key, this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 45,
+      margin: EdgeInsets.only(
+        top: Theme.of(context).extension<AppSpacing>()!.medium,
+      ),
+      child: ElevatedButton(
+        onPressed: onPressed ?? () async => {},
+        child: Text('Add Product Category'),
+      ),
+    );
   }
 }

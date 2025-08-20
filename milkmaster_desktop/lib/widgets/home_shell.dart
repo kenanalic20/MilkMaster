@@ -67,18 +67,18 @@ class _HomeShellState extends State<HomeShell>
     'Manage your customers',
   ];
 
-  // replace the final list with a getter so we can reference local methods / key
   List<Widget?> get _headerActions => [
         Text('Dashboard headeraction'), // Products
         null, // Dashboard
         null, // Cattle
         ProductCategoriesHeaderAction(
           onPressed: () {
-            // ensure the categories tab is visible first
             setState(() => _selectedIndex = 3);
-            // call openAddForm on CategoriesScreen state after frame
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              (_categoriesScreenKey.currentState as dynamic)?.openAddForm();
+              (_categoriesScreenKey.currentState as dynamic)?.openForm();
+            });
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              (_categoriesScreenKey.currentState as dynamic)?.openForm();
             });
           },
         ), // Categories
@@ -176,7 +176,6 @@ class _HomeShellState extends State<HomeShell>
   }
 }
 
-// update ProductCategoriesHeaderAction to accept onPressed
 class ProductCategoriesHeaderAction extends StatelessWidget {
   final VoidCallback? onPressed;
   const ProductCategoriesHeaderAction({
