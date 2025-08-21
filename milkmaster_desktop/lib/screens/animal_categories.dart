@@ -60,7 +60,7 @@ class _AnimalCategoriesScreenState extends State<AnimalCategoriesScreen> {
       var fetchedItems = await _cattleCategoryProvider.fetchAll();
       if (mounted) {
         setState(() {
-          _cattleCategories = fetchedItems;
+          _cattleCategories = fetchedItems.items;
         });
       }
     } catch (e) {

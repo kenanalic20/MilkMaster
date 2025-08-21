@@ -5,11 +5,9 @@ part 'file_model.g.dart';
 
 @JsonSerializable()
 class FileModel {
-  // Corresponds to FileDto
-  @JsonKey(ignore: true) // IFormFile equivalent can't be serialized directly
+  @JsonKey(ignore: true) 
   File? file;
 
-  @JsonKey(defaultValue: "General")
   String subfolder;
 
   FileModel({this.file, this.subfolder = "General"});
@@ -37,7 +35,6 @@ class FileUpdateModel extends FileModel {
 @JsonSerializable()
 class FileDeleteModel {
   String fileUrl;
-  @JsonKey(defaultValue: "General")
   String subfolder;
 
   FileDeleteModel({required this.fileUrl, this.subfolder = "General"});

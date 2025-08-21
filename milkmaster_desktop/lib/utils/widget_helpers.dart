@@ -142,3 +142,116 @@ Color hexToColor(String hex) {
   }
   return Color(int.parse(hex, radix: 16));
 }
+
+class PaginationWidget extends StatelessWidget {
+  final int currentPage;
+  final int totalItems;
+  final int pageSize;
+  final ValueChanged<int> onPageChanged;
+
+  const PaginationWidget({
+    super.key,
+    required this.currentPage,
+    required this.totalItems,
+    required this.pageSize,
+    required this.onPageChanged,
+  });
+
+  int get totalPages => (totalItems / pageSize).ceil();
+
+  List<int> get pageNumbers {
+    return List<int>.generate(totalPages, (index) => index + 1);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (totalPages <= 1) return const SizedBox();
+
+    return Padding(
+      padding: EdgeInsets.only(
+        top: Theme.of(context).extension<AppSpacing>()!.medium,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        spacing: 5,
+        children: [
+          Container(
+            width: 30,
+            height: 30,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Theme.of(context).colorScheme.tertiary,
+                width: 1,
+              ),
+            ),
+            child: IconButton(
+              padding: EdgeInsets.zero,
+              icon: const Icon(Icons.chevron_left, size: 18),
+              onPressed:
+                  currentPage > 1 ? () => onPageChanged(currentPage - 1) : null,
+            ),
+          ),
+          ...pageNumbers.map((page) {
+            final bool isSelected = page == currentPage;
+            return Container(
+              width: 30,
+              height: 30,
+              child: Material(
+                color:
+                    isSelected
+                        ? Theme.of(context).colorScheme.primary
+                        : Colors.transparent,
+                shape: CircleBorder(
+                  side: BorderSide(
+                    color:
+                        isSelected
+                            ? Theme.of(context).colorScheme.secondary
+                            : Theme.of(context).colorScheme.tertiary,
+                    width: 1,
+                  ),
+                ),
+                child: InkWell(
+                  customBorder: CircleBorder(),
+                  onTap: () => onPageChanged(page),
+                  child: SizedBox(
+                    width: 30,
+                    height: 30,
+                    child: Center(
+                      child: Text(
+                        page.toString(),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+          Container(
+            width: 30,
+            height: 30,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Theme.of(context).colorScheme.tertiary,
+                width: 1,
+              ),
+            ),
+            child: IconButton(
+              padding: EdgeInsets.zero,
+              icon: const Icon(Icons.chevron_right, size: 18),
+              onPressed:
+                  currentPage < totalPages
+                      ? () => onPageChanged(currentPage + 1)
+                      : null,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

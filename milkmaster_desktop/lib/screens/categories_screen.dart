@@ -47,7 +47,6 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   }
 
   void openAnimalForm() {
-    // forward to the nested AnimalCategoriesScreen state
     (_animalCategoriesKey.currentState as dynamic)?.openForm();
   }
 
@@ -79,7 +78,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       var fetchedItems = await _productCategoryProvider.fetchAll();
       if (mounted) {
         setState(() {
-          _productCategories = fetchedItems;
+          _productCategories = fetchedItems.items;
         });
       }
     } catch (e) {
@@ -286,7 +285,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                   Spacer(),
                   ElevatedButton(
                     onPressed: () {
-                      widget.closeForm(); // close form
+                      widget.closeForm(); 
                     },
                     child: const Text('Cancel'),
                   ),
@@ -303,7 +302,6 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                           body.remove('image');
 
                           if (isEdit) {
-                            // update flow (existing behavior)
                             if (_uploadedImageFile != null) {
                               final uploadedUrl = await _fileProvider.updateFile(
                                 FileUpdateModel(
@@ -331,7 +329,6 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                               },
                             );
                           } else {
-                            // add flow
                             if (_uploadedImageFile != null) {
                               final uploadedUrl = await _fileProvider.uploadFile(
                                 FileModel(

@@ -7,7 +7,7 @@ part of 'file_model.dart';
 // **************************************************************************
 
 FileModel _$FileModelFromJson(Map<String, dynamic> json) =>
-    FileModel(subfolder: json['subfolder'] as String? ?? 'General');
+    FileModel(subfolder: json['subfolder'] as String? ?? "General");
 
 Map<String, dynamic> _$FileModelToJson(FileModel instance) => <String, dynamic>{
   'subfolder': instance.subfolder,
@@ -15,7 +15,7 @@ Map<String, dynamic> _$FileModelToJson(FileModel instance) => <String, dynamic>{
 
 FileUpdateModel _$FileUpdateModelFromJson(Map<String, dynamic> json) =>
     FileUpdateModel(
-      subfolder: json['subfolder'] as String? ?? 'General',
+      subfolder: json['subfolder'] as String? ?? "General",
       oldFileUrl: json['oldFileUrl'] as String?,
     );
 
@@ -28,7 +28,7 @@ Map<String, dynamic> _$FileUpdateModelToJson(FileUpdateModel instance) =>
 FileDeleteModel _$FileDeleteModelFromJson(Map<String, dynamic> json) =>
     FileDeleteModel(
       fileUrl: json['fileUrl'] as String,
-      subfolder: json['subfolder'] as String? ?? 'General',
+      subfolder: json['subfolder'] as String? ?? "General",
     );
 
 Map<String, dynamic> _$FileDeleteModelToJson(FileDeleteModel instance) =>

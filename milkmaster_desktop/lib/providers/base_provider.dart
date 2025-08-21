@@ -2,13 +2,14 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:milkmaster_desktop/models/paginated_result.dart';
 
 class BaseProvider<T> with ChangeNotifier {
   static String? _baseUrl;
   String? _endPoint;
   final T Function(Map<String, dynamic>) fromJson;
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
-  
+
   List<T> items = [];
 
   bool _isLoading = false;
@@ -36,7 +37,7 @@ class BaseProvider<T> with ChangeNotifier {
     };
   }
 
-  Future<List<T>> fetchAll({Map<String, dynamic>? queryParams}) async {
+ Future<PaginatedResult<T>> fetchAll({Map<String, dynamic>? queryParams}) async {
   _isLoading = true;
 
   final headers = await _getHeaders();
@@ -44,36 +45,30 @@ class BaseProvider<T> with ChangeNotifier {
 
   if (queryParams != null && queryParams.isNotEmpty) {
     uri = uri.replace(
-      queryParameters: {
-        ...uri.queryParameters,
-        ...queryParams.map((key, value) => MapEntry(key, value.toString())),
-      },
+      queryParameters: queryParams.map((key, value) => MapEntry(key, value.toString())),
     );
   }
 
   final response = await http.get(uri, headers: headers);
+  _isLoading = false;
 
   if (response.statusCode == 200) {
     final decoded = json.decode(response.body);
-    late final List<T> fetchedItems;
 
-    if (decoded is List) {
-      // Raw array
-      fetchedItems = decoded.map((json) => fromJson(json)).toList();
-    } else if (decoded is Map<String, dynamic> && decoded.containsKey('items')) {
-      // Object with 'items' field
-      fetchedItems = (decoded['items'] as List).map((json) => fromJson(json)).toList();
+    if (decoded is Map<String, dynamic> && decoded.containsKey('items')) {
+      final itemsList = (decoded['items'] as List).map((json) => fromJson(json)).toList();
+      final totalCount = decoded['totalCount'] as int;
+      items = itemsList;
+
+      return PaginatedResult(items: itemsList, totalCount: totalCount);
+    } else if (decoded is List) {
+      final itemsList = decoded.map((json) => fromJson(json)).toList();
+      items = itemsList;
+      return PaginatedResult(items: itemsList, totalCount: itemsList.length);
     } else {
       throw Exception('Unexpected response format');
     }
-
-    items = fetchedItems;
-
-    _isLoading = false;
-
-    return fetchedItems;
   } else {
-    _isLoading = false;
     throw Exception('Failed to fetch items');
   }
 }
