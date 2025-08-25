@@ -235,11 +235,10 @@ namespace MilkMaster.Infrastructure.Services
 
             if(filter == null)
                 return query;
-            if (!string.IsNullOrEmpty(filter.OrderNumber))
-                query = query.Where(o => o.OrderNumber.Contains(filter.OrderNumber));
-
-            if (!string.IsNullOrEmpty(filter.Customer))
-                query = query.Where(o => o.Customer.Contains(filter.Customer));
+            if (!string.IsNullOrEmpty(filter.Search))
+                query = query.Where(
+                    o => o.OrderNumber.ToLower().Contains(filter.Search.ToLower()) 
+                    || o.Customer.ToLower().Contains(filter.Search.ToLower()));
 
             if (!string.IsNullOrEmpty(filter.OrderStatus))
                 query = query.Where(o => o.Status.Name == filter.OrderStatus);

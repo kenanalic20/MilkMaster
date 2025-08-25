@@ -24,17 +24,19 @@ namespace MilkMaster.Infrastructure.Seeders
              _cattleService.EnableSeedingMode();
             var cattleToSeed = new List<CattleCreateDto>
             {
-                new CattleCreateDto
+                new CattleSeederDto
                 {
                     Name = "Bella",
                     ImageUrl = $"{_baseUrl}/Images/Cattle/Cow.png",
                     MilkCartonUrl = $"{_baseUrl}/Documents/MilkCartons/BellaCarton.pdf",
                     CattleCategoryId = 1,
                     BreedOfCattle = "Holstein",
+                    TagNumber = "s03Um",
                     LitersPerDay = 15.5f,
                     MonthlyValue = 450.0f,
                     BirthDate = new DateTime(2018, 3, 15),
                     HealthCheck = DateTime.Today.AddMonths(-1),
+                    Age = 4,
                     Overview = new CattleOverviewDto
                     {
                         Description = "Healthy and productive dairy cow.",
@@ -49,17 +51,19 @@ namespace MilkMaster.Infrastructure.Seeders
                         NumberOfCalves = 2
                     }
                 },
-                new CattleCreateDto
+                new CattleSeederDto
                 {
                     Name = "Daisy",
                     ImageUrl = $"{_baseUrl}/Images/Cattle/Goat.jpg",
                     MilkCartonUrl = $"{_baseUrl}/Documents/MilkCartons/BellaCarton.pdf",
                     CattleCategoryId = 2,
                     BreedOfCattle = "Nubian",
+                    TagNumber = "i6Vft",
                     LitersPerDay = 8.2f,
                     MonthlyValue = 250.0f,
                     BirthDate = new DateTime(2020, 7, 10),
                     HealthCheck = DateTime.Today.AddMonths(-2),
+                    Age = 2,
                     Overview = new CattleOverviewDto
                     {
                         Description = "Young and energetic goat.",
@@ -74,17 +78,19 @@ namespace MilkMaster.Infrastructure.Seeders
                         NumberOfCalves = 1
                     }
                 },
-                new CattleCreateDto
+                new CattleSeederDto
                 {
                     Name = "Molly",
                     ImageUrl = $"{_baseUrl}/Images/Cattle/Sheep.jpg",
                     MilkCartonUrl = $"{_baseUrl}/Documents/MilkCartons/BellaCarton.pdf",
-                    CattleCategoryId = 1,
+                    CattleCategoryId = 3,
                     BreedOfCattle = "Jersey",
+                    TagNumber = "io3TD",
                     LitersPerDay = 12.0f,
                     MonthlyValue = 380.0f,
                     BirthDate = new DateTime(2019, 10, 5),
                     HealthCheck = DateTime.Today.AddMonths(-3),
+                    Age = 3,
                     Overview = new CattleOverviewDto
                     {
                         Description = "Reliable milk producer.",

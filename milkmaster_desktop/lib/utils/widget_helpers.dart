@@ -14,6 +14,17 @@ Widget leadingIcon(dynamic icon, {double width = 25, double height = 25}) {
   }
 }
 
+String formatDouble(double value) {
+  double rounded = double.parse(value.toStringAsFixed(2));
+
+  if (rounded == rounded.floor()) {
+    return rounded.floor().toString();
+  } else {
+    return rounded.toStringAsFixed(2); 
+  }
+}
+
+
 Future<void> showCustomDialog({
   required BuildContext context,
   required String title,

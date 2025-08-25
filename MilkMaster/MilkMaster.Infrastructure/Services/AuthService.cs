@@ -4,7 +4,6 @@ using MilkMaster.Application.DTOs;
 using System.Security.Claims;
 using AutoMapper;
 using MilkMaster.Infrastructure.Seeders;
-using System.ComponentModel.DataAnnotations;
 using MilkMaster.Application.Exceptions;
 
 namespace MilkMaster.Infrastructure.Services
@@ -70,7 +69,7 @@ namespace MilkMaster.Infrastructure.Services
 
             var result = await _userManager.CheckPasswordAsync(user, login.Password);
             if (!result)
-                throw new KeyNotFoundException("Invalid password");
+                throw new KeyNotFoundException("User credentials not valid");
 
             var token = await _jwtService.GenerateJwtToken(user);
 

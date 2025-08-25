@@ -27,36 +27,3 @@ class OrderItem {
   Map<String, dynamic> toJson() => _$OrderItemToJson(this);
 }
 
-@JsonSerializable()
-class OrderItemCreate {
-  final int productId;
-  final int quantity;
-  final double unitSize;
-
-  OrderItemCreate({
-    required this.productId,
-    required this.quantity,
-    required this.unitSize,
-  });
-
-  factory OrderItemCreate.fromJson(Map<String, dynamic> json) =>
-      _$OrderItemCreateFromJson(json);
-  Map<String, dynamic> toJson() => _$OrderItemCreateToJson(this);
-}
-
-@JsonSerializable()
-class OrderItemUpdate {
-  final int quantity;
-  final double unitSize;
-  final double pricePerUnit;
-
-  OrderItemUpdate({
-    required this.quantity,
-    required this.unitSize,
-    required this.pricePerUnit,
-  });
-
-  factory OrderItemUpdate.fromJson(Map<String, dynamic> json) =>
-      _$OrderItemUpdateFromJson(json);
-  Map<String, dynamic> toJson() => _$OrderItemUpdateToJson(this);
-}

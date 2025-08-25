@@ -12,8 +12,7 @@ class BaseProvider<T> with ChangeNotifier {
 
   List<T> items = [];
 
-  bool _isLoading = false;
-  bool get isLoading => _isLoading;
+  bool isLoading = false;
 
   BaseProvider(String endPoint, {required this.fromJson}) {
     _endPoint = endPoint;
@@ -23,7 +22,10 @@ class BaseProvider<T> with ChangeNotifier {
     );
   }
 
-  Future<Map<String, String>> _getHeaders() async {
+  String? get baseUrl => _baseUrl;
+  String? get endPoint => _endPoint;
+
+  Future<Map<String, String>> getHeaders() async {
     final tokenJson = await _secureStorage.read(key: 'jwt');
     String? token;
 
@@ -38,9 +40,9 @@ class BaseProvider<T> with ChangeNotifier {
   }
 
  Future<PaginatedResult<T>> fetchAll({Map<String, dynamic>? queryParams}) async {
-  _isLoading = true;
+  isLoading = true;
 
-  final headers = await _getHeaders();
+  final headers = await getHeaders();
   Uri uri = Uri.parse('$_baseUrl/$_endPoint');
 
   if (queryParams != null && queryParams.isNotEmpty) {
@@ -50,7 +52,7 @@ class BaseProvider<T> with ChangeNotifier {
   }
 
   final response = await http.get(uri, headers: headers);
-  _isLoading = false;
+  isLoading = false;
 
   if (response.statusCode == 200) {
     final decoded = json.decode(response.body);
@@ -75,7 +77,7 @@ class BaseProvider<T> with ChangeNotifier {
 
 
   Future<T?> getById(String id) async {
-    final headers = await _getHeaders();
+    final headers = await getHeaders();
     final response = await http.get(
       Uri.parse('$_baseUrl/$_endPoint/$id'),
       headers: headers,
@@ -89,7 +91,7 @@ class BaseProvider<T> with ChangeNotifier {
   }
 
   Future<bool> create(Map<String, dynamic> body) async {
-    final headers = await _getHeaders();
+    final headers = await getHeaders();
     final response = await http.post(
       Uri.parse('$_baseUrl/$_endPoint'),
       headers: headers,
@@ -99,7 +101,7 @@ class BaseProvider<T> with ChangeNotifier {
   }
 
   Future<bool> update(int id, Map<String, dynamic> body) async {
-    final headers = await _getHeaders();
+    final headers = await getHeaders();
     final response = await http.put(
       Uri.parse('$_baseUrl/$_endPoint/$id'),
       headers: headers,
@@ -109,7 +111,7 @@ class BaseProvider<T> with ChangeNotifier {
   }
 
   Future<bool> delete(int id) async {
-    final headers = await _getHeaders();
+    final headers = await getHeaders();
     final response = await http.delete(
       Uri.parse('$_baseUrl/$_endPoint/$id'),
       headers: headers,

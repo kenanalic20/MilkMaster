@@ -10,6 +10,7 @@ namespace MilkMaster.Application.Mappings
         public CattleMappingProfile() {
             CreateMap<CattleOverview, CattleOverviewDto>().ReverseMap();
             CreateMap<BreedingStatus, BreedingStatusDto>().ReverseMap();
+            CreateMap<CattleSeederDto, Cattle>();
 
             CreateMap<Cattle, CattleDto>()
                 .ForMember(dest => dest.CattleCategory, opt => opt.MapFrom(src => src.CattleCategory));
@@ -19,6 +20,7 @@ namespace MilkMaster.Application.Mappings
 
             CreateMap<CattleUpdateDto, Cattle>()
                 .ForMember(dest => dest.CattleCategoryId, opt => opt.MapFrom(src => src.CattleCategoryId));
+
         }
     }
 }

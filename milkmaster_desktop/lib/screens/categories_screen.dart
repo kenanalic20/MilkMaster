@@ -43,7 +43,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     super.initState();
     _productCategoryProvider = context.read<ProductCategoryProvider>();
     _fileProvider = context.read<FileProvider>();
-    _fatchProductCategories();
+    _fetchProductCategories();
   }
 
   void openAnimalForm() {
@@ -64,7 +64,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
   Future<void> _deleteCategory(category) async {
     await _productCategoryProvider.delete(category.id);
-    await _fatchProductCategories();
+    await _fetchProductCategories();
     await _fileProvider.deleteFile(
       FileDeleteModel(
         fileUrl: category.imageUrl,
@@ -73,7 +73,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     );
   }
 
-  Future<void> _fatchProductCategories() async {
+  Future<void> _fetchProductCategories() async {
     try {
       var fetchedItems = await _productCategoryProvider.fetchAll();
       if (mounted) {
@@ -324,7 +324,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                                   category.id,
                                   body,
                                 );
-                                await _fatchProductCategories();
+                                await _fetchProductCategories();
                                 widget.closeForm();
                               },
                             );
@@ -349,7 +349,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                               onConfirm: () async {
                                 if (body['imageUrl'] != null) {
                                   await _productCategoryProvider.create(body);
-                                  await _fatchProductCategories();
+                                  await _fetchProductCategories();
                                   widget.closeForm();
                                 }
                               },

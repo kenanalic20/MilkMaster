@@ -37,35 +37,3 @@ class ProductCategoryAdmin extends ProductCategory {
   @override
   Map<String, dynamic> toJson() => _$ProductCategoryAdminToJson(this);
 }
-
-@JsonSerializable()
-class ProductCategoryCreate {
-  final String imageUrl;
-  final String name;
-
-  ProductCategoryCreate({
-    required this.imageUrl,
-    required this.name,
-  });
-
-  factory ProductCategoryCreate.fromJson(Map<String, dynamic> json) =>
-      _$ProductCategoryCreateFromJson(json);
-
-  Map<String, dynamic> toJson() => _$ProductCategoryCreateToJson(this);
-}
-
-@JsonSerializable()
-class ProductCategoryUpdate {
-  final String imageUrl;
-  final String name;
-
-  ProductCategoryUpdate({
-    required this.imageUrl,
-    required this.name,
-  });
-
-  factory ProductCategoryUpdate.fromJson(Map<String, dynamic> json) =>
-      _$ProductCategoryUpdateFromJson(json);
-
-  Map<String, dynamic> toJson() => _$ProductCategoryUpdateToJson(this);
-}

@@ -43,6 +43,7 @@ dependencies:
   file_picker: ^10.3.1
   form_builder_validators: ^10.0.1
   intl: ^0.19.0
+  dropdown_button2: ^2.3.8
 dev_dependencies:
   flutter_test:
     sdk: flutter

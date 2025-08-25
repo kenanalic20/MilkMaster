@@ -1,5 +1,9 @@
+import 'dart:math';
+
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:milkmaster_desktop/main.dart';
 import 'package:milkmaster_desktop/models/orders_model.dart';
 import 'package:milkmaster_desktop/providers/orders_provider.dart';
 import 'package:milkmaster_desktop/utils/widget_helpers.dart';
@@ -19,7 +23,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
   int _pageSize = 8;
   int _totalCount = 0;
   int _currentPage = 1;
-  String? _selectedStatus = 'All';
+  String? _selectedStatus;
   String? _selectedSort;
   final TextEditingController _searchController = TextEditingController();
 
@@ -27,10 +31,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
   void initState() {
     super.initState();
     _ordersProvider = context.read<OrdersProvider>();
-    _fatchOrders(extraQuery: {"pageSize": _pageSize});
+    _fetchOrders(extraQuery: {"pageSize": _pageSize});
   }
 
-  Future<void> _fatchOrders({
+  Future<void> _fetchOrders({
     int? page,
     Map<String, dynamic>? extraQuery,
   }) async {
@@ -54,9 +58,13 @@ class _OrdersScreenState extends State<OrdersScreen> {
     }
   }
 
+   Future<void> _fetchStatuses() async {
+    
+  }
+
   Future<void> _deleteOrder(order) async {
     await _ordersProvider.delete(order.id);
-    await _fatchOrders();
+    await _fetchOrders();
   }
 
   @override
@@ -65,12 +73,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
       children: [
         _buildSearch(),
         _ordersProvider.isLoading
-            ? const Center(
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 40),
-                child: CircularProgressIndicator(),
-              ),
-            )
+            ? const Center(child: CircularProgressIndicator())
             : _buildOrders(context),
         _buildPagination(),
       ],
@@ -86,53 +89,56 @@ class _OrdersScreenState extends State<OrdersScreen> {
         setState(() {
           _currentPage = page;
         });
-        await _fatchOrders(extraQuery: {"page": page, "pageSize": _pageSize});
+        await _fetchOrders(extraQuery: {"page": page, "pageSize": _pageSize});
       },
     );
   }
 
   Widget _buildSearch() {
-    final orderStatuses = [
-      'All',
-      'Pending',
-      'Processing',
-      'Completed',
-      'Cancelled',
-    ];
+    final orderStatuses = ['Pending', 'Processing', 'Completed', 'Cancelled'];
+
     final sortOptions = [
       {'label': 'Date Asc', 'value': 'date_asc'},
       {'label': 'Date Desc', 'value': 'date_desc'},
       {'label': 'Total Asc', 'value': 'total_asc'},
       {'label': 'Total Desc', 'value': 'total_desc'},
-      {'label': 'Items Count Asc', 'value': 'itemscount_asc'},
-      {'label': 'Items Count Desc', 'value': 'itemscount_desc'},
+      {'label': 'Items Asc', 'value': 'itemscount_asc'},
+      {'label': 'Items Desc', 'value': 'itemscount_desc'},
     ];
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+      padding: EdgeInsets.only(
+        bottom: Theme.of(context).extension<AppSpacing>()!.large,
+      ),
       child: Row(
         children: [
-          // Search bar
-          Expanded(
+          SizedBox(
+            width: 400,
+            height: 45,
             child: TextField(
+              style: Theme.of(context).textTheme.bodyMedium,
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: "Search by Order Number or Customer",
-                prefixIcon: const Icon(Icons.search),
+                hintText: "Search orders...",
+                hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.tertiary,
+                ),
+                prefixIcon: Icon(Icons.search,color: Theme.of(context).colorScheme.tertiary),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
+                filled: true,
+                fillColor: Color.fromRGBO(229, 229, 229, 1),
               ),
               onChanged: (value) async {
                 setState(() {
-                  _currentPage = 1; // reset pagination
+                  _currentPage = 1;
                 });
-                await _fatchOrders(
+                await _fetchOrders(
                   extraQuery: {
                     'search': value,
-                    'orderStatus':
-                        _selectedStatus == 'All' ? '' : _selectedStatus,
-                    'orderBy': _selectedSort,
+                    'orderStatus': _selectedStatus ?? '',
+                    'orderBy': _selectedSort ?? '',
                     'pageSize': _pageSize,
                     'pageNumber': _currentPage,
                   },
@@ -143,60 +149,135 @@ class _OrdersScreenState extends State<OrdersScreen> {
 
           const SizedBox(width: 10),
 
-          // Status Dropdown
-          DropdownButton<String>(
-            value: _selectedStatus ?? 'All',
-            items:
-                orderStatuses.map((status) {
-                  return DropdownMenuItem(value: status, child: Text(status));
-                }).toList(),
-            onChanged: (value) async {
-              setState(() {
-                _selectedStatus = value;
-                _currentPage = 1; // reset pagination
-              });
-              await _fatchOrders(
-                extraQuery: {
-                  'search': _searchController.text,
-                  'orderStatus': value == 'All' ? '' : value,
-                  'orderBy': _selectedSort,
-                  'pageSize': _pageSize,
-                  'pageNumber': _currentPage,
+          SizedBox(
+            width: 120,
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton2<String>(
+                value: _selectedStatus,
+                items:
+                    orderStatuses.map((status) {
+                      return DropdownMenuItem(
+                        value: status,
+                        child: Text(status),
+                      );
+                    }).toList(),
+                onChanged: (value) async {
+                  setState(() {
+                    _selectedStatus = value;
+                  });
+                  await _fetchOrders(
+                    extraQuery: {
+                      'search': _searchController.text,
+                      'orderStatus': _selectedStatus ?? '',
+                      'orderBy': _selectedSort ?? '',
+                      'pageSize': _pageSize,
+                      'pageNumber': _currentPage,
+                    },
+                  );
                 },
-              );
-            },
-            hint: const Text('Status'),
+                 hint: Text(
+                  'Status',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium,
+                ),
+                style: Theme.of(context).textTheme.bodyMedium,
+                buttonStyleData: ButtonStyleData(
+                  height: 45,
+                  width: 100,
+                  padding: const EdgeInsets.only(left: 15, right: 14),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.black26, width: 0.5),
+                    color: Colors.white,
+                    boxShadow: List.empty(),
+                  ),
+                  elevation: 2,
+                ),
+                iconStyleData: IconStyleData(
+                  icon: Transform.rotate(
+                    angle: pi / 2,
+                    child: Icon(Icons.chevron_right),
+                  ),
+                  iconSize: 16,
+                  iconEnabledColor: Colors.grey,
+                  iconDisabledColor: Colors.grey,
+                ),
+              ),
+            ),
           ),
 
           const SizedBox(width: 10),
 
-          // Sort Dropdown
-          DropdownButton<String>(
-            value: _selectedSort,
-            items:
-                sortOptions.map((option) {
-                  return DropdownMenuItem(
-                    value: option['value'],
-                    child: Text(option['label']!),
+          SizedBox(
+            width: 115,
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton2<String>(
+                value: _selectedSort,
+                items:
+                    sortOptions.map((option) {
+                      return DropdownMenuItem(
+                        value: option['value'],
+                        child: SizedBox(
+                          width: 70,
+                          child: Text(option['label']!),
+                        ),
+                      );
+                    }).toList(),
+                onChanged: (value) async {
+                  setState(() {
+                    _selectedSort = value;
+                    _currentPage = 1;
+                  });
+
+                  await _fetchOrders(
+                    extraQuery: {
+                      'search': _searchController.text,
+                      'orderStatus': _selectedStatus ?? '',
+                      'orderBy': _selectedSort ?? '',
+                      'pageSize': _pageSize,
+                      'pageNumber': _currentPage,
+                    },
                   );
-                }).toList(),
-            onChanged: (value) async {
-              setState(() {
-                _selectedSort = value;
-                _currentPage = 1; // reset pagination
-              });
-              await _fatchOrders(
-                extraQuery: {
-                  'search': _searchController.text,
-                  'orderStatus':
-                      _selectedStatus == 'All' ? '' : _selectedStatus,
-                  'orderBy': value,
-                  'pageSize': _pageSize,
-                  'pageNumber': _currentPage,
                 },
-              );
-            },
-            hint: const Text('Sort by'),
+                hint: Text(
+                  'Sort',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium,
+                ),
+                style: Theme.of(context).textTheme.bodyMedium,
+                buttonStyleData: ButtonStyleData(
+                  height: 45,
+                  width: 100,
+                  padding: const EdgeInsets.only(left: 14, right: 14),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.black26, width: 0.5),
+                    color: Colors.white,
+                    boxShadow: List.empty(),
+                  ),
+                  elevation: 2,
+                ),
+                iconStyleData: IconStyleData(
+                  icon: Transform.rotate(
+                    angle: pi / 2,
+                    child: Icon(Icons.chevron_right),
+                  ),
+                  iconSize: 16,
+                  iconEnabledColor: Colors.grey,
+                  iconDisabledColor: Colors.grey,
+                ),
+                dropdownStyleData: DropdownStyleData(
+                  scrollbarTheme: ScrollbarThemeData(
+                    radius: const Radius.circular(40),
+                    thickness: MaterialStateProperty.all(6),
+                    thumbVisibility: MaterialStateProperty.all(true),
+                  ),
+                ),
+                menuItemStyleData: const MenuItemStyleData(height: 40),
+              ),
+            ),
           ),
         ],
       ),
@@ -214,7 +295,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
           bottom: BorderSide(color: Theme.of(context).colorScheme.tertiary),
         ),
       ),
-      padding: EdgeInsets.only(left: 15, right: 15, bottom: 15),
+      padding: EdgeInsets.only(left: 15, bottom: 15),
       child: MasterWidget(
         titleStyle: Theme.of(context).textTheme.headlineMedium,
         title: 'Order List',
@@ -233,8 +314,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
               ),
             ),
             child: DataTable(
-              columnSpacing: 52,
-              dataRowHeight: 45,
+              columnSpacing: 50,
+              dataRowHeight: 40,
               headingTextStyle: Theme.of(context).textTheme.bodyLarge!.copyWith(
                 color: Theme.of(context).colorScheme.tertiary,
               ),
@@ -259,22 +340,41 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   _orders.map((order) {
                     return DataRow(
                       cells: [
-                        DataCell(Text(order.orderNumber)),
-                        DataCell(Text(order.customer)),
+                        DataCell(
+                          Text(
+                            order.orderNumber,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        DataCell(
+                          SizedBox(
+                            width: 120,
+                            child: Text(
+                              order.customer,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ),
+
                         DataCell(Text('${order.itemCount} items')),
                         DataCell(
                           Text(
                             DateFormat('dd/MM/yyyy').format(order.createdAt),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         DataCell(
-                          Text('${order.total.toStringAsPrecision(2)} BAM'),
+                          Text(
+                            '${order.total.toStringAsPrecision(2)} BAM',
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                         DataCell(
                           Text(
                             order.status!.name,
                             style: TextStyle(
                               color: hexToColor(order.status!.colorCode),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ),

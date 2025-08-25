@@ -37,25 +37,3 @@ Map<String, dynamic> _$ProductCategoryAdminToJson(
   'name': instance.name,
   'count': instance.count,
 };
-
-ProductCategoryCreate _$ProductCategoryCreateFromJson(
-  Map<String, dynamic> json,
-) => ProductCategoryCreate(
-  imageUrl: json['imageUrl'] as String,
-  name: json['name'] as String,
-);
-
-Map<String, dynamic> _$ProductCategoryCreateToJson(
-  ProductCategoryCreate instance,
-) => <String, dynamic>{'imageUrl': instance.imageUrl, 'name': instance.name};
-
-ProductCategoryUpdate _$ProductCategoryUpdateFromJson(
-  Map<String, dynamic> json,
-) => ProductCategoryUpdate(
-  imageUrl: json['imageUrl'] as String,
-  name: json['name'] as String,
-);
-
-Map<String, dynamic> _$ProductCategoryUpdateToJson(
-  ProductCategoryUpdate instance,
-) => <String, dynamic>{'imageUrl': instance.imageUrl, 'name': instance.name};

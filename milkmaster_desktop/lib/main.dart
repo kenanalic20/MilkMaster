@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:milkmaster_desktop/providers/auth_provider.dart';
 import 'package:milkmaster_desktop/providers/cattle_category_provider.dart';
+import 'package:milkmaster_desktop/providers/cattle_provider.dart';
 import 'package:milkmaster_desktop/providers/file_provider.dart';
 import 'package:milkmaster_desktop/providers/orders_provider.dart';
 import 'package:milkmaster_desktop/providers/product_category_provider.dart';
@@ -33,6 +34,8 @@ void main() {
         ChangeNotifierProvider(create: (_) => CattleCategoryProvider()),
         ChangeNotifierProvider(create: (_) => ProductCategoryProvider()),
         ChangeNotifierProvider(create: (_) => FileProvider()),
+        ChangeNotifierProvider(create: (_) => CattleProvider()),
+
       ],
 
       child: const MyApp(),

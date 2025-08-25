@@ -12,14 +12,11 @@ namespace MilkMaster.API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
-        private readonly IRabbitMqPublisher _rabbitMqPublisher;
         public AuthController(
-            IAuthService authService,
-            IRabbitMqPublisher rabbitMqPublisher
+            IAuthService authService
         )
         {
             _authService = authService;
-            _rabbitMqPublisher = rabbitMqPublisher;
         }
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto register)
@@ -41,21 +38,7 @@ namespace MilkMaster.API.Controllers
             var userDto = await _authService.GetUserAsync(User);
             return Ok(new { user = userDto });
         }
-        //temporary
-        [HttpGet("RabbitMq")]
-        public async Task<IActionResult> RabbitMQPublisher()
-        {
-            var message = new EmailMessage
-            {
-                Email = "kenanalic20@gmail.com",
-                Subject = "Test Email",
-                Body = "This is a test email message sent from RabbitMQ publisher in MilkMaster API."
-            };
-            
-            await _rabbitMqPublisher.PublishAsync(message);
-
-            return Ok("Message published to RabbitMQ");
-        }
+        
 
     }
 }
