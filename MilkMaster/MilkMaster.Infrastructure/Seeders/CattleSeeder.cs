@@ -55,7 +55,7 @@ namespace MilkMaster.Infrastructure.Seeders
                 {
                     Name = "Daisy",
                     ImageUrl = $"{_baseUrl}/Images/Cattle/Goat.png",
-                    MilkCartonUrl = $"{_baseUrl}/Documents/MilkCartons/BellaCarton.pdf",
+                    MilkCartonUrl = $"{_baseUrl}/Documents/MilkCartons/DaisyCarton.pdf",
                     CattleCategoryId = 2,
                     BreedOfCattle = "Nubian",
                     TagNumber = "i6Vft",
@@ -82,7 +82,7 @@ namespace MilkMaster.Infrastructure.Seeders
                 {
                     Name = "Molly",
                     ImageUrl = $"{_baseUrl}/Images/Cattle/Sheep.png",
-                    MilkCartonUrl = $"{_baseUrl}/Documents/MilkCartons/BellaCarton.pdf",
+                    MilkCartonUrl = $"{_baseUrl}/Documents/MilkCartons/MollyCarton.pdf",
                     CattleCategoryId = 3,
                     BreedOfCattle = "Jersey",
                     TagNumber = "io3TD",

@@ -9,7 +9,7 @@ namespace MilkMaster.Domain.Models
         public int Id { get; set; }
         public string ImageUrl { get; set; }
         public string Title { get; set; }
-        public int CattleCategoryId { get; set; }
+        public int? CattleCategoryId { get; set; }
         public CattleCategories? CattleCategory { get; set; }
         public Nutritions? Nutrition { get; set; }
         public ICollection<ProductCategoriesProducts>? ProductCategories { get; set; } = new List<ProductCategoriesProducts>();

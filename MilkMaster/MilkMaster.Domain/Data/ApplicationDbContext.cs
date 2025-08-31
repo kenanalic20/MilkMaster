@@ -56,6 +56,13 @@ namespace MilkMaster.Domain.Data
             builder.Entity<ProductCategoriesProducts>()
             .HasKey(pc => new { pc.ProductId, pc.ProductCategoryId });
 
+            //Product - CattleCategories
+            builder.Entity<Products>()
+            .HasOne(p => p.CattleCategory)
+            .WithMany(c => c.Products)
+            .HasForeignKey(p => p.CattleCategoryId)
+            .OnDelete(DeleteBehavior.SetNull);
+
             //ProductCategoriesProducts - Product
             builder.Entity<ProductCategoriesProducts>()
             .HasOne(pc => pc.Product)
