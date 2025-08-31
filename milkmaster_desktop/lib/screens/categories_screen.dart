@@ -35,8 +35,6 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
   File? _uploadedImageFile;
   final GlobalKey _animalCategoriesKey = GlobalKey();
-  
- 
 
   @override
   void initState() {
@@ -197,6 +195,23 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                                     message:
                                         "Are you sure you want to delete '${category.name}'?",
                                     onConfirm: () async {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            "Product Category Deleted successfully",
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          backgroundColor:
+                                              Theme.of(
+                                                context,
+                                              ).colorScheme.secondary,
+                                          duration: Duration(seconds: 2),
+                                        ),
+                                      );
                                       _deleteCategory(category);
                                     },
                                   );
@@ -214,9 +229,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     );
   }
 
-  
-
-  FormBuilder _buildProductCategoryForm({category=null}) {
+  FormBuilder _buildProductCategoryForm({category = null}) {
     final isEdit = category != null;
     return FormBuilder(
       key: _formKey,
@@ -224,7 +237,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
         children: [
           FormBuilderField<File?>(
             name: 'image',
-            initialValue: category != null && category.imageUrl.isNotEmpty ? null : null,
+            initialValue:
+                category != null && category.imageUrl.isNotEmpty ? null : null,
             validator: (val) {
               if (!isEdit && (val == null)) {
                 return 'Image is required for new categories';
@@ -285,81 +299,118 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                   Spacer(),
                   ElevatedButton(
                     onPressed: () {
-                      widget.closeForm(); 
+                      widget.closeForm();
                     },
                     child: const Text('Cancel'),
                   ),
                   SizedBox(
                     width: Theme.of(context).extension<AppSpacing>()!.medium,
                   ),
-                  Builder(builder: (dialogContext) {
-                    return ElevatedButton(
-                      onPressed: () async {
-                        if (_formKey.currentState?.saveAndValidate() ?? false) {
-                          final body = Map<String, dynamic>.from(
-                            _formKey.currentState!.value,
-                          );
-                          body.remove('image');
-
-                          if (isEdit) {
-                            if (_uploadedImageFile != null) {
-                              final uploadedUrl = await _fileProvider.updateFile(
-                                FileUpdateModel(
-                                  oldFileUrl: category!.imageUrl,
-                                  file: _uploadedImageFile!,
-                                  subfolder: 'Images/Categories',
-                                ),
-                              );
-                              body['imageUrl'] = uploadedUrl;
-                            } else {
-                              body['imageUrl'] = category!.imageUrl;
-                            }
-                            await showCustomDialog(
-                              context: dialogContext,
-                              title: "Update Category",
-                              message:
-                                  "Are you sure you want to update '${category!.name}'?",
-                              onConfirm: () async {
-                                await _productCategoryProvider.update(
-                                  category.id,
-                                  body,
-                                );
-                                await _fetchProductCategories();
-                                widget.closeForm();
-                              },
+                  Builder(
+                    builder: (dialogContext) {
+                      return ElevatedButton(
+                        onPressed: () async {
+                          if (_formKey.currentState?.saveAndValidate() ??
+                              false) {
+                            final body = Map<String, dynamic>.from(
+                              _formKey.currentState!.value,
                             );
-                          } else {
-                            if (_uploadedImageFile != null) {
-                              final uploadedUrl = await _fileProvider.uploadFile(
-                                FileModel(
-                                  file: _uploadedImageFile!,
-                                  subfolder: 'Images/Categories',
-                                ),
-                              );
-                              body['imageUrl'] = uploadedUrl;
-                            } else {
-                              body['imageUrl'] = null;
-                            }
+                            body.remove('image');
 
-                            await showCustomDialog(
-                              context: dialogContext,
-                              title: "Create Category",
-                              message:
-                                  "Are you sure you want to create '${body['name']}'?",
-                              onConfirm: () async {
-                                if (body['imageUrl'] != null) {
-                                  await _productCategoryProvider.create(body);
+                            if (isEdit) {
+                              if (_uploadedImageFile != null) {
+                                final uploadedUrl = await _fileProvider
+                                    .updateFile(
+                                      FileUpdateModel(
+                                        oldFileUrl: category!.imageUrl,
+                                        file: _uploadedImageFile!,
+                                        subfolder: 'Images/Categories',
+                                      ),
+                                    );
+                                body['imageUrl'] = uploadedUrl;
+                              } else {
+                                body['imageUrl'] = category!.imageUrl;
+                              }
+                              await showCustomDialog(
+                                context: dialogContext,
+                                title: "Update Category",
+                                message:
+                                    "Are you sure you want to update '${category!.name}'?",
+                                onConfirm: () async {
+                                  await _productCategoryProvider.update(
+                                    category.id,
+                                    body,
+                                  );
+                                  ScaffoldMessenger.of(
+                                    dialogContext,
+                                  ).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        "Product Category Updated successfully",
+                                        style: TextStyle(color: Colors.black),
+                                      ),
+                                      backgroundColor:
+                                          Theme.of(
+                                            dialogContext,
+                                          ).colorScheme.secondary,
+                                      duration: Duration(seconds: 2),
+                                    ),
+                                  );
                                   await _fetchProductCategories();
                                   widget.closeForm();
-                                }
-                              },
-                            );
+                                },
+                              );
+                            } else {
+                              if (_uploadedImageFile != null) {
+                                final uploadedUrl = await _fileProvider
+                                    .uploadFile(
+                                      FileModel(
+                                        file: _uploadedImageFile!,
+                                        subfolder: 'Images/Categories',
+                                      ),
+                                    );
+                                body['imageUrl'] = uploadedUrl;
+                              } else {
+                                body['imageUrl'] = null;
+                              }
+
+                              await showCustomDialog(
+                                context: dialogContext,
+                                title: "Create Category",
+                                message:
+                                    "Are you sure you want to create '${body['name']}'?",
+                                onConfirm: () async {
+                                  if (body['imageUrl'] != null) {
+                                    await _productCategoryProvider.create(body);
+                                    ScaffoldMessenger.of(
+                                      dialogContext,
+                                    ).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          "Product Category Added successfully",
+                                          style: TextStyle(color: Colors.black),
+                                        ),
+                                        backgroundColor:
+                                            Theme.of(
+                                              dialogContext,
+                                            ).colorScheme.secondary,
+                                        duration: Duration(seconds: 2),
+                                      ),
+                                    );
+                                    await _fetchProductCategories();
+                                    widget.closeForm();
+                                  }
+                                },
+                              );
+                            }
                           }
-                        }
-                      },
-                      child: Text(isEdit ? 'Update Category' : 'Create Category'),
-                    );
-                  }),
+                        },
+                        child: Text(
+                          isEdit ? 'Update Category' : 'Create Category',
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
@@ -387,7 +438,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
           key: _animalCategoriesKey,
           openForm: widget.openForm,
           closeForm: widget.closeForm,
-          ),
+        ),
       ],
     );
   }

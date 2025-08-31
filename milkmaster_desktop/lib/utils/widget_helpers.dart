@@ -83,7 +83,7 @@ class NoDataWidget extends StatelessWidget {
 
 class FilePickerWithPreview extends StatefulWidget {
   final void Function(File? file)? onFileSelected;
-  final String? imageUrl; // 👈 optional initial image from backend
+  final String? imageUrl;
 
   const FilePickerWithPreview({Key? key, this.onFileSelected, this.imageUrl})
     : super(key: key);
@@ -147,7 +147,6 @@ class _FilePickerWithPreviewState extends State<FilePickerWithPreview> {
             child: Text(hasLocalFile ? 'Change Image' : 'Select Image'),
           ),
         ),
-        SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
       ],
     );
   }

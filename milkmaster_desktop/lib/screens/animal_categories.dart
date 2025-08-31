@@ -232,6 +232,21 @@ class _AnimalCategoriesScreenState extends State<AnimalCategoriesScreen> {
                                     category.id,
                                     body,
                                   );
+                                  ScaffoldMessenger.of(
+                                      dialogContext,
+                                    ).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          "Cattle Category Update successfully",
+                                          style: TextStyle(color: Colors.black),
+                                        ),
+                                        backgroundColor:
+                                            Theme.of(
+                                              dialogContext,
+                                            ).colorScheme.secondary,
+                                        duration: Duration(seconds: 2),
+                                      ),
+                                    );
                                   await _fetchCattleCategories();
                                   widget.closeForm();
                                 },
@@ -253,12 +268,27 @@ class _AnimalCategoriesScreenState extends State<AnimalCategoriesScreen> {
 
                               await showCustomDialog(
                                 context: dialogContext,
-                                title: "Create Category",
+                                title: "Create Cattle Category",
                                 message:
                                     "Are you sure you want to create '${body['name']}'?",
                                 onConfirm: () async {
                                   if (body['imageUrl'] != null) {
                                     await _cattleCategoryProvider.create(body);
+                                    ScaffoldMessenger.of(
+                                      dialogContext,
+                                    ).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          "Cattle Category Added successfully",
+                                          style: TextStyle(color: Colors.black),
+                                        ),
+                                        backgroundColor:
+                                            Theme.of(
+                                              dialogContext,
+                                            ).colorScheme.secondary,
+                                        duration: Duration(seconds: 2),
+                                      ),
+                                    );
                                     await _fetchCattleCategories();
                                     widget.closeForm();
                                   }
@@ -433,6 +463,21 @@ class _AnimalCategoriesScreenState extends State<AnimalCategoriesScreen> {
                       "Are you sure you want to delete '${category.name}'?",
                   onConfirm: () async {
                     await _cattleCategoryProvider.delete(category.id);
+                    ScaffoldMessenger.of(
+                                      context,
+                                    ).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          "Cattle Category Deleted successfully",
+                                          style: TextStyle(color: Colors.black),
+                                        ),
+                                        backgroundColor:
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.secondary,
+                                        duration: Duration(seconds: 2),
+                                      ),
+                                    );
                     await _fetchCattleCategories();
                   },
                 );

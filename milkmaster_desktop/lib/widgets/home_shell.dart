@@ -23,7 +23,6 @@ class _HomeShellState extends State<HomeShell>
   late AnimationController _slideController;
   late Animation<Offset> _slideAnimation;
 
-  // add a key to access CategoriesScreen state
   final GlobalKey _categoriesScreenKey = GlobalKey();
 
   @override
@@ -68,8 +67,8 @@ class _HomeShellState extends State<HomeShell>
   ];
 
   List<Widget?> get _headerActions => [
-        Text('Dashboard headeraction'), // Products
-        null, // Dashboard
+        Text('Dashboard headeraction'), // Dashboard
+        null, // Products
         null, // Cattle
         ProductCategoriesHeaderAction(
           onPressed: () {
@@ -91,19 +90,21 @@ class _HomeShellState extends State<HomeShell>
       case 0:
         return const DashboardScreen();
       case 1:
-        return const ProductScreen();
+        return ProductScreen(
+            openForm: _onFormOpened,
+            closeForm: _onFormClosed,
+        );
       case 2:
         return CattleScreen(
           openForm: _onFormOpened,
           closeForm: _onFormClosed,
         );
       case 3:
-        // pass the key so HomeShell can call openAddForm()
         return CategoriesScreen(
           key: _categoriesScreenKey,
           openForm: _onFormOpened,
           closeForm: _onFormClosed,
-        ); // pass callback here
+        ); 
       case 4:
         return const OrdersScreen();
       case 5:
@@ -117,7 +118,7 @@ class _HomeShellState extends State<HomeShell>
     setState(() {
       _activeFormWidget = form;
     });
-    _slideController.forward(from: 0); // trigger the slide animation
+    _slideController.forward(from: 0);
   }
 
   void _onFormClosed() {
