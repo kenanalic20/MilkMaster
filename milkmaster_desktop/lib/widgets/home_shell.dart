@@ -93,7 +93,10 @@ class _HomeShellState extends State<HomeShell>
       case 1:
         return const ProductScreen();
       case 2:
-        return const CattleScreen();
+        return CattleScreen(
+          openForm: _onFormOpened,
+          closeForm: _onFormClosed,
+        );
       case 3:
         // pass the key so HomeShell can call openAddForm()
         return CategoriesScreen(

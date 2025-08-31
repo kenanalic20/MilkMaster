@@ -9,8 +9,8 @@ part of 'cattle_overview_model.dart';
 CattleOverview _$CattleOverviewFromJson(Map<String, dynamic> json) =>
     CattleOverview(
       description: json['description'] as String?,
-      weight: (json['weight'] as num).toDouble(),
-      height: (json['height'] as num).toDouble(),
+      weight: (json['weight'] as num?)?.toDouble(),
+      height: (json['height'] as num?)?.toDouble(),
       diet: json['diet'] as String,
     );
 

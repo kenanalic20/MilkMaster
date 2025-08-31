@@ -54,7 +54,7 @@ namespace MilkMaster.Infrastructure.Seeders
                 new CattleSeederDto
                 {
                     Name = "Daisy",
-                    ImageUrl = $"{_baseUrl}/Images/Cattle/Goat.jpg",
+                    ImageUrl = $"{_baseUrl}/Images/Cattle/Goat.png",
                     MilkCartonUrl = $"{_baseUrl}/Documents/MilkCartons/BellaCarton.pdf",
                     CattleCategoryId = 2,
                     BreedOfCattle = "Nubian",
@@ -81,7 +81,7 @@ namespace MilkMaster.Infrastructure.Seeders
                 new CattleSeederDto
                 {
                     Name = "Molly",
-                    ImageUrl = $"{_baseUrl}/Images/Cattle/Sheep.jpg",
+                    ImageUrl = $"{_baseUrl}/Images/Cattle/Sheep.png",
                     MilkCartonUrl = $"{_baseUrl}/Documents/MilkCartons/BellaCarton.pdf",
                     CattleCategoryId = 3,
                     BreedOfCattle = "Jersey",

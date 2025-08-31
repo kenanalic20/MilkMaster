@@ -39,54 +39,65 @@ class BaseProvider<T> with ChangeNotifier {
     };
   }
 
- Future<PaginatedResult<T>> fetchAll({Map<String, dynamic>? queryParams}) async {
-  isLoading = true;
+  Future<PaginatedResult<T>> fetchAll({
+    Map<String, dynamic>? queryParams,
+  }) async {
+    isLoading = true;
 
-  final headers = await getHeaders();
-  Uri uri = Uri.parse('$_baseUrl/$_endPoint');
-
-  if (queryParams != null && queryParams.isNotEmpty) {
-    uri = uri.replace(
-      queryParameters: queryParams.map((key, value) => MapEntry(key, value.toString())),
-    );
-  }
-
-  final response = await http.get(uri, headers: headers);
-  isLoading = false;
-
-  if (response.statusCode == 200) {
-    final decoded = json.decode(response.body);
-
-    if (decoded is Map<String, dynamic> && decoded.containsKey('items')) {
-      final itemsList = (decoded['items'] as List).map((json) => fromJson(json)).toList();
-      final totalCount = decoded['totalCount'] as int;
-      items = itemsList;
-
-      return PaginatedResult(items: itemsList, totalCount: totalCount);
-    } else if (decoded is List) {
-      final itemsList = decoded.map((json) => fromJson(json)).toList();
-      items = itemsList;
-      return PaginatedResult(items: itemsList, totalCount: itemsList.length);
-    } else {
-      throw Exception('Unexpected response format');
-    }
-  } else {
-    throw Exception('Failed to fetch items');
-  }
-}
-
-
-  Future<T?> getById(String id) async {
     final headers = await getHeaders();
-    final response = await http.get(
-      Uri.parse('$_baseUrl/$_endPoint/$id'),
-      headers: headers,
-    );
+    Uri uri = Uri.parse('$_baseUrl/$_endPoint');
+
+    if (queryParams != null && queryParams.isNotEmpty) {
+      uri = uri.replace(
+        queryParameters: queryParams.map(
+          (key, value) => MapEntry(key, value.toString()),
+        ),
+      );
+    }
+
+    final response = await http.get(uri, headers: headers);
+    isLoading = false;
+
     if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      return fromJson(data);
+      final decoded = json.decode(response.body);
+
+      if (decoded is Map<String, dynamic> && decoded.containsKey('items')) {
+        final itemsList =
+            (decoded['items'] as List).map((json) => fromJson(json)).toList();
+        final totalCount = decoded['totalCount'] as int;
+        items = itemsList;
+
+        return PaginatedResult(items: itemsList, totalCount: totalCount);
+      } else if (decoded is List) {
+        final itemsList = decoded.map((json) => fromJson(json)).toList();
+        items = itemsList;
+        return PaginatedResult(items: itemsList, totalCount: itemsList.length);
+      } else {
+        throw Exception('Unexpected response format');
+      }
     } else {
-      return null;
+      throw Exception('Failed to fetch items');
+    }
+  }
+
+  Future<T?> getById(dynamic id) async {
+    isLoading = true;
+
+    try {
+      final headers = await getHeaders();
+      final response = await http.get(
+        Uri.parse('$_baseUrl/$_endPoint/$id'),
+        headers: headers,
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return fromJson(data);
+      } else {
+        return null;
+      }
+    } finally {
+      isLoading = false;
     }
   }
 

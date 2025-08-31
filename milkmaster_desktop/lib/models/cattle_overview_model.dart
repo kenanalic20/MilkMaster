@@ -5,8 +5,8 @@ part 'cattle_overview_model.g.dart';
 @JsonSerializable()
 class CattleOverview {
   final String? description;
-  final double weight;
-  final double height;
+  final double? weight;
+  final double? height;
   final String diet;
   
 

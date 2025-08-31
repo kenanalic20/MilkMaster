@@ -1,17 +1,31 @@
+import 'dart:io';
 import 'dart:math';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:intl/intl.dart';
 import 'package:milkmaster_desktop/main.dart';
 import 'package:milkmaster_desktop/models/cattle_category_model.dart';
 import 'package:milkmaster_desktop/models/cattle_model.dart';
+import 'package:milkmaster_desktop/models/file_model.dart';
 import 'package:milkmaster_desktop/providers/cattle_category_provider.dart';
 import 'package:milkmaster_desktop/providers/cattle_provider.dart';
+import 'package:milkmaster_desktop/providers/file_provider.dart';
 import 'package:milkmaster_desktop/utils/widget_helpers.dart';
 import 'package:milkmaster_desktop/widgets/master_screen.dart';
 import 'package:provider/provider.dart';
 
 class CattleScreen extends StatefulWidget {
-  const CattleScreen({super.key});
+  final void Function(Widget form) openForm;
+  final void Function() closeForm;
+
+  const CattleScreen({
+    super.key,
+    required this.openForm,
+    required this.closeForm,
+  });
 
   @override
   State<CattleScreen> createState() => _CattleScreenState();
@@ -20,15 +34,21 @@ class CattleScreen extends StatefulWidget {
 class _CattleScreenState extends State<CattleScreen> {
   late CattleProvider _cattleProvider;
   late CattleCategoryProvider _cattleCategoryProvider;
+  late FileProvider _fileProvider;
   List<Cattle> _cattle = [];
+  Cattle? _singleCattle;
   List<CattleCategory> _categories = [];
+  final _formKey = GlobalKey<FormBuilderState>();
+
   int _pageSize = 8;
   int _totalCount = 0;
   int _currentPage = 1;
   double _totalLiters = 0;
-  double _totalRevenue = 0; 
+  double _totalRevenue = 0;
   int? _selectedCategory;
   String? _selectedSort;
+  File? _uploadedImageFile;
+  File? _uploadedPdfFile;
   final TextEditingController _searchController = TextEditingController();
 
   @override
@@ -40,12 +60,31 @@ class _CattleScreenState extends State<CattleScreen> {
     _fetchCattle(extraQuery: {"pageSize": _pageSize});
   }
 
+  void openForm() {
+    _uploadedImageFile = null;
+    _fileProvider = context.read<FileProvider>();
+    widget.openForm(
+      SingleChildScrollView(
+        child: MasterWidget(title: 'Add Cattle', body: _buildCattleForm()),
+      ),
+    );
+  }
+
   Future<void> _fetchCategories() async {
     final result = await _cattleCategoryProvider.fetchAll();
     if (mounted) {
       setState(() {
         _categories = result.items;
         _totalCount = result.totalCount;
+      });
+    }
+  }
+
+  Future<void> _fetchById(int id) async {
+    final result = await _cattleProvider.getById(id);
+    if (mounted) {
+      setState(() {
+        _singleCattle = result;
       });
     }
   }
@@ -97,7 +136,9 @@ class _CattleScreenState extends State<CattleScreen> {
 
   Widget _buildCattleStats() {
     return Padding(
-      padding: EdgeInsets.only(bottom: Theme.of(context).extension<AppSpacing>()!.large),
+      padding: EdgeInsets.only(
+        bottom: Theme.of(context).extension<AppSpacing>()!.large,
+      ),
       child: Row(
         children: [
           Wrap(
@@ -110,8 +151,8 @@ class _CattleScreenState extends State<CattleScreen> {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: Theme.of(context).colorScheme.tertiary,
-                    style: BorderStyle.solid
-                  )
+                    style: BorderStyle.solid,
+                  ),
                 ),
                 child: Center(
                   child: Column(
@@ -120,20 +161,21 @@ class _CattleScreenState extends State<CattleScreen> {
                       Text(
                         "Total Cattle",
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.bold
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        spacing: Theme.of(context).extension<AppSpacing>()!.small,
+                        spacing:
+                            Theme.of(context).extension<AppSpacing>()!.small,
                         children: [
                           leadingIcon('assets/icons/cow_icon_yellow.png'),
                           Text(
                             _totalCount.toString(),
-                             style: Theme.of(context).textTheme.headlineMedium
+                            style: Theme.of(context).textTheme.headlineMedium,
                           ),
                         ],
-                      )
+                      ),
                     ],
                   ),
                 ),
@@ -145,8 +187,8 @@ class _CattleScreenState extends State<CattleScreen> {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: Theme.of(context).colorScheme.tertiary,
-                    style: BorderStyle.solid
-                  )
+                    style: BorderStyle.solid,
+                  ),
                 ),
                 child: Center(
                   child: Column(
@@ -155,21 +197,22 @@ class _CattleScreenState extends State<CattleScreen> {
                       Text(
                         "Milk Production",
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.bold
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        spacing: Theme.of(context).extension<AppSpacing>()!.small,
+                        spacing:
+                            Theme.of(context).extension<AppSpacing>()!.small,
 
                         children: [
                           leadingIcon('assets/icons/milk_icon_yellow.png'),
                           Text(
                             "${formatDouble(_totalLiters)} L",
-                             style: Theme.of(context).textTheme.headlineMedium
+                            style: Theme.of(context).textTheme.headlineMedium,
                           ),
                         ],
-                      )
+                      ),
                     ],
                   ),
                 ),
@@ -181,8 +224,8 @@ class _CattleScreenState extends State<CattleScreen> {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: Theme.of(context).colorScheme.tertiary,
-                    style: BorderStyle.solid
-                  )
+                    style: BorderStyle.solid,
+                  ),
                 ),
                 child: Center(
                   child: Column(
@@ -192,31 +235,33 @@ class _CattleScreenState extends State<CattleScreen> {
                       Text(
                         "Total Revenue",
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.bold
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        spacing: Theme.of(context).extension<AppSpacing>()!.small,
+                        spacing:
+                            Theme.of(context).extension<AppSpacing>()!.small,
                         children: [
                           Text(
                             formatDouble(_totalRevenue),
-                             style: Theme.of(context).textTheme.headlineMedium
+                            style: Theme.of(context).textTheme.headlineMedium,
                           ),
                           Text(
                             "BAM",
-                             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                              color: Theme.of(context).colorScheme.secondary
-                             )
+                            style: Theme.of(
+                              context,
+                            ).textTheme.headlineMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
                           ),
                         ],
-                      )
+                      ),
                     ],
                   ),
                 ),
-              )
-          
-            ]
+              ),
+            ],
           ),
         ],
       ),
@@ -421,6 +466,611 @@ class _CattleScreenState extends State<CattleScreen> {
               ),
             ),
           ),
+          Container(
+            height: 45,
+            margin: EdgeInsets.only(
+              top: Theme.of(context).extension<AppSpacing>()!.medium,
+            ),
+            child: ElevatedButton(
+              onPressed: () async => {openForm()},
+              child: Text('Add Product Category'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  FormBuilder _buildCattleForm({cattle = null}) {
+    final isEdit = cattle != null;
+    return FormBuilder(
+      key: _formKey,
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            FormBuilderField<File?>(
+              name: 'image',
+              initialValue:
+                  cattle != null && cattle.imageUrl.isNotEmpty ? null : null,
+              validator: (val) {
+                if (!isEdit && (val == null)) {
+                  return 'Image is required for new categories';
+                }
+                return null;
+              },
+              builder: (field) {
+                return Column(
+                  children: [
+                    FilePickerWithPreview(
+                      imageUrl: cattle?.imageUrl,
+                      onFileSelected: (file) {
+                        _uploadedImageFile = file;
+                        field.didChange(file);
+                        field.validate();
+                      },
+                    ),
+                    if (field.errorText != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 6),
+                        child: Center(
+                          child: Text(
+                            field.errorText!,
+                            style: TextStyle(
+                              color: Theme.of(field.context).colorScheme.error,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                );
+              },
+            ),
+
+            const SizedBox(height: 16),
+
+            FormBuilderField<File?>(
+              name: 'milkCarton',
+              validator:
+                  (val) =>
+                      !isEdit && val == null
+                          ? 'Milk carton PDF is required'
+                          : null,
+              builder:
+                  (field) => Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () async {
+                          FilePickerResult? result = await FilePicker.platform
+                              .pickFiles(
+                                type: FileType.custom,
+                                allowedExtensions: ['pdf'],
+                              );
+                          if (result != null) {
+                            final file = File(result.files.single.path!);
+                            _uploadedPdfFile = file;
+                            field.didChange(file);
+                          }
+                        },
+                        child: Text(
+                          _uploadedPdfFile != null
+                              ? "PDF Selected: ${_uploadedPdfFile!.path.split('/').last}"
+                              : (cattle?.milkCartonUrl != null &&
+                                      cattle!.milkCartonUrl!.isNotEmpty
+                                  ? "Current PDF: ${cattle.milkCartonUrl!.split('/').last}"
+                                  : "Select Milk Carton PDF"),
+                        ),
+                      ),
+                      if (field.errorText != null)
+                        Text(
+                          field.errorText!,
+                          style: TextStyle(color: Colors.red, fontSize: 12),
+                        ),
+                    ],
+                  ),
+            ),
+            SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+
+            Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.5,
+                child: FormBuilderTextField(
+                  name: 'name',
+                  initialValue: cattle?.name ?? '',
+                  decoration: const InputDecoration(labelText: 'Cattle Name'),
+                  validator: FormBuilderValidators.required(),
+                ),
+              ),
+            ),
+            SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+
+            Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.5,
+                child: FormBuilderTextField(
+                  name: 'tagNumber',
+                  initialValue: cattle?.tagNumber ?? '',
+                  decoration: const InputDecoration(labelText: 'Tag Number'),
+                  validator: FormBuilderValidators.required(),
+                ),
+              ),
+            ),
+            SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+
+            Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.5,
+                child: FormBuilderDropdown<int>(
+                  name: 'cattleCategoryId',
+                  decoration: const InputDecoration(
+                    labelText: 'Cattle Category',
+                  ),
+                  items:
+                      _categories
+                          .map(
+                            (cat) => DropdownMenuItem(
+                              value: cat.id,
+                              child: Text(cat.name),
+                            ),
+                          )
+                          .toList(),
+                  initialValue: cattle?.cattleCategory.id,
+                  validator: FormBuilderValidators.required(),
+                ),
+              ),
+            ),
+            SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+
+            Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.5,
+                child: FormBuilderTextField(
+                  name: 'breedOfCattle',
+                  initialValue: cattle?.breedOfCattle ?? '',
+                  decoration: const InputDecoration(labelText: 'Breed'),
+                ),
+              ),
+            ),
+            SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+
+            Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.5,
+
+                child: FormBuilderTextField(
+                  name: 'litersPerDay',
+                  initialValue: cattle?.litersPerDay?.toString() ?? '',
+                  decoration: const InputDecoration(
+                    labelText: 'Liters per Day',
+                    prefixIcon: Icon(Icons.local_drink_outlined),
+                  ),
+                  validator: FormBuilderValidators.numeric(),
+                ),
+              ),
+            ),
+            SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+
+            Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.5,
+                child: FormBuilderTextField(
+                  name: 'monthlyValue',
+                  initialValue: cattle?.monthlyValue?.toString() ?? '',
+                  decoration: const InputDecoration(
+                    labelText: 'Monthly Value',
+                    prefixIcon: Icon(Icons.attach_money_outlined),
+                  ),
+                  validator: FormBuilderValidators.numeric(),
+                ),
+              ),
+            ),
+            SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+
+            Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.5,
+                child: FormBuilderDateTimePicker(
+                  name: 'birthDate',
+                  initialValue: cattle?.birthDate,
+                  decoration: const InputDecoration(
+                    labelText: 'Birth Date',
+                    prefixIcon: Icon(Icons.calendar_month_outlined),
+                  ),
+                  inputType: InputType.date,
+                ),
+              ),
+            ),
+            SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+
+            Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.5,
+                child: FormBuilderDateTimePicker(
+                  name: 'healthCheck',
+                  initialValue: cattle?.healthCheck,
+                  decoration: const InputDecoration(
+                    labelText: 'Last Health Check',
+                    prefixIcon: Icon(Icons.calendar_month_outlined),
+                  ),
+                  inputType: InputType.date,
+                ),
+              ),
+            ),
+
+            const Divider(height: 32),
+            Text(
+              "Overview (optional)",
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+            SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+
+            Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.5,
+                child: FormBuilderTextField(
+                  name: 'overview.description',
+                  maxLines: 3,
+                  initialValue: _singleCattle?.overview?.description ?? '',
+                  decoration: const InputDecoration(labelText: 'Description'),
+                ),
+              ),
+            ),
+            SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+
+            Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.5,
+
+                child: FormBuilderTextField(
+                  name: 'overview.weight',
+                  initialValue: cattle?.overview?.weight?.toString() ?? '',
+                  decoration: const InputDecoration(
+                    prefixIcon: Icon(Icons.balance_outlined),
+                    labelText: 'Weight (kg)',
+                  ),
+                  validator: FormBuilderValidators.numeric(),
+                ),
+              ),
+            ),
+            SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+
+            Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.5,
+
+                child: FormBuilderTextField(
+                  name: 'overview.height',
+                  initialValue: cattle?.overview?.height?.toString() ?? '',
+                  decoration: const InputDecoration(
+                    prefixIcon: Icon(Icons.straighten_outlined),
+                    labelText: 'Height (cm)',
+                  ),
+                  validator: FormBuilderValidators.numeric(),
+                ),
+              ),
+            ),
+            SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+
+            Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.5,
+
+                child: FormBuilderTextField(
+                  name: 'overview.diet',
+                  maxLines: 3,
+                  initialValue: cattle?.overview?.diet ?? '',
+                  decoration: const InputDecoration(labelText: 'Diet'),
+                ),
+              ),
+            ),
+
+            const Divider(height: 32),
+            Text(
+              "Breeding Status (optional)",
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+            SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+
+            Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.5,
+
+                child: FormBuilderSwitch(
+                  name: 'breedingStatus.pragnancyStatus',
+                  title: const Text("Pregnancy Status"),
+                  initialValue:
+                      cattle?.breedingStatus?.pragnancyStatus ?? false,
+                ),
+              ),
+            ),
+            SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+
+            Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.5,
+
+                child: FormBuilderDateTimePicker(
+                  name: 'breedingStatus.lastCalving',
+                  initialValue:
+                      (cattle?.breedingStatus?.lastCalving != null &&
+                              cattle!.breedingStatus!.lastCalving ==
+                                  DateTime(1, 1, 1))
+                          ? null
+                          : cattle?.breedingStatus?.lastCalving,
+                  decoration: const InputDecoration(
+                    prefixIcon: Icon(Icons.calendar_month_outlined),
+                    labelText: 'Last Calving Date',
+                  ),
+                  inputType: InputType.date,
+                ),
+              ),
+            ),
+            SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+
+            Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.5,
+
+                child: FormBuilderTextField(
+                  name: 'breedingStatus.numberOfCalves',
+                  initialValue:
+                      cattle?.breedingStatus?.numberOfCalves?.toString() ?? '',
+                  decoration: const InputDecoration(
+                    labelText: 'Number of Calves',
+                  ),
+                  validator: FormBuilderValidators.numeric(),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 24),
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.5,
+
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  ElevatedButton(
+                    onPressed: () => widget.closeForm(),
+                    child: const Text('Cancel'),
+                  ),
+                  const SizedBox(width: 16),
+                  ElevatedButton(
+                    onPressed: () async {
+                      if (_formKey.currentState?.saveAndValidate() ?? false) {
+                        final rawValues = Map<String, dynamic>.from(
+                          _formKey.currentState!.value,
+                        );
+                        rawValues.remove('image');
+                        rawValues.remove('milkCarton');
+
+                        final body = <String, dynamic>{};
+
+                        for (var entry in rawValues.entries) {
+                          if (!entry.key.contains('.')) {
+                            body[entry.key] = entry.value;
+                          }
+                        }
+
+                        final overview = {
+                          "description": rawValues["overview.description"],
+                          "weight":
+                              (rawValues["overview.weight"] != null &&
+                                      rawValues["overview.weight"]
+                                          .toString()
+                                          .isNotEmpty)
+                                  ? double.tryParse(
+                                    rawValues["overview.weight"].toString(),
+                                  )
+                                  : null,
+                          "height":
+                              (rawValues["overview.height"] != null &&
+                                      rawValues["overview.height"]
+                                          .toString()
+                                          .isNotEmpty)
+                                  ? double.tryParse(
+                                    rawValues["overview.height"].toString(),
+                                  )
+                                  : null,
+                          "diet": rawValues["overview.diet"],
+                        }..removeWhere((_, v) => v == null || v == "");
+
+                        if (overview.isNotEmpty) {
+                          body["overview"] = overview;
+                        }
+
+                        final breedingStatus = {
+                          "pragnancyStatus":
+                              rawValues["breedingStatus.pragnancyStatus"],
+                          "lastCalving": toIso(
+                            rawValues["breedingStatus.lastCalving"],
+                          ),
+                          "numberOfCalves":
+                              rawValues["breedingStatus.numberOfCalves"] != ""
+                                  ? int.tryParse(
+                                    rawValues["breedingStatus.numberOfCalves"],
+                                  )
+                                  : null,
+                        }..removeWhere((_, v) => v == null || v == "");
+
+                        body["birthDate"] = toIso(rawValues["birthDate"]);
+                        body["healthCheck"] = toIso(rawValues["healthCheck"]);
+
+                        if (breedingStatus.isNotEmpty) {
+                          body["breedingStatus"] = breedingStatus;
+                        }
+
+                        if (_uploadedImageFile != null) {
+                          final uploadedUrl = await _fileProvider.uploadFile(
+                            FileModel(
+                              file: _uploadedImageFile!,
+                              subfolder: 'Images/Cattle',
+                            ),
+                          );
+                          body['imageUrl'] = uploadedUrl;
+                        } else {
+                          body['imageUrl'] = cattle?.imageUrl;
+                        }
+
+                        if (_uploadedPdfFile != null) {
+                          final uploadedPdfUrl = await _fileProvider.uploadFile(
+                            FileModel(
+                              file: _uploadedPdfFile!,
+                              subfolder: 'Documents/MilkCartons',
+                            ),
+                          );
+                          body['milkCartonUrl'] = uploadedPdfUrl;
+                        } else {
+                          body['milkCartonUrl'] = cattle?.milkCartonUrl;
+                        }
+
+                        if (isEdit) {
+                          await _cattleProvider.update(cattle.id, body);
+                        } else {
+                          await _cattleProvider.create(body);
+                        }
+
+                        await _fetchCattle();
+                        widget.closeForm();
+                      }
+                    },
+                    child: Text(isEdit ? 'Update Cattle' : 'Create Cattle'),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCattleView({required Cattle cattle}) {
+  final overview = cattle.overview;
+  final breeding = cattle.breedingStatus;
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      // Image
+      if (cattle.imageUrl != null && cattle.imageUrl!.isNotEmpty)
+        Center(
+          child: Image.network(
+            cattle.imageUrl!,
+            height: 200,
+            fit: BoxFit.cover,
+          ),
+        ),
+      const SizedBox(height: 16),
+  
+      // Milk Carton PDF
+      if (cattle.milkCartonUrl != null && cattle.milkCartonUrl!.isNotEmpty)
+        Center(
+          child: ElevatedButton.icon(
+            onPressed: () async {
+              await _cattleProvider.downloadPdfToUserLocation(cattle.milkCartonUrl);
+            },
+            icon: const Icon(Icons.picture_as_pdf),
+            label: Text(cattle.milkCartonUrl.split('/').last),
+          ),
+        ),
+      const SizedBox(height: 24),
+  
+      // Basic Info Card
+      Card(
+        margin: const EdgeInsets.only(bottom: 16),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Basic Info', style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: 12),
+              _buildInfoRow('Name', cattle.name),
+              _buildInfoRow('Tag Number', cattle.tagNumber),
+              _buildInfoRow('Breed', cattle.breedOfCattle),
+              _buildInfoRow('Category', cattle.cattleCategory.name),
+              _buildInfoRow('Liters per Day', "${cattle.litersPerDay} L"),
+              _buildInfoRow('Monthly Value', "${cattle.monthlyValue} BAM"),
+              _buildInfoRow(
+                'Birth Date',
+                cattle.birthDate != null
+                    ? DateFormat.yMMMd().format(cattle.birthDate!)
+                    : '-',
+              ),
+              _buildInfoRow(
+                'Last Health Check',
+                cattle.healthCheck != null
+                    ? DateFormat.yMMMd().format(cattle.healthCheck!)
+                    : '-',
+              ),
+            ],
+          ),
+        ),
+      ),
+  
+      // Overview Card
+      Card(
+        margin: const EdgeInsets.only(bottom: 16),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Overview', style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: 12),
+              _buildInfoRow('Description', overview?.description),
+              _buildInfoRow('Weight', overview?.weight?.toString()),
+              _buildInfoRow('Height', overview?.height?.toString()),
+              _buildInfoRow('Diet', overview?.diet),
+            ],
+          ),
+        ),
+      ),
+  
+      // Breeding Status Card
+      Card(
+        margin: const EdgeInsets.only(bottom: 16),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Breeding Status', style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: 12),
+              _buildInfoRow('Pregnancy Status',
+                  breeding?.pragnancyStatus == true ? 'Yes' : 'No'),
+              _buildInfoRow(
+                'Last Calving',
+                breeding?.lastCalving != null
+                    ? DateFormat.yMMMd().format(breeding!.lastCalving!)
+                    : '-',
+              ),
+              _buildInfoRow('Number of Calves',
+                  breeding?.numberOfCalves?.toString() ?? '-'),
+            ],
+          ),
+        ),
+      ),
+    ],
+  );
+}
+
+
+  Widget _buildInfoRow(String label, String? value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 150,
+            child: Text(
+              '$label:',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          Expanded(child: Text(value ?? '-')),
         ],
       ),
     );
@@ -483,12 +1133,14 @@ class _CattleScreenState extends State<CattleScreen> {
                           ),
                         ),
                         DataCell(
+                          Text(cattle.name, overflow: TextOverflow.ellipsis),
+                        ),
+                        DataCell(
                           Text(
-                            cattle.name,
+                            "${cattle.cattleCategory.name}",
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        DataCell(Text("${cattle.cattleCategory.name}",overflow: TextOverflow.ellipsis,)),
                         DataCell(Text("${cattle.age} years")),
                         DataCell(
                           Text(
@@ -497,10 +1149,12 @@ class _CattleScreenState extends State<CattleScreen> {
                           ),
                         ),
                         DataCell(
-                          Text("${formatDouble(cattle.monthlyValue)} BAM",
-                          overflow: TextOverflow.ellipsis,),
+                          Text(
+                            "${formatDouble(cattle.monthlyValue)} BAM",
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
-                         DataCell(
+                        DataCell(
                           Row(
                             children: [
                               MouseRegion(
@@ -511,7 +1165,19 @@ class _CattleScreenState extends State<CattleScreen> {
                                     width: 24,
                                     height: 24,
                                   ),
-                                  onTap: () {},
+                                  onTap: () async {
+                                    await _fetchById(cattle.id);
+
+                                    widget.openForm(
+                                      SingleChildScrollView(
+                                        child: MasterWidget(
+                                          body: _buildCattleView(
+                                            cattle: _singleCattle!,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
                                 ),
                               ),
                               const SizedBox(width: 5),
@@ -523,7 +1189,20 @@ class _CattleScreenState extends State<CattleScreen> {
                                     width: 24,
                                     height: 24,
                                   ),
-                                  onTap: () {},
+                                  onTap: () async {
+                                    await _fetchById(cattle.id);
+                                    widget.openForm(
+                                      SingleChildScrollView(
+                                        child: MasterWidget(
+                                          title: 'Edit Cattle',
+                                          subtitle: cattle.name,
+                                          body: _buildCattleForm(
+                                            cattle: _singleCattle,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
                                 ),
                               ),
                               const SizedBox(width: 5),
@@ -541,8 +1220,7 @@ class _CattleScreenState extends State<CattleScreen> {
                                       title: "Delete Order",
                                       message:
                                           "Are you sure you want to delete '${cattle.name}'?",
-                                      onConfirm: () async {
-                                      },
+                                      onConfirm: () async {},
                                     );
                                   },
                                 ),

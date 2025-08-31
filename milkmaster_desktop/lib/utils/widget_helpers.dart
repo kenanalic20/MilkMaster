@@ -14,6 +14,13 @@ Widget leadingIcon(dynamic icon, {double width = 25, double height = 25}) {
   }
 }
 
+String? toIso(dynamic value) {
+  if (value == null) return null;
+  if (value is DateTime) return value.toIso8601String();
+  return value.toString();
+}
+
+
 String formatDouble(double value) {
   double rounded = double.parse(value.toStringAsFixed(2));
 
