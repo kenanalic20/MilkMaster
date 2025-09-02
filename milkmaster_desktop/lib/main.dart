@@ -85,6 +85,11 @@ class MyApp extends StatelessWidget {
             fontWeight: FontWeight.bold,
             color: Colors.black,
           ),
+          headlineSmall: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
+          ),
           bodyLarge: TextStyle(fontSize: 18, color: Colors.black),
           bodyMedium: TextStyle(fontSize: 14, color: Colors.black),
         ),
@@ -135,28 +140,28 @@ class AppButtonStyles {
     side: BorderSide(
       color: Color.fromRGBO(249,168,37,1),
     ),
-    textStyle: const TextStyle(fontWeight: FontWeight.bold),
   );
 
   static ButtonStyle secondary = ElevatedButton.styleFrom(
-    backgroundColor: Color(0xFFFFC107),
+     backgroundColor: Colors.transparent,
     foregroundColor: Colors.black,
     shadowColor: Colors.transparent,
+    side: BorderSide(color:Colors.black ),
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(12),
     ),
-    textStyle: const TextStyle(fontWeight: FontWeight.bold),
   );
 
   // Danger / Delete button
   static ButtonStyle danger = ElevatedButton.styleFrom(
-    backgroundColor: Color(0xFFD32F2F),
-    foregroundColor: Colors.white,
+    backgroundColor: Colors.transparent,
+    foregroundColor: Color(0xFFD32F2F),
     shadowColor: Colors.transparent,
+    side: BorderSide(color:Color(0xFFD32F2F) ),
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(12),
+     
     ),
-    textStyle: const TextStyle(fontWeight: FontWeight.bold),
   );
 }
 

@@ -63,7 +63,7 @@ namespace MilkMaster.Infrastructure.Seeders
                 defaultProducts.Add(new ProductsCreateDto
                 {
                     Title = $"Product {i + 1}",
-                    ImageUrl = $"{_baseUrl}/Images/Products/Cheese.jpg",
+                    ImageUrl = $"{_baseUrl}/Images/Products/Cheese{i+1}.jpg",
                     CattleCategoryId = 1,
                     UnitId = 1,
                     PricePerUnit = 5.0m + i,
