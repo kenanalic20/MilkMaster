@@ -349,7 +349,7 @@ class _CattleScreenState extends State<CattleScreen> {
           SizedBox(width: Theme.of(context).extension<AppSpacing>()!.medium),
 
           SizedBox(
-            width: 140,
+            width: 180,
             child: DropdownButtonHideUnderline(
               child: DropdownButton2<int>(
                 value: _selectedCategory,
@@ -481,7 +481,7 @@ class _CattleScreenState extends State<CattleScreen> {
 
           SizedBox(
             height: 45,
-
+            width: 137,
             child: ElevatedButton(
               onPressed: () async => {openForm()},
               child: Text('Add Cattle'),

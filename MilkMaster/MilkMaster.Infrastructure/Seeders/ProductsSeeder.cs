@@ -31,7 +31,7 @@ namespace MilkMaster.Infrastructure.Seeders
                     UnitId = 1,
                     PricePerUnit = 2.5m,
                     Quantity = 100,
-                    Description = "Locally sourced organic cow milk.",
+                    Description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed a neque ut massa vehicula ultrices in at augue.",
                     ProductCategories = new List<int> { 1 }
                 },
                 new ProductsCreateDto
@@ -42,7 +42,7 @@ namespace MilkMaster.Infrastructure.Seeders
                     UnitId = 2,
                     PricePerUnit = 12.0m,
                     Quantity = 30,
-                    Description = "Soft and creamy goat cheese.",
+                    Description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed a neque ut massa vehicula ultrices in at augue.",
                     ProductCategories = new List<int> { 4 } 
                 },
                 new ProductsCreateDto
@@ -53,7 +53,7 @@ namespace MilkMaster.Infrastructure.Seeders
                     UnitId = 2,
                     PricePerUnit = 12.0m,
                     Quantity = 30,
-                    Description = "Soft and creamy goat cheese.",
+                    Description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed a neque ut massa vehicula ultrices in at augue.",
                     ProductCategories = new List<int> { 1,2,4 }
                 }
             };
@@ -68,7 +68,7 @@ namespace MilkMaster.Infrastructure.Seeders
                     UnitId = 1,
                     PricePerUnit = 5.0m + i,
                     Quantity = 2*i,
-                    Description = $"Description for Product {i + 1}",
+                    Description = $"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed a neque ut massa vehicula ultrices in at augue.",
                     ProductCategories = new List<int> { 1, 2 }
                 });
             }
