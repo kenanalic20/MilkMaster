@@ -368,20 +368,19 @@ class _ProductScreenState extends State<ProductScreen> {
                     onTap: () async {
                       await _fetchById(product.id);
                       widget.openForm(
-                         SingleChildScrollView(
-                            child: MasterWidget(
-                              title: product.title,
-                              headerActions: Center(
-                                            child: ElevatedButton(
-                                              onPressed:
-                                                  () => widget.closeForm(),
+                        SingleChildScrollView(
+                          child: MasterWidget(
+                            title: product.title,
+                            headerActions: Center(
+                              child: ElevatedButton(
+                                onPressed: () => widget.closeForm(),
 
-                                              child: const Text('X'),
-                                            ),
-                                          ),
-                              body: _buildProductView(product: _singleProduct!),
-                            )
-                         )
+                                child: const Text('X'),
+                              ),
+                            ),
+                            body: _buildProductView(product: _singleProduct!),
+                          ),
+                        ),
                       );
                     },
                     child: Column(
@@ -484,7 +483,10 @@ class _ProductScreenState extends State<ProductScreen> {
                         ),
 
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 11,vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 11,
+                            vertical: 8,
+                          ),
                           child: Text(
                             "${formatDouble(product.pricePerUnit)} BAM",
                             style: Theme.of(
@@ -507,7 +509,6 @@ class _ProductScreenState extends State<ProductScreen> {
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 spacing: 10,
                                 children: [
-                                 
                                   Expanded(
                                     child: ElevatedButton(
                                       onPressed: () async {
@@ -528,7 +529,7 @@ class _ProductScreenState extends State<ProductScreen> {
                                       child: const Text("Edit"),
                                     ),
                                   ),
-                                   Expanded(
+                                  Expanded(
                                     child: ElevatedButton(
                                       style: AppButtonStyles.danger,
                                       onPressed: () async {
@@ -641,7 +642,6 @@ class _ProductScreenState extends State<ProductScreen> {
             ),
             SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
 
-
             // TITLE
             Center(
               child: SizedBox(
@@ -654,8 +654,7 @@ class _ProductScreenState extends State<ProductScreen> {
                 ),
               ),
             ),
-                        SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
-
+            SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
 
             // PRICE PER UNIT
             Center(
@@ -664,7 +663,9 @@ class _ProductScreenState extends State<ProductScreen> {
                 child: FormBuilderTextField(
                   name: 'pricePerUnit',
                   initialValue: product?.pricePerUnit?.toString() ?? '',
-                  decoration: const InputDecoration(labelText: 'Price per Unit'),
+                  decoration: const InputDecoration(
+                    labelText: 'Price per Unit',
+                  ),
                   keyboardType: TextInputType.number,
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(),
@@ -673,8 +674,7 @@ class _ProductScreenState extends State<ProductScreen> {
                 ),
               ),
             ),
-                        SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
-
+            SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
 
             Center(
               child: SizedBox(
@@ -696,8 +696,7 @@ class _ProductScreenState extends State<ProductScreen> {
                 ),
               ),
             ),
-                        SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
-
+            SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
 
             // QUANTITY
             Center(
@@ -715,8 +714,7 @@ class _ProductScreenState extends State<ProductScreen> {
                 ),
               ),
             ),
-                        SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
-
+            SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
 
             // DESCRIPTION
             Center(
@@ -730,8 +728,7 @@ class _ProductScreenState extends State<ProductScreen> {
                 ),
               ),
             ),
-                        SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
-
+            SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
 
             // PRODUCT CATEGORIES (Multiselect)
             Center(
@@ -742,7 +739,8 @@ class _ProductScreenState extends State<ProductScreen> {
                   runSpacing: 5,
                   name: 'productCategories',
                   initialValue:
-                      product?.productCategories?.map((c) => c.id).toList() ?? [],
+                      product?.productCategories?.map((c) => c.id).toList() ??
+                      [],
                   decoration: const InputDecoration(labelText: 'Categories'),
                   options:
                       _productCategories
@@ -756,8 +754,7 @@ class _ProductScreenState extends State<ProductScreen> {
                 ),
               ),
             ),
-                        SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
-
+            SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
 
             Center(
               child: SizedBox(
@@ -765,28 +762,31 @@ class _ProductScreenState extends State<ProductScreen> {
                 child: FormBuilderDropdown<int>(
                   name: 'cattleCategoryId',
                   initialValue: product?.cattleCategory?.id,
-                  decoration: const InputDecoration(labelText: 'Cattle Category'),
+                  decoration: const InputDecoration(
+                    labelText: 'Cattle Category',
+                  ),
                   items:
                       _cattleCategories
                           .map(
-                            (c) =>
-                                DropdownMenuItem(value: c.id, child: Text(c.name)),
+                            (c) => DropdownMenuItem(
+                              value: c.id,
+                              child: Text(c.name),
+                            ),
                           )
                           .toList(),
                 ),
               ),
             ),
-                        SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
-
+            SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
 
             // --- NUTRITION SECTION ---
             const Divider(height: 32),
-             Center(
-               child: Text(
+            Center(
+              child: Text(
                 "Nutrition (optional)",
                 style: Theme.of(context).textTheme.bodyLarge,
-                           ),
-             ),
+              ),
+            ),
             SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
 
             Center(
@@ -801,8 +801,7 @@ class _ProductScreenState extends State<ProductScreen> {
                 ),
               ),
             ),
-                        SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
-
+            SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
 
             Center(
               child: SizedBox(
@@ -816,23 +815,24 @@ class _ProductScreenState extends State<ProductScreen> {
                 ),
               ),
             ),
-                        SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
-
+            SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
 
             Center(
               child: SizedBox(
                 width: MediaQuery.of(context).size.width * 0.5,
                 child: FormBuilderTextField(
                   name: 'carbohydrates',
-                  initialValue: product?.nutrition?.carbohydrates?.toString() ?? '',
-                  decoration: const InputDecoration(labelText: 'Carbohydrates (g)'),
+                  initialValue:
+                      product?.nutrition?.carbohydrates?.toString() ?? '',
+                  decoration: const InputDecoration(
+                    labelText: 'Carbohydrates (g)',
+                  ),
                   keyboardType: TextInputType.number,
                   validator: FormBuilderValidators.numeric(),
                 ),
               ),
             ),
-                       SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
-
+            SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
 
             Center(
               child: SizedBox(
@@ -846,8 +846,7 @@ class _ProductScreenState extends State<ProductScreen> {
                 ),
               ),
             ),
-                       SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
-
+            SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
 
             Center(
               child: SizedBox(
@@ -861,8 +860,7 @@ class _ProductScreenState extends State<ProductScreen> {
                 ),
               ),
             ),
-                        SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
-
+            SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
 
             Center(
               child: SizedBox(
@@ -876,10 +874,8 @@ class _ProductScreenState extends State<ProductScreen> {
                 ),
               ),
             ),
-           
 
             SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
-
 
             Center(
               child: SizedBox(
@@ -887,101 +883,141 @@ class _ProductScreenState extends State<ProductScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                        ElevatedButton(
-                          onPressed: () => widget.closeForm(),
-                          child: const Text('Cancel'),
-                        ),
-                        const SizedBox(width: 16),
-                        Builder(
-                          builder: (context) {
-                            return ElevatedButton(
-                              onPressed: () async {
-                                if (_formKey.currentState?.saveAndValidate() ?? false) {
-                                  final body = Map<String, dynamic>.from(
-                                    _formKey.currentState!.value,
-                                  );
-                                  body.remove('image');
-                                  if (_uploadedImageFile != null) {
-                                    final uploadedUrl = await _fileProvider.uploadFile(
+                    ElevatedButton(
+                      onPressed: () => widget.closeForm(),
+                      child: const Text('Cancel'),
+                    ),
+                    const SizedBox(width: 16),
+                    Builder(
+                      builder: (context) {
+                        return ElevatedButton(
+                          onPressed: () async {
+                            if (_formKey.currentState?.saveAndValidate() ??
+                                false) {
+                              final body = Map<String, dynamic>.from(
+                                _formKey.currentState!.value,
+                              );
+                              body.remove('image');
+                              if (_uploadedImageFile != null) {
+                                final uploadedUrl = await _fileProvider
+                                    .uploadFile(
                                       FileModel(
                                         file: _uploadedImageFile!,
                                         subfolder: 'Images/Products',
                                       ),
                                     );
-                                    body['imageUrl'] = uploadedUrl;
-                                  } else {
-                                    body['imageUrl'] = product?.imageUrl;
-                                  }
-                                  // Build nutrition object safely
-                                  final energyVal = body.remove('energy');
-                                  final fatVal = body.remove('fat');
-                                  final carbVal = body.remove('carbohydrates');
-                                  final proteinVal = body.remove('protein');
-                                  final saltVal = body.remove('salt');
-                                  final calciumVal = body.remove('calcium');
-                                              
-                                  final nutrition = {
-                                    'energy':
-                                        (energyVal == null ||
-                                                energyVal.toString().isEmpty)
-                                            ? null
-                                            : double.parse(energyVal),
-                                    'fat':
-                                        (fatVal == null || fatVal.toString().isEmpty)
-                                            ? null
-                                            : double.parse(fatVal),
-                                    'carbohydrates':
-                                        (carbVal == null || carbVal.toString().isEmpty)
-                                            ? null
-                                            : double.parse(carbVal),
-                                    'protein':
-                                        (proteinVal == null ||
-                                                proteinVal.toString().isEmpty)
-                                            ? null
-                                            : double.parse(proteinVal),
-                                    'salt':
-                                        (saltVal == null || saltVal.toString().isEmpty)
-                                            ? null
-                                            : double.parse(saltVal),
-                                    'calcium':
-                                        (calciumVal == null ||
-                                                calciumVal.toString().isEmpty)
-                                            ? null
-                                            : double.parse(calciumVal),
-                                  };
-                                              
-                                  if (nutrition.values.any((v) => v != null)) {
-                                    body['nutrition'] = nutrition;
-                                  } else {
-                                    body['nutrition'] = null;
-                                  }
-                                              
-                                  if (isEdit) {
-                                    await _productProvider.update(product.id, body);
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text("Product updated successfully"),
+                                body['imageUrl'] = uploadedUrl;
+                              } else {
+                                body['imageUrl'] = product?.imageUrl;
+                              }
+                              // Build nutrition object safely
+                              final energyVal = body.remove('energy');
+                              final fatVal = body.remove('fat');
+                              final carbVal = body.remove('carbohydrates');
+                              final proteinVal = body.remove('protein');
+                              final saltVal = body.remove('salt');
+                              final calciumVal = body.remove('calcium');
+
+                              final nutrition = {
+                                'energy':
+                                    (energyVal == null ||
+                                            energyVal.toString().isEmpty)
+                                        ? null
+                                        : double.parse(energyVal),
+                                'fat':
+                                    (fatVal == null ||
+                                            fatVal.toString().isEmpty)
+                                        ? null
+                                        : double.parse(fatVal),
+                                'carbohydrates':
+                                    (carbVal == null ||
+                                            carbVal.toString().isEmpty)
+                                        ? null
+                                        : double.parse(carbVal),
+                                'protein':
+                                    (proteinVal == null ||
+                                            proteinVal.toString().isEmpty)
+                                        ? null
+                                        : double.parse(proteinVal),
+                                'salt':
+                                    (saltVal == null ||
+                                            saltVal.toString().isEmpty)
+                                        ? null
+                                        : double.parse(saltVal),
+                                'calcium':
+                                    (calciumVal == null ||
+                                            calciumVal.toString().isEmpty)
+                                        ? null
+                                        : double.parse(calciumVal),
+                              };
+
+                              if (nutrition.values.any((v) => v != null)) {
+                                body['nutrition'] = nutrition;
+                              } else {
+                                body['nutrition'] = null;
+                              }
+
+                              if (isEdit) {
+                                await showCustomDialog(
+                                context: context,
+                                title: "Update Product",
+                                message:
+                                    "Are you sure you want to update '${product.title}'?",
+                                onConfirm: () async {
+                                  await _productProvider.update(product.id, body);
+
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        "Product Updated successfully",
+                                        style: TextStyle(color: Colors.black),
                                       ),
-                                    );
-                                  } else {
-                                    print('Create body:${body}');
-                                    await _productProvider.create(body);
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text("Product added successfully"),
-                                      ),
-                                    );
-                                  }
-                                              
-                                  await _fetchProduct();
+                                      backgroundColor:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.secondary,
+                                      duration: Duration(seconds: 2),
+                                    ),
+                                  );
                                   widget.closeForm();
-                                }
-                              },
-                              child: Text(isEdit ? 'Update Product' : 'Add Product'),
-                            );
-                          }
-                        )
-                   
+                                },
+                              );
+                              } else {
+                                 await showCustomDialog(
+                                context: context,
+                                title: "Add Product",
+                                message:
+                                    "Are you sure you want to add '${body['title']}'?",
+                                onConfirm: () async {
+                                  await _productProvider.create(body);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        "Product Added successfully",
+                                        style: TextStyle(color: Colors.black),
+                                      ),
+                                      backgroundColor:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.secondary,
+                                      duration: Duration(seconds: 2),
+                                    ),
+                                  );
+                                  widget.closeForm();
+                                },
+                              );
+                              }
+
+                              await _fetchProduct();
+                              widget.closeForm();
+                            }
+                          },
+                          child: Text(
+                            isEdit ? 'Update Product' : 'Add Product',
+                          ),
+                        );
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -992,41 +1028,20 @@ class _ProductScreenState extends State<ProductScreen> {
     );
   }
 
-Widget _buildProductView({required Product product}) {
-  final nutrition = product.nutrition;
-  final cattleCategory = product.cattleCategory;
-  final categories = product.productCategories ?? [];
+  Widget _buildProductView({required Product product}) {
+    final nutrition = product.nutrition;
+    final cattleCategory = product.cattleCategory;
+    final categories = product.productCategories ?? [];
 
-  return SingleChildScrollView(
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (product.imageUrl.isNotEmpty)
-          FilePickerWithPreview(imageUrl: product.imageUrl, hasButton: false,),
-        const SizedBox(height: 16),
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (product.imageUrl.isNotEmpty)
+            FilePickerWithPreview(imageUrl: product.imageUrl, hasButton: false),
+          const SizedBox(height: 16),
 
-        // BASIC INFO
-        Card(
-          margin: const EdgeInsets.only(bottom: 16),
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Basic Info', style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: 12),
-                buildInfoRow('Title', product.title),
-                buildInfoRow('Price per Unit', "${product.pricePerUnit}"),
-                buildInfoRow('Unit', product.unit?.symbol),
-                buildInfoRow('Quantity', product.quantity.toString()),
-                buildInfoRow('Description', product.description),
-              ],
-            ),
-          ),
-        ),
-
-        // PRODUCT CATEGORIES
-        if (categories.isNotEmpty)
+          // BASIC INFO
           Card(
             margin: const EdgeInsets.only(bottom: 16),
             child: Padding(
@@ -1034,78 +1049,118 @@ Widget _buildProductView({required Product product}) {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Product Categories', style: Theme.of(context).textTheme.titleMedium),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: categories.map((c) {
-                      return Chip(
-                        avatar: (c.imageUrl.isNotEmpty)
-                            ? CircleAvatar(backgroundImage: NetworkImage(c.imageUrl))
-                            : null,
-                        label: Text(c.name),
-                      );
-                    }).toList(),
+                  Text(
+                    'Basic Info',
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
+                  const SizedBox(height: 12),
+                  buildInfoRow('Title', product.title),
+                  buildInfoRow('Price per Unit', "${product.pricePerUnit}"),
+                  buildInfoRow('Unit', product.unit?.symbol),
+                  buildInfoRow('Quantity', product.quantity.toString()),
+                  buildInfoRow('Description', product.description),
                 ],
               ),
             ),
           ),
 
-        // CATTLE CATEGORY
-        if (cattleCategory != null)
-          Card(
-            margin: const EdgeInsets.only(bottom: 16),
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Cattle Category', style: Theme.of(context).textTheme.titleMedium),
-                  const SizedBox(height: 12),
-                  if (cattleCategory.imageUrl.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0),
-                      child: Image.network(
-                        cattleCategory.imageUrl,
-                        height: 80,
-                        fit: BoxFit.contain,
-                      ),
+          // PRODUCT CATEGORIES
+          if (categories.isNotEmpty)
+            Card(
+              margin: const EdgeInsets.only(bottom: 16),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Product Categories',
+                      style: Theme.of(context).textTheme.titleMedium,
                     ),
-                  buildInfoRow('Name', cattleCategory.name),
-                  buildInfoRow('Title', cattleCategory.title),
-                  buildInfoRow('Description', cattleCategory.description),
-                ],
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children:
+                          categories.map((c) {
+                            return Chip(
+                              avatar:
+                                  (c.imageUrl.isNotEmpty)
+                                      ? CircleAvatar(
+                                        backgroundImage: NetworkImage(
+                                          c.imageUrl,
+                                        ),
+                                      )
+                                      : null,
+                              label: Text(c.name),
+                            );
+                          }).toList(),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
 
-        // NUTRITION
-        if (nutrition != null)
-          Card(
-            margin: const EdgeInsets.only(bottom: 16),
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Nutrition', style: Theme.of(context).textTheme.titleMedium),
-                  const SizedBox(height: 12),
-                  buildInfoRow('Energy', nutrition.energy?.toString()),
-                  buildInfoRow('Fat', nutrition.fat?.toString()),
-                  buildInfoRow('Carbohydrates', nutrition.carbohydrates?.toString()),
-                  buildInfoRow('Protein', nutrition.protein?.toString()),
-                  buildInfoRow('Salt', nutrition.salt?.toString()),
-                  buildInfoRow('Calcium', nutrition.calcium?.toString()),
-                ],
+          // CATTLE CATEGORY
+          if (cattleCategory != null)
+            Card(
+              margin: const EdgeInsets.only(bottom: 16),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Cattle Category',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 12),
+                    if (cattleCategory.imageUrl.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: Image.network(
+                          cattleCategory.imageUrl,
+                          height: 80,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    buildInfoRow('Name', cattleCategory.name),
+                    buildInfoRow('Title', cattleCategory.title),
+                    buildInfoRow('Description', cattleCategory.description),
+                  ],
+                ),
               ),
             ),
-          ),
-      ],
-    ),
-  );
-}
 
-
+          // NUTRITION
+          if (nutrition != null)
+            Card(
+              margin: const EdgeInsets.only(bottom: 16),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Nutrition',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 12),
+                    buildInfoRow('Energy', nutrition.energy?.toString()),
+                    buildInfoRow('Fat', nutrition.fat?.toString()),
+                    buildInfoRow(
+                      'Carbohydrates',
+                      nutrition.carbohydrates?.toString(),
+                    ),
+                    buildInfoRow('Protein', nutrition.protein?.toString()),
+                    buildInfoRow('Salt', nutrition.salt?.toString()),
+                    buildInfoRow('Calcium', nutrition.calcium?.toString()),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
 }
