@@ -61,7 +61,7 @@ class _CattleScreenState extends State<CattleScreen> {
     _fetchCattle(extraQuery: {"pageSize": _pageSize});
   }
 
-  void openForm() {
+  void openForm() async {
     _uploadedImageFile = null;
     _fileProvider = context.read<FileProvider>();
     widget.openForm(
@@ -136,9 +136,7 @@ class _CattleScreenState extends State<CattleScreen> {
       children: [
         _buildSearch(),
         _buildCattleStats(),
-        _cattleProvider.isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : _buildCattle(context),
+        _buildCattle(context),
         _buildPagination(),
       ],
     );
@@ -849,7 +847,8 @@ class _CattleScreenState extends State<CattleScreen> {
               ),
             ),
 
-            const SizedBox(height: 24),
+            SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.5,
 
@@ -1033,7 +1032,7 @@ class _CattleScreenState extends State<CattleScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (cattle.imageUrl != null && cattle.imageUrl!.isNotEmpty)
-          FilePickerWithPreview(imageUrl: cattle.imageUrl),
+          FilePickerWithPreview(imageUrl: cattle.imageUrl,hasButton: false,),
         const SizedBox(height: 16),
 
         if (cattle.milkCartonUrl != null && cattle.milkCartonUrl!.isNotEmpty)
@@ -1062,19 +1061,19 @@ class _CattleScreenState extends State<CattleScreen> {
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 12),
-                _buildInfoRow('Name', cattle.name),
-                _buildInfoRow('Tag Number', cattle.tagNumber),
-                _buildInfoRow('Breed', cattle.breedOfCattle),
-                _buildInfoRow('Category', cattle.cattleCategory.name),
-                _buildInfoRow('Liters per Day', "${cattle.litersPerDay} L"),
-                _buildInfoRow('Monthly Value', "${cattle.monthlyValue} BAM"),
-                _buildInfoRow(
+                buildInfoRow('Name', cattle.name),
+                buildInfoRow('Tag Number', cattle.tagNumber),
+                buildInfoRow('Breed', cattle.breedOfCattle),
+                buildInfoRow('Category', cattle.cattleCategory.name),
+                buildInfoRow('Liters per Day', "${cattle.litersPerDay} L"),
+                buildInfoRow('Monthly Value', "${cattle.monthlyValue} BAM"),
+                buildInfoRow(
                   'Birth Date',
                   cattle.birthDate != null
                       ? DateFormat.yMMMd().format(cattle.birthDate!)
                       : '-',
                 ),
-                _buildInfoRow(
+                buildInfoRow(
                   'Last Health Check',
                   cattle.healthCheck != null
                       ? DateFormat.yMMMd().format(cattle.healthCheck!)
@@ -1097,10 +1096,10 @@ class _CattleScreenState extends State<CattleScreen> {
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 12),
-                _buildInfoRow('Description', overview?.description),
-                _buildInfoRow('Weight (kg)', overview?.weight?.toString()),
-                _buildInfoRow('Height (cm)', overview?.height?.toString()),
-                _buildInfoRow('Diet', overview?.diet),
+                buildInfoRow('Description', overview?.description),
+                buildInfoRow('Weight (kg)', overview?.weight?.toString()),
+                buildInfoRow('Height (cm)', overview?.height?.toString()),
+                buildInfoRow('Diet', overview?.diet),
               ],
             ),
           ),
@@ -1118,11 +1117,11 @@ class _CattleScreenState extends State<CattleScreen> {
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 12),
-                _buildInfoRow(
+                buildInfoRow(
                   'Pregnancy Status',
                   breeding?.pragnancyStatus == true ? 'Yes' : 'No',
                 ),
-                _buildInfoRow(
+                buildInfoRow(
                   'Last Calving',
                   (breeding?.lastCalving != null &&
                           breeding!.lastCalving.isAfter(DateTime(1, 1, 1)))
@@ -1130,7 +1129,7 @@ class _CattleScreenState extends State<CattleScreen> {
                       : '-',
                 ),
 
-                _buildInfoRow(
+                buildInfoRow(
                   'Number of Calves',
                   breeding?.numberOfCalves?.toString() ?? '-',
                 ),
@@ -1142,23 +1141,7 @@ class _CattleScreenState extends State<CattleScreen> {
     );
   }
 
-  Widget _buildInfoRow(String label, String? value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 150,
-            child: Text(
-              '$label:',
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
-          Expanded(child: Text(value ?? '-')),
-        ],
-      ),
-    );
-  }
+
 
   Container _buildCattle(BuildContext context) {
     return Container(
@@ -1174,7 +1157,8 @@ class _CattleScreenState extends State<CattleScreen> {
         subtitleStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
           color: Theme.of(context).colorScheme.tertiary,
         ),
-        body: SingleChildScrollView(
+        body: _cattleProvider.isLoading? const Center(child: CircularProgressIndicator()) :
+        _cattle.isEmpty? NoDataWidget() : SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Container(
             decoration: BoxDecoration(

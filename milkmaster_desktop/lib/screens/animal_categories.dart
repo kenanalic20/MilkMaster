@@ -41,7 +41,7 @@ class _AnimalCategoriesScreenState extends State<AnimalCategoriesScreen> {
     _fetchCattleCategories();
   }
 
-  void openForm() {
+  void openForm() async {
     _uploadedImageFile = null;
     _fileProvider = context.read<FileProvider>();
     widget.openForm(
@@ -233,20 +233,20 @@ class _AnimalCategoriesScreenState extends State<AnimalCategoriesScreen> {
                                     body,
                                   );
                                   ScaffoldMessenger.of(
-                                      dialogContext,
-                                    ).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          "Cattle Category Update successfully",
-                                          style: TextStyle(color: Colors.black),
-                                        ),
-                                        backgroundColor:
-                                            Theme.of(
-                                              dialogContext,
-                                            ).colorScheme.secondary,
-                                        duration: Duration(seconds: 2),
+                                    dialogContext,
+                                  ).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        "Cattle Category Update successfully",
+                                        style: TextStyle(color: Colors.black),
                                       ),
-                                    );
+                                      backgroundColor:
+                                          Theme.of(
+                                            dialogContext,
+                                          ).colorScheme.secondary,
+                                      duration: Duration(seconds: 2),
+                                    ),
+                                  );
                                   await _fetchCattleCategories();
                                   widget.closeForm();
                                 },
@@ -312,6 +312,42 @@ class _AnimalCategoriesScreenState extends State<AnimalCategoriesScreen> {
     );
   }
 
+  Widget _buildCattleCategoryView({required CattleCategory category}) {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (category.imageUrl.isNotEmpty)
+            Center(
+              child: FilePickerWithPreview(imageUrl: category.imageUrl,hasButton: false)
+
+            ),
+          const SizedBox(height: 16),
+
+          Card(
+            margin: const EdgeInsets.only(bottom: 16),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Cattle Category Info',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 12),
+                  buildInfoRow('Name', category.name),
+                  buildInfoRow('Title', category.title),
+                  buildInfoRow('Description', category.description),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildCattleCategories() {
     return MasterWidget(
       title: 'Animal Categories',
@@ -364,47 +400,68 @@ class _AnimalCategoriesScreenState extends State<AnimalCategoriesScreen> {
                       ];
 
               return MouseRegion(
+                cursor: SystemMouseCursors.click,
+
                 onEnter:
                     (_) => setState(() => _hoveredCategoryId = category.id),
                 onExit: (_) => setState(() => _hoveredCategoryId = null),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 4,
-                        offset: Offset(0, 4),
-                      ),
-                    ],
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                child: GestureDetector(
+                  onTap: () async {
+                    widget.openForm(
+                      SingleChildScrollView(
+                        child: MasterWidget(
+                          headerActions: Center(
+                            child: ElevatedButton(
+                              onPressed: () => widget.closeForm(),
 
-                  child: Stack(
-                    children: [
-                      if (isHovered)
-                        index % 2 != 0
-                            ? actionIcons(category, direction: 'right')
-                            : actionIcons(category, direction: 'left'),
-                      Wrap(
-                        children: [
-                          ...rowChildren
-                              .map(
-                                (child) => Stack(
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 4,
-                                      ),
-                                      child: child,
-                                    ),
-                                  ],
-                                ),
-                              )
-                              .toList(),
-                        ],
+                              child: const Text('X'),
+                            ),
+                          ),
+                          title: category.name,
+                          body: _buildCattleCategoryView(category: category),
+                        ),
                       ),
-                    ],
+                    );
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 4,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+
+                    child: Stack(
+                      children: [
+                        if (isHovered)
+                          index % 2 != 0
+                              ? actionIcons(category, direction: 'right')
+                              : actionIcons(category, direction: 'left'),
+                        Wrap(
+                          children: [
+                            ...rowChildren
+                                .map(
+                                  (child) => Stack(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 4,
+                                        ),
+                                        child: child,
+                                      ),
+                                    ],
+                                  ),
+                                )
+                                .toList(),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               );
@@ -431,7 +488,7 @@ class _AnimalCategoriesScreenState extends State<AnimalCategoriesScreen> {
                 ),
                 child: leadingIcon('assets/icons/pentool_icon.png'),
               ),
-              onTap: () {
+              onTap: () async {
                 widget.openForm(
                   SingleChildScrollView(
                     child: MasterWidget(
@@ -463,21 +520,17 @@ class _AnimalCategoriesScreenState extends State<AnimalCategoriesScreen> {
                       "Are you sure you want to delete '${category.name}'?",
                   onConfirm: () async {
                     await _cattleCategoryProvider.delete(category.id);
-                    ScaffoldMessenger.of(
-                                      context,
-                                    ).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          "Cattle Category Deleted successfully",
-                                          style: TextStyle(color: Colors.black),
-                                        ),
-                                        backgroundColor:
-                                            Theme.of(
-                                              context,
-                                            ).colorScheme.secondary,
-                                        duration: Duration(seconds: 2),
-                                      ),
-                                    );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          "Cattle Category Deleted successfully",
+                          style: TextStyle(color: Colors.black),
+                        ),
+                        backgroundColor:
+                            Theme.of(context).colorScheme.secondary,
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
                     await _fetchCattleCategories();
                   },
                 );

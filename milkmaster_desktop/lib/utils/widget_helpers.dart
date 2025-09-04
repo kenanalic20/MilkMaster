@@ -84,8 +84,9 @@ class NoDataWidget extends StatelessWidget {
 class FilePickerWithPreview extends StatefulWidget {
   final void Function(File? file)? onFileSelected;
   final String? imageUrl;
+  final bool hasButton;
 
-  const FilePickerWithPreview({Key? key, this.onFileSelected, this.imageUrl})
+  const FilePickerWithPreview({Key? key, this.onFileSelected, this.imageUrl, this.hasButton = true})
     : super(key: key);
 
   @override
@@ -141,12 +142,13 @@ class _FilePickerWithPreviewState extends State<FilePickerWithPreview> {
             ),
           ),
         SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
-        Center(
-          child: ElevatedButton(
-            onPressed: _pickFile,
-            child: Text(hasLocalFile ? 'Change Image' : 'Select Image'),
+        if(widget.hasButton) 
+          Center(
+            child: ElevatedButton(
+              onPressed: _pickFile,
+              child: Text(hasLocalFile ? 'Change Image' : 'Select Image'),
+            ),
           ),
-        ),
       ],
     );
   }
@@ -271,4 +273,22 @@ class PaginationWidget extends StatelessWidget {
       ),
     );
   }
+}
+
+Widget buildInfoRow(String label, String? value) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 4.0),
+    child: Row(
+      children: [
+        SizedBox(
+          width: 150,
+          child: Text(
+            '$label:',
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
+        Expanded(child: Text(value ?? '-')),
+      ],
+    ),
+  );
 }

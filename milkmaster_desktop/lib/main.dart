@@ -8,6 +8,7 @@ import 'package:milkmaster_desktop/providers/file_provider.dart';
 import 'package:milkmaster_desktop/providers/orders_provider.dart';
 import 'package:milkmaster_desktop/providers/product_category_provider.dart';
 import 'package:milkmaster_desktop/providers/products_provider.dart';
+import 'package:milkmaster_desktop/providers/units_provider.dart';
 import 'package:milkmaster_desktop/widgets/home_shell.dart';
 import 'package:provider/provider.dart';
 import 'package:window_manager/window_manager.dart';
@@ -35,6 +36,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => ProductCategoryProvider()),
         ChangeNotifierProvider(create: (_) => FileProvider()),
         ChangeNotifierProvider(create: (_) => CattleProvider()),
+        ChangeNotifierProvider(create: (_) => UnitsProvider())
 
       ],
 

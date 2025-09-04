@@ -72,9 +72,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
     return Column(
       children: [
         _buildSearch(),
-        _ordersProvider.isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : _buildOrders(context),
+        _buildOrders(context),
         _buildPagination(),
       ],
     );
@@ -303,7 +301,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
           color: Theme.of(context).colorScheme.tertiary,
         ),
         subtitle: 'Latest customer orders',
-        body: SingleChildScrollView(
+        body: _ordersProvider.isLoading? const Center(child: CircularProgressIndicator()) :
+        _orders.isEmpty? NoDataWidget() : SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Container(
             decoration: BoxDecoration(

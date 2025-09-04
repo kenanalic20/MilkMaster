@@ -9,10 +9,12 @@ import 'package:milkmaster_desktop/models/cattle_category_model.dart';
 import 'package:milkmaster_desktop/models/file_model.dart';
 import 'package:milkmaster_desktop/models/product_category_model.dart';
 import 'package:milkmaster_desktop/models/products_model.dart';
+import 'package:milkmaster_desktop/models/unit_model.dart';
 import 'package:milkmaster_desktop/providers/cattle_category_provider.dart';
 import 'package:milkmaster_desktop/providers/file_provider.dart';
 import 'package:milkmaster_desktop/providers/product_category_provider.dart';
 import 'package:milkmaster_desktop/providers/products_provider.dart';
+import 'package:milkmaster_desktop/providers/units_provider.dart';
 import 'package:milkmaster_desktop/utils/widget_helpers.dart';
 import 'package:milkmaster_desktop/widgets/master_screen.dart';
 import 'package:provider/provider.dart';
@@ -36,9 +38,12 @@ class _ProductScreenState extends State<ProductScreen> {
   late FileProvider _fileProvider;
   late CattleCategoryProvider _cattleCategoryProvider;
   late ProductCategoryProvider _productCategoryProvider;
+  late UnitsProvider _unitsProvider;
   List<Product> _products = [];
   List<CattleCategory> _cattleCategories = [];
   List<ProductCategory> _productCategories = [];
+  List<Unit> _units = [];
+  Product? _singleProduct;
   File? _uploadedImageFile;
   int _pageSize = 8;
   int _totalCount = 0;
@@ -55,17 +60,19 @@ class _ProductScreenState extends State<ProductScreen> {
     _fileProvider = context.read<FileProvider>();
     _cattleCategoryProvider = context.read<CattleCategoryProvider>();
     _productCategoryProvider = context.read<ProductCategoryProvider>();
+    _unitsProvider = context.read<UnitsProvider>();
     _fetchProduct(extraQuery: {"pageSize": _pageSize});
     _fetchCattleCategories();
     _fetchProductCategories();
+    _fetchUnits();
   }
 
-  void openForm() {
+  void openForm() async {
     _uploadedImageFile = null;
     _fileProvider = context.read<FileProvider>();
     widget.openForm(
       SingleChildScrollView(
-        child: MasterWidget(title: 'Add Cattle', body: _buildProductForm()),
+        child: MasterWidget(title: 'Add Product', body: _buildProductForm()),
       ),
     );
   }
@@ -100,6 +107,24 @@ class _ProductScreenState extends State<ProductScreen> {
       FileDeleteModel(fileUrl: product.imageUrl, subfolder: 'Images/Products'),
     );
     await _fetchProduct();
+  }
+
+  Future<void> _fetchById(int id) async {
+    final result = await _productProvider.getById(id);
+    if (mounted) {
+      setState(() {
+        _singleProduct = result;
+      });
+    }
+  }
+
+  Future<void> _fetchUnits() async {
+    final result = await _unitsProvider.fetchAll();
+    if (mounted) {
+      setState(() {
+        _units = result.items;
+      });
+    }
   }
 
   Future<void> _fetchCattleCategories() async {
@@ -340,8 +365,24 @@ class _ProductScreenState extends State<ProductScreen> {
                 child: MouseRegion(
                   cursor: SystemMouseCursors.click,
                   child: GestureDetector(
-                    onTap: () {
-                      print("Card tapped for ${product.title}");
+                    onTap: () async {
+                      await _fetchById(product.id);
+                      widget.openForm(
+                         SingleChildScrollView(
+                            child: MasterWidget(
+                              title: product.title,
+                              headerActions: Center(
+                                            child: ElevatedButton(
+                                              onPressed:
+                                                  () => widget.closeForm(),
+
+                                              child: const Text('X'),
+                                            ),
+                                          ),
+                              body: _buildProductView(product: _singleProduct!),
+                            )
+                         )
+                      );
                     },
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -363,16 +404,21 @@ class _ProductScreenState extends State<ProductScreen> {
                           child: Text(
                             product.title,
                             style: Theme.of(context).textTheme.headlineMedium,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
 
                         // Description
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: Text(
-                            product.description ?? '',
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
+                        SizedBox(
+                          height: 40,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: Text(
+                              product.description ?? '',
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ),
 
@@ -438,7 +484,7 @@ class _ProductScreenState extends State<ProductScreen> {
                         ),
 
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 11),
+                          padding: const EdgeInsets.symmetric(horizontal: 11,vertical: 8),
                           child: Text(
                             "${formatDouble(product.pricePerUnit)} BAM",
                             style: Theme.of(
@@ -461,7 +507,28 @@ class _ProductScreenState extends State<ProductScreen> {
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 spacing: 10,
                                 children: [
+                                 
                                   Expanded(
+                                    child: ElevatedButton(
+                                      onPressed: () async {
+                                        await _fetchById(product.id);
+                                        widget.openForm(
+                                          SingleChildScrollView(
+                                            child: MasterWidget(
+                                              title: 'Edit Product',
+                                              subtitle: product.title,
+                                              body: _buildProductForm(
+                                                product: _singleProduct,
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      style: AppButtonStyles.secondary,
+                                      child: const Text("Edit"),
+                                    ),
+                                  ),
+                                   Expanded(
                                     child: ElevatedButton(
                                       style: AppButtonStyles.danger,
                                       onPressed: () async {
@@ -493,25 +560,6 @@ class _ProductScreenState extends State<ProductScreen> {
                                         );
                                       },
                                       child: const Text("Delete"),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: ElevatedButton(
-                                      onPressed: () {
-                                        widget.openForm(
-                                          SingleChildScrollView(
-                                            child: MasterWidget(
-                                              title: 'Edit Product',
-                                              subtitle: product.title,
-                                              body: _buildProductForm(
-                                                product: product,
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                      style: AppButtonStyles.secondary,
-                                      child: const Text("Edit"),
                                     ),
                                   ),
                                 ],
@@ -555,7 +603,8 @@ class _ProductScreenState extends State<ProductScreen> {
             // IMAGE UPLOAD
             FormBuilderField<File?>(
               name: 'image',
-              initialValue: null,
+              initialValue:
+                  product != null && product.imageUrl.isNotEmpty ? null : null,
               validator: (val) {
                 if (!isEdit &&
                     val == null &&
@@ -577,7 +626,7 @@ class _ProductScreenState extends State<ProductScreen> {
                     ),
                     if (field.errorText != null)
                       Padding(
-                        padding: const EdgeInsets.only(top: 4),
+                        padding: const EdgeInsets.only(top: 6),
                         child: Text(
                           field.errorText!,
                           style: TextStyle(
@@ -590,161 +639,473 @@ class _ProductScreenState extends State<ProductScreen> {
                 );
               },
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+
 
             // TITLE
-            FormBuilderTextField(
-              name: 'title',
-              initialValue: product?.title ?? '',
-              decoration: const InputDecoration(labelText: 'Product Title'),
-              validator: FormBuilderValidators.required(),
+            Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.5,
+                child: FormBuilderTextField(
+                  name: 'title',
+                  initialValue: product?.title ?? '',
+                  decoration: const InputDecoration(labelText: 'Product Title'),
+                  validator: FormBuilderValidators.required(),
+                ),
+              ),
             ),
-            const SizedBox(height: 16),
+                        SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+
 
             // PRICE PER UNIT
-            FormBuilderTextField(
-              name: 'pricePerUnit',
-              initialValue: product?.pricePerUnit?.toString() ?? '',
-              decoration: const InputDecoration(labelText: 'Price per Unit'),
-              keyboardType: TextInputType.number,
-              validator: FormBuilderValidators.compose([
-                FormBuilderValidators.required(),
-                FormBuilderValidators.numeric(),
-              ]),
+            Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.5,
+                child: FormBuilderTextField(
+                  name: 'pricePerUnit',
+                  initialValue: product?.pricePerUnit?.toString() ?? '',
+                  decoration: const InputDecoration(labelText: 'Price per Unit'),
+                  keyboardType: TextInputType.number,
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(),
+                    FormBuilderValidators.numeric(),
+                  ]),
+                ),
+              ),
             ),
-            const SizedBox(height: 16),
+                        SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
 
-            // UNIT (Dropdown)
-            // FormBuilderDropdown<int>(
-            //   name: 'unitId',
-            //   initialValue: product?.unit?.id,
-            //   decoration: const InputDecoration(labelText: 'Unit'),
-            //   validator: FormBuilderValidators.required(),
-            //   items: _units
-            //       .map((u) => DropdownMenuItem(
-            //             value: u.id,
-            //             child: Text(u.name),
-            //           ))
-            //       .toList(),
-            // ),
-            // const SizedBox(height: 16),
+
+            Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.5,
+                child: FormBuilderDropdown<int>(
+                  name: 'unitId',
+                  initialValue: product?.unit?.id,
+                  decoration: const InputDecoration(labelText: 'Unit'),
+                  validator: FormBuilderValidators.required(),
+                  items:
+                      _units
+                          .map(
+                            (u) => DropdownMenuItem(
+                              value: u.id,
+                              child: Text(u.symbol),
+                            ),
+                          )
+                          .toList(),
+                ),
+              ),
+            ),
+                        SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+
 
             // QUANTITY
-            FormBuilderTextField(
-              name: 'quantity',
-              initialValue: product?.quantity?.toString() ?? '',
-              decoration: const InputDecoration(labelText: 'Quantity'),
-              keyboardType: TextInputType.number,
-              validator: FormBuilderValidators.compose([
-                FormBuilderValidators.required(),
-                FormBuilderValidators.integer(),
-              ]),
+            Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.5,
+                child: FormBuilderTextField(
+                  name: 'quantity',
+                  initialValue: product?.quantity?.toString() ?? '',
+                  decoration: const InputDecoration(labelText: 'Quantity'),
+                  keyboardType: TextInputType.number,
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(),
+                    FormBuilderValidators.integer(),
+                  ]),
+                ),
+              ),
             ),
-            const SizedBox(height: 16),
+                        SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+
 
             // DESCRIPTION
-            FormBuilderTextField(
-              name: 'description',
-              initialValue: product?.description ?? '',
-              decoration: const InputDecoration(labelText: 'Description'),
-              maxLines: 3,
-            ),
-            const SizedBox(height: 16),
-
-            // // PRODUCT CATEGORIES (Multiselect)
-            // FormBuilderFilterChip<int>(
-            //   name: 'productCategories',
-            //   initialValue: product?.productCategories?.map((c) => c.id).toList() ?? [],
-            //   decoration: const InputDecoration(labelText: 'Categories'),
-            //   options: _categories
-            //       .map((c) => FormBuilderChipOption(
-            //             value: c.id,
-            //             child: Text(c.name),
-            //           ))
-            //       .toList(),
-            // ),
-            const SizedBox(height: 16),
-
-            // CATTLE CATEGORY (Dropdown)
-            FormBuilderDropdown<int>(
-              name: 'cattleCategoryId',
-              initialValue: product?.cattleCategory?.id,
-              decoration: const InputDecoration(labelText: 'Cattle Category'),
-              items:
-                  _cattleCategories
-                      .map(
-                        (c) =>
-                            DropdownMenuItem(value: c.id, child: Text(c.name)),
-                      )
-                      .toList(),
-            ),
-            const SizedBox(height: 16),
-
-            // NUTRITION (za sad samo dummy text field – možeš kasnije napraviti detaljnije)
-            FormBuilderTextField(
-              name: 'nutrition',
-              initialValue: product?.nutrition?.toString() ?? '',
-              decoration: const InputDecoration(labelText: 'Nutrition'),
-            ),
-
-            const SizedBox(height: 24),
-
-            // BUTTONS
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                ElevatedButton(
-                  onPressed: () => widget.closeForm(),
-                  child: const Text('Cancel'),
+            Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.5,
+                child: FormBuilderTextField(
+                  name: 'description',
+                  initialValue: product?.description ?? '',
+                  decoration: const InputDecoration(labelText: 'Description'),
+                  maxLines: 3,
                 ),
-                const SizedBox(width: 16),
-                ElevatedButton(
-                  onPressed: () async {
-                    if (_formKey.currentState?.saveAndValidate() ?? false) {
-                      final values = Map<String, dynamic>.from(
-                        _formKey.currentState!.value,
-                      );
+              ),
+            ),
+                        SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
 
-                      // IMAGE
-                      if (_uploadedImageFile != null) {
-                        final uploadedUrl = await _fileProvider.uploadFile(
-                          FileModel(
-                            file: _uploadedImageFile!,
-                            subfolder: 'Images/Products',
-                          ),
-                        );
-                        values['imageUrl'] = uploadedUrl;
-                      } else {
-                        values['imageUrl'] = product?.imageUrl;
-                      }
 
-                      if (isEdit) {
-                        await _productProvider.update(product.id, values);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("Product updated successfully"),
-                          ),
-                        );
-                      } else {
-                        await _productProvider.create(values);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("Product added successfully"),
-                          ),
-                        );
-                      }
-
-                      await _fetchProduct();
-                      widget.closeForm();
-                    }
-                  },
-                  child: Text(isEdit ? 'Update Product' : 'Add Product'),
+            // PRODUCT CATEGORIES (Multiselect)
+            Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.5,
+                child: FormBuilderFilterChips<dynamic>(
+                  spacing: 5,
+                  runSpacing: 5,
+                  name: 'productCategories',
+                  initialValue:
+                      product?.productCategories?.map((c) => c.id).toList() ?? [],
+                  decoration: const InputDecoration(labelText: 'Categories'),
+                  options:
+                      _productCategories
+                          .map(
+                            (c) => FormBuilderChipOption(
+                              value: c.id,
+                              child: Text(c.name),
+                            ),
+                          )
+                          .toList(),
                 ),
-              ],
+              ),
+            ),
+                        SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+
+
+            Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.5,
+                child: FormBuilderDropdown<int>(
+                  name: 'cattleCategoryId',
+                  initialValue: product?.cattleCategory?.id,
+                  decoration: const InputDecoration(labelText: 'Cattle Category'),
+                  items:
+                      _cattleCategories
+                          .map(
+                            (c) =>
+                                DropdownMenuItem(value: c.id, child: Text(c.name)),
+                          )
+                          .toList(),
+                ),
+              ),
+            ),
+                        SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+
+
+            // --- NUTRITION SECTION ---
+            const Divider(height: 32),
+             Center(
+               child: Text(
+                "Nutrition (optional)",
+                style: Theme.of(context).textTheme.bodyLarge,
+                           ),
+             ),
+            SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+
+            Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.5,
+                child: FormBuilderTextField(
+                  name: 'energy',
+                  initialValue: product?.nutrition?.energy?.toString() ?? '',
+                  decoration: const InputDecoration(labelText: 'Energy (kcal)'),
+                  keyboardType: TextInputType.number,
+                  validator: FormBuilderValidators.numeric(),
+                ),
+              ),
+            ),
+                        SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+
+
+            Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.5,
+                child: FormBuilderTextField(
+                  name: 'fat',
+                  initialValue: product?.nutrition?.fat?.toString() ?? '',
+                  decoration: const InputDecoration(labelText: 'Fat (g)'),
+                  keyboardType: TextInputType.number,
+                  validator: FormBuilderValidators.numeric(),
+                ),
+              ),
+            ),
+                        SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+
+
+            Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.5,
+                child: FormBuilderTextField(
+                  name: 'carbohydrates',
+                  initialValue: product?.nutrition?.carbohydrates?.toString() ?? '',
+                  decoration: const InputDecoration(labelText: 'Carbohydrates (g)'),
+                  keyboardType: TextInputType.number,
+                  validator: FormBuilderValidators.numeric(),
+                ),
+              ),
+            ),
+                       SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+
+
+            Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.5,
+                child: FormBuilderTextField(
+                  name: 'protein',
+                  initialValue: product?.nutrition?.protein?.toString() ?? '',
+                  decoration: const InputDecoration(labelText: 'Protein (g)'),
+                  keyboardType: TextInputType.number,
+                  validator: FormBuilderValidators.numeric(),
+                ),
+              ),
+            ),
+                       SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+
+
+            Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.5,
+                child: FormBuilderTextField(
+                  name: 'salt',
+                  initialValue: product?.nutrition?.salt?.toString() ?? '',
+                  decoration: const InputDecoration(labelText: 'Salt (g)'),
+                  keyboardType: TextInputType.number,
+                  validator: FormBuilderValidators.numeric(),
+                ),
+              ),
+            ),
+                        SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+
+
+            Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.5,
+                child: FormBuilderTextField(
+                  name: 'calcium',
+                  initialValue: product?.nutrition?.calcium?.toString() ?? '',
+                  decoration: const InputDecoration(labelText: 'Calcium (mg)'),
+                  keyboardType: TextInputType.number,
+                  validator: FormBuilderValidators.numeric(),
+                ),
+              ),
+            ),
+           
+
+            SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+
+
+            Center(
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.5,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                        ElevatedButton(
+                          onPressed: () => widget.closeForm(),
+                          child: const Text('Cancel'),
+                        ),
+                        const SizedBox(width: 16),
+                        Builder(
+                          builder: (context) {
+                            return ElevatedButton(
+                              onPressed: () async {
+                                if (_formKey.currentState?.saveAndValidate() ?? false) {
+                                  final body = Map<String, dynamic>.from(
+                                    _formKey.currentState!.value,
+                                  );
+                                  body.remove('image');
+                                  if (_uploadedImageFile != null) {
+                                    final uploadedUrl = await _fileProvider.uploadFile(
+                                      FileModel(
+                                        file: _uploadedImageFile!,
+                                        subfolder: 'Images/Products',
+                                      ),
+                                    );
+                                    body['imageUrl'] = uploadedUrl;
+                                  } else {
+                                    body['imageUrl'] = product?.imageUrl;
+                                  }
+                                  // Build nutrition object safely
+                                  final energyVal = body.remove('energy');
+                                  final fatVal = body.remove('fat');
+                                  final carbVal = body.remove('carbohydrates');
+                                  final proteinVal = body.remove('protein');
+                                  final saltVal = body.remove('salt');
+                                  final calciumVal = body.remove('calcium');
+                                              
+                                  final nutrition = {
+                                    'energy':
+                                        (energyVal == null ||
+                                                energyVal.toString().isEmpty)
+                                            ? null
+                                            : double.parse(energyVal),
+                                    'fat':
+                                        (fatVal == null || fatVal.toString().isEmpty)
+                                            ? null
+                                            : double.parse(fatVal),
+                                    'carbohydrates':
+                                        (carbVal == null || carbVal.toString().isEmpty)
+                                            ? null
+                                            : double.parse(carbVal),
+                                    'protein':
+                                        (proteinVal == null ||
+                                                proteinVal.toString().isEmpty)
+                                            ? null
+                                            : double.parse(proteinVal),
+                                    'salt':
+                                        (saltVal == null || saltVal.toString().isEmpty)
+                                            ? null
+                                            : double.parse(saltVal),
+                                    'calcium':
+                                        (calciumVal == null ||
+                                                calciumVal.toString().isEmpty)
+                                            ? null
+                                            : double.parse(calciumVal),
+                                  };
+                                              
+                                  if (nutrition.values.any((v) => v != null)) {
+                                    body['nutrition'] = nutrition;
+                                  } else {
+                                    body['nutrition'] = null;
+                                  }
+                                              
+                                  if (isEdit) {
+                                    await _productProvider.update(product.id, body);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text("Product updated successfully"),
+                                      ),
+                                    );
+                                  } else {
+                                    print('Create body:${body}');
+                                    await _productProvider.create(body);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text("Product added successfully"),
+                                      ),
+                                    );
+                                  }
+                                              
+                                  await _fetchProduct();
+                                  widget.closeForm();
+                                }
+                              },
+                              child: Text(isEdit ? 'Update Product' : 'Add Product'),
+                            );
+                          }
+                        )
+                   
+                  ],
+                ),
+              ),
             ),
           ],
         ),
       ),
     );
   }
+
+Widget _buildProductView({required Product product}) {
+  final nutrition = product.nutrition;
+  final cattleCategory = product.cattleCategory;
+  final categories = product.productCategories ?? [];
+
+  return SingleChildScrollView(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (product.imageUrl.isNotEmpty)
+          FilePickerWithPreview(imageUrl: product.imageUrl, hasButton: false,),
+        const SizedBox(height: 16),
+
+        // BASIC INFO
+        Card(
+          margin: const EdgeInsets.only(bottom: 16),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Basic Info', style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(height: 12),
+                buildInfoRow('Title', product.title),
+                buildInfoRow('Price per Unit', "${product.pricePerUnit}"),
+                buildInfoRow('Unit', product.unit?.symbol),
+                buildInfoRow('Quantity', product.quantity.toString()),
+                buildInfoRow('Description', product.description),
+              ],
+            ),
+          ),
+        ),
+
+        // PRODUCT CATEGORIES
+        if (categories.isNotEmpty)
+          Card(
+            margin: const EdgeInsets.only(bottom: 16),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Product Categories', style: Theme.of(context).textTheme.titleMedium),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: categories.map((c) {
+                      return Chip(
+                        avatar: (c.imageUrl.isNotEmpty)
+                            ? CircleAvatar(backgroundImage: NetworkImage(c.imageUrl))
+                            : null,
+                        label: Text(c.name),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+        // CATTLE CATEGORY
+        if (cattleCategory != null)
+          Card(
+            margin: const EdgeInsets.only(bottom: 16),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Cattle Category', style: Theme.of(context).textTheme.titleMedium),
+                  const SizedBox(height: 12),
+                  if (cattleCategory.imageUrl.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: Image.network(
+                        cattleCategory.imageUrl,
+                        height: 80,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  buildInfoRow('Name', cattleCategory.name),
+                  buildInfoRow('Title', cattleCategory.title),
+                  buildInfoRow('Description', cattleCategory.description),
+                ],
+              ),
+            ),
+          ),
+
+        // NUTRITION
+        if (nutrition != null)
+          Card(
+            margin: const EdgeInsets.only(bottom: 16),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Nutrition', style: Theme.of(context).textTheme.titleMedium),
+                  const SizedBox(height: 12),
+                  buildInfoRow('Energy', nutrition.energy?.toString()),
+                  buildInfoRow('Fat', nutrition.fat?.toString()),
+                  buildInfoRow('Carbohydrates', nutrition.carbohydrates?.toString()),
+                  buildInfoRow('Protein', nutrition.protein?.toString()),
+                  buildInfoRow('Salt', nutrition.salt?.toString()),
+                  buildInfoRow('Calcium', nutrition.calcium?.toString()),
+                ],
+              ),
+            ),
+          ),
+      ],
+    ),
+  );
+}
+
+
 }

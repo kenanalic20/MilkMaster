@@ -48,7 +48,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     (_animalCategoriesKey.currentState as dynamic)?.openForm();
   }
 
-  void openForm() {
+  void openForm() async {
     _uploadedImageFile = null;
     _formKey.currentState?.reset();
     widget.openForm(
@@ -84,6 +84,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     }
   }
 
+
   Widget _buildProductCategories() {
     return Wrap(
       spacing: 34,
@@ -93,6 +94,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
             final isHovered = _hoveredCategoryId == category.id;
 
             return MouseRegion(
+              cursor: SystemMouseCursors.click,
               onEnter: (_) {
                 setState(() => _hoveredCategoryId = category.id);
               },
@@ -100,134 +102,187 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                 setState(() => _hoveredCategoryId = null);
               },
 
-              child: Container(
-                width: MediaQuery.of(context).size.width * 0.237,
-                height: 161,
-                padding: const EdgeInsets.all(15),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.secondary,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 4,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 15),
-                          child: Image.network(
-                            category.imageUrl,
-                            width: 70,
-                            height: 70,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        Text(
-                          category.name.toUpperCase(),
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize:
-                                Theme.of(
-                                  context,
-                                ).textTheme.headlineMedium?.fontSize,
-                            height: 1,
-                          ),
-                        ),
-                        Text(
-                          '${category.count} products',
-                          style: TextStyle(
-                            color: const Color.fromRGBO(133, 77, 14, 1),
-                            fontSize:
-                                Theme.of(
-                                  context,
-                                ).textTheme.bodyMedium?.fontSize,
-                            height: 1,
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (isHovered)
-                      Positioned(
-                        top: 4,
-                        right: 4,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            MouseRegion(
-                              cursor: SystemMouseCursors.click,
-                              child: GestureDetector(
-                                child: leadingIcon(
-                                  'assets/icons/pentool_icon.png',
-                                ),
-                                onTap: () {
-                                  widget.openForm(
-                                    MasterWidget(
-                                      title: 'Edit Category',
-                                      subtitle: category.name,
-                                      body: _buildProductCategoryForm(
-                                        category: category,
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
+              child: GestureDetector(
+                onTap: () async {
+                  widget.openForm(
+                      SingleChildScrollView(
+                        child: MasterWidget(
+                          title: category.name,
+                          headerActions: Center(
+                            child: ElevatedButton(
+                              onPressed: () => widget.closeForm(),
+
+                              child: const Text('X'),
                             ),
-                            const SizedBox(width: 8),
-                            MouseRegion(
-                              cursor: SystemMouseCursors.click,
-                              child: GestureDetector(
-                                child: leadingIcon(
-                                  'assets/icons/trash_icon.png',
-                                ),
-                                onTap: () async {
-                                  print('Delete category: ${category.name}');
-                                  await showCustomDialog(
-                                    context: context,
-                                    title: "Delete Category",
-                                    message:
-                                        "Are you sure you want to delete '${category.name}'?",
-                                    onConfirm: () async {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            "Product Category Deleted successfully",
-                                            style: TextStyle(
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                          backgroundColor:
-                                              Theme.of(
-                                                context,
-                                              ).colorScheme.secondary,
-                                          duration: Duration(seconds: 2),
-                                        ),
-                                      );
-                                      _deleteCategory(category);
-                                    },
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
+                          ),
+                          body:_buildProductCategoryView(category: category) 
                         ),
+                      )
+                  );
+                },
+                child: Container(
+                  width: MediaQuery.of(context).size.width * 0.237,
+                  height: 161,
+                  padding: const EdgeInsets.all(15),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.secondary,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 4,
+                        offset: Offset(0, 4),
                       ),
-                  ],
+                    ],
+                  ),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(top: 15),
+                            child: Image.network(
+                              category.imageUrl,
+                              width: 70,
+                              height: 70,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          Text(
+                            category.name.toUpperCase(),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize:
+                                  Theme.of(
+                                    context,
+                                  ).textTheme.headlineMedium?.fontSize,
+                              height: 1,
+                            ),
+                          ),
+                          Text(
+                            '${category.count} products',
+                            style: TextStyle(
+                              color: const Color.fromRGBO(133, 77, 14, 1),
+                              fontSize:
+                                  Theme.of(
+                                    context,
+                                  ).textTheme.bodyMedium?.fontSize,
+                              height: 1,
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (isHovered)
+                        Positioned(
+                          top: 4,
+                          right: 4,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              MouseRegion(
+                                cursor: SystemMouseCursors.click,
+                                child: GestureDetector(
+                                  child: leadingIcon(
+                                    'assets/icons/pentool_icon.png',
+                                  ),
+                                  onTap: () async {
+                                    widget.openForm(
+                                      MasterWidget(
+                                        title: 'Edit Category',
+                                        subtitle: category.name,
+                                        body: _buildProductCategoryForm(
+                                          category: category,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              MouseRegion(
+                                cursor: SystemMouseCursors.click,
+                                child: GestureDetector(
+                                  child: leadingIcon(
+                                    'assets/icons/trash_icon.png',
+                                  ),
+                                  onTap: () async {
+                                    print('Delete category: ${category.name}');
+                                    await showCustomDialog(
+                                      context: context,
+                                      title: "Delete Category",
+                                      message:
+                                          "Are you sure you want to delete '${category.name}'?",
+                                      onConfirm: () async {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              "Product Category Deleted successfully",
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                            backgroundColor:
+                                                Theme.of(
+                                                  context,
+                                                ).colorScheme.secondary,
+                                            duration: Duration(seconds: 2),
+                                          ),
+                                        );
+                                        _deleteCategory(category);
+                                      },
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ),
             );
           }).toList(),
     );
   }
+Widget _buildProductCategoryView({required ProductCategoryAdmin category}) {
+  return SingleChildScrollView(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (category.imageUrl.isNotEmpty)
+          Center(
+            child: FilePickerWithPreview(imageUrl: category.imageUrl,hasButton: false)
+            
+          ),
+        const SizedBox(height: 16),
+
+        Card(
+          margin: const EdgeInsets.only(bottom: 16),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Product Category Info',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 12),
+                buildInfoRow('Name', category.name),
+                buildInfoRow('Number of Products', category.count.toString()),
+              ],
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
 
   FormBuilder _buildProductCategoryForm({category = null}) {
     final isEdit = category != null;
@@ -422,17 +477,11 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_productCategoryProvider.isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (_productCategories.isEmpty) {
-      return NoDataWidget();
-    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildProductCategories(),
+        _productCategoryProvider.isLoading? const Center(child: CircularProgressIndicator()) 
+        : _productCategories.isEmpty? NoDataWidget() : _buildProductCategories(),
         SizedBox(height: Theme.of(context).extension<AppSpacing>()!.large),
         AnimalCategoriesScreen(
           key: _animalCategoriesKey,

@@ -4,8 +4,6 @@ part 'nutrition_model.g.dart';
 
 @JsonSerializable()
 class Nutrition {
-  final int id;
-  final int productId;
   final double? energy;
   final double? fat;
   final double? carbohydrates;
@@ -14,8 +12,6 @@ class Nutrition {
   final double? calcium;
 
   Nutrition({
-    required this.id,
-    required this.productId,
     this.energy,
     this.fat,
     this.carbohydrates,
