@@ -13,9 +13,11 @@ namespace MilkMaster.API.Controllers
     public class ProductController : BaseController<Products, ProductsDto, ProductsCreateDto, ProductsUpdateDto, ProductQueryFilter, int>
     {
         private readonly IProductsService _productService;
-        public ProductController(IProductsService service) : base(service)
+        private readonly IOrderItemsService _orderItemsService;
+        public ProductController(IProductsService service, IOrderItemsService orderItemsService) : base(service)
         {
             _productService = service;
+            _orderItemsService = orderItemsService;
         }
 
         [HttpGet]
@@ -48,6 +50,19 @@ namespace MilkMaster.API.Controllers
                 return NotFound("No recommanded products found for this user.");
             return Ok(recommendations);
 
+        }
+        [HttpGet("top-selling")]
+        public async Task<ActionResult<List<TopSellingProductDto>>> GetTopSellingProducts([FromQuery] int count = 4)
+        {
+            var result = await _productService.GetTopSellingProductsAsync(count);
+            return Ok(result);
+        }
+
+        [HttpGet("sold-products-count")]
+        public async Task<ActionResult<List<TopSellingProductDto>>> GetTotalSoldProductsCountAsync()
+        {
+            var result = await _orderItemsService.GetTotalSoldProductsCountAsync();
+            return Ok(result);
         }
     }
 }

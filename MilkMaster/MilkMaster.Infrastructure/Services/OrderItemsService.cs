@@ -6,6 +6,7 @@ using MilkMaster.Application.Filters;
 using MilkMaster.Application.Interfaces.Repositories;
 using MilkMaster.Application.Interfaces.Services;
 using MilkMaster.Domain.Models;
+using MilkMaster.Infrastructure.Repositories;
 using MilkMaster.Messages;
 
 namespace MilkMaster.Infrastructure.Services
@@ -103,6 +104,19 @@ namespace MilkMaster.Infrastructure.Services
             }
 
             return query;
+        }
+
+        public async Task<int> GetTotalSoldProductsCountAsync()
+        {
+            var user = _httpContextAccessor.HttpContext?.User!;
+            var isAdmin = await _authService.IsAdminAsync(user);
+            if (!isAdmin)
+                throw new UnauthorizedAccessException("User is not admin.");
+
+            return await _orderItemsRepository.AsQueryable()
+                .Include(o => o.Order)
+                .Where(o => o.Order.Status.Name == "Completed")
+                .SumAsync(oi => oi.Quantity);
         }
     }
 }

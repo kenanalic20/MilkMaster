@@ -18,7 +18,7 @@ namespace MilkMaster.Application.DTOs
 
     public class OrdersCreateDto
     {
-        public List<OrderItemsCreateDto> Items { get; set; } = new();
+        public IEnumerable<OrderItemsCreateDto> Items { get; set; } = new List<OrderItemsCreateDto>();
     }
 
     public class OrdersUpdateDto
@@ -39,5 +39,6 @@ namespace MilkMaster.Application.DTOs
         public decimal Total { get; set; }
         public int ItemCount { get; set; }
         public int StatusId { get; set; }
+
     }
 }

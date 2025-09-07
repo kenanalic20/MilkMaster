@@ -25,7 +25,7 @@ namespace MilkMaster.Application.DTOs
         public string ImageUrl { get; set; }
         public string MilkCartonUrl { get; set; }
         public string TagNumber { get; set; }
-        public int CattleCategoryId { get; set; }
+        public int? CattleCategoryId { get; set; }
         public string? BreedOfCattle { get; set; }
         public float LitersPerDay { get; set; }
         public float MonthlyValue { get; set; }
@@ -41,7 +41,7 @@ namespace MilkMaster.Application.DTOs
         public string ImageUrl { get; set; }
         public string MilkCartonUrl { get; set; }
         public string TagNumber { get; set; }
-        public int CattleCategoryId { get; set; }
+        public int? CattleCategoryId { get; set; }
         public string? BreedOfCattle { get; set; }
         public float LitersPerDay { get; set; }
         public float MonthlyValue { get; set; }

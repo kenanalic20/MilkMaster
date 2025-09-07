@@ -35,15 +35,20 @@ public class OrdersSeeder
         
         foreach (var user in users)
         {
-            for (int i = 0; i < random.Next(1, 3); i++)
+            for (int i = 0; i < 2; i++)
             {
                 var selectedProducts = products.OrderBy(_ => random.Next()).Take(2).ToList();
-
-                var orderItems = selectedProducts.Select(p => new OrderItemsCreateDto
+                var quantity = random.Next(1, 5);
+                var pricePerUnit = random.Next(1, 5);
+                var statusId = random.Next(1, 5);
+                Console.WriteLine($"Test for order seeder: {quantity}, {pricePerUnit}, {statusId} ");
+                var orderItems = selectedProducts.Select(p => new OrderItemsSeederDto
                 {
                     ProductId = p.Id,
-                    Quantity = random.Next(1, 2), 
-                    UnitSize = 1 
+                    Quantity = quantity, 
+                    UnitSize = 1,
+                    PricePerUnit = pricePerUnit,
+                    TotalPrice = quantity * pricePerUnit,
                 }).ToList();
 
                 var order = new OrdersSeederDto
@@ -57,7 +62,7 @@ public class OrdersSeeder
                     CreatedAt = DateTime.UtcNow,
                     Total = orderItems.Sum(item => item.Quantity * selectedProducts.First(p => p.Id == item.ProductId).PricePerUnit),
                     ItemCount = orderItems.Count,
-                    StatusId = 1 
+                    StatusId = statusId
                 };
 
                 await _ordersService.CreateAsync(order);

@@ -98,6 +98,33 @@ namespace MilkMaster.Infrastructure.Services
         {
             await _productRepository.RecalculateCategoryCountsAsync();
         }
+
+        public async Task<List<TopSellingProductDto>> GetTopSellingProductsAsync(int count = 5)
+        {
+            var user = _httpContextAccessor.HttpContext?.User!;
+            var isAdmin = await _authService.IsAdminAsync(user);
+            if (!isAdmin)
+                throw new UnauthorizedAccessException("User is not admin.");
+
+            var products = await _productRepository.AsQueryable()
+                .Include(p=>p.OrderItems)
+                .Include(p => p.ProductCategories)
+                    .ThenInclude(pc => pc.ProductCategory)
+                .Select(p => new TopSellingProductDto
+                {
+                    Title = p.Title,
+                    ImageUrl = p.ProductCategories != null && p.ProductCategories.Any()
+                                ? p.ProductCategories.First().ProductCategory.ImageUrl
+                                : "",
+                    TotalSales = p.OrderItems.Sum(oi => oi.TotalPrice)
+                })
+                .OrderByDescending(x => x.TotalSales)
+                .Take(count)
+                .ToListAsync();
+
+            return products;
+        }
+
         protected override IQueryable<Products> ApplyFilter(IQueryable<Products> query, ProductQueryFilter? filter)
         {
             query = query.Include(p => p.ProductCategories)

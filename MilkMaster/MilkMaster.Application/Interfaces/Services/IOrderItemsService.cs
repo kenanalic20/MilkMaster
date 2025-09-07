@@ -6,5 +6,6 @@ namespace MilkMaster.Application.Interfaces.Services
 {
     public interface IOrderItemsService : IService<OrderItems, OrderItemsDto, OrderItemsCreateDto, OrderItemsUpdateDto, OrderItemsQueryFilter, int>
     {
+        Task<int> GetTotalSoldProductsCountAsync();
     }
 }

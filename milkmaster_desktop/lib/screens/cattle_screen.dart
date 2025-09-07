@@ -630,8 +630,7 @@ class _CattleScreenState extends State<CattleScreen> {
                             ),
                           )
                           .toList(),
-                  initialValue: cattle?.cattleCategory.id,
-                  validator: FormBuilderValidators.required(),
+                  initialValue: cattle?.cattleCategory?.id ?? '',
                 ),
               ),
             ),
@@ -1064,7 +1063,7 @@ class _CattleScreenState extends State<CattleScreen> {
                 buildInfoRow('Name', cattle.name),
                 buildInfoRow('Tag Number', cattle.tagNumber),
                 buildInfoRow('Breed', cattle.breedOfCattle),
-                buildInfoRow('Category', cattle.cattleCategory.name),
+                buildInfoRow('Category', cattle.cattleCategory?.name),
                 buildInfoRow('Liters per Day', "${cattle.litersPerDay} L"),
                 buildInfoRow('Monthly Value', "${cattle.monthlyValue} BAM"),
                 buildInfoRow(
@@ -1169,7 +1168,7 @@ class _CattleScreenState extends State<CattleScreen> {
               ),
             ),
             child: DataTable(
-              columnSpacing: 59,
+              columnSpacing: 50,
               dataRowHeight: 40,
               headingTextStyle: Theme.of(context).textTheme.bodyLarge!.copyWith(
                 color: Theme.of(context).colorScheme.tertiary,
@@ -1195,31 +1194,46 @@ class _CattleScreenState extends State<CattleScreen> {
                     return DataRow(
                       cells: [
                         DataCell(
-                          Text(
-                            "#${cattle.tagNumber}",
-                            overflow: TextOverflow.ellipsis,
+                          SizedBox(
+                            width: 70,
+                            child: Text(
+                              "#${cattle.tagNumber}",
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ),
                         DataCell(
-                          Text(cattle.name, overflow: TextOverflow.ellipsis),
-                        ),
-                        DataCell(
-                          Text(
-                            "${cattle.cattleCategory.name}",
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        DataCell(Text("${cattle.age} years")),
-                        DataCell(
-                          Text(
-                            "${formatDouble(cattle.litersPerDay)} L/day",
-                            overflow: TextOverflow.ellipsis,
+                          SizedBox(
+                            width:50,
+                            child: Text(cattle.name, overflow: TextOverflow.ellipsis)
                           ),
                         ),
                         DataCell(
-                          Text(
-                            "${formatDouble(cattle.monthlyValue)} BAM",
-                            overflow: TextOverflow.ellipsis,
+                          SizedBox(
+                            width: 90,
+                            child: Text(
+                              "${cattle.cattleCategory?.name ?? 'Undefined'}",
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ),
+                        DataCell(SizedBox(width: 80,child: Text("${cattle.age} years",overflow: TextOverflow.ellipsis,))),
+                        DataCell(
+                          SizedBox(
+                            width: 100,
+                            child: Text(
+                              "${formatDouble(cattle.litersPerDay)} L/day",
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ),
+                        DataCell(
+                          SizedBox(
+                            width: 90,
+                            child: Text(
+                              "${formatDouble(cattle.monthlyValue)} BAM",
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ),
                         DataCell(

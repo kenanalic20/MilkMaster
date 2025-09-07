@@ -12,9 +12,12 @@ Cattle _$CattleFromJson(Map<String, dynamic> json) => Cattle(
   imageUrl: json['imageUrl'] as String,
   milkCartonUrl: json['milkCartonUrl'] as String,
   tagNumber: json['tagNumber'] as String,
-  cattleCategory: CattleCategory.fromJson(
-    json['cattleCategory'] as Map<String, dynamic>,
-  ),
+  cattleCategory:
+      json['cattleCategory'] == null
+          ? null
+          : CattleCategory.fromJson(
+            json['cattleCategory'] as Map<String, dynamic>,
+          ),
   breedOfCattle: json['breedOfCattle'] as String?,
   age: (json['age'] as num).toInt(),
   litersPerDay: (json['litersPerDay'] as num).toDouble(),
@@ -39,7 +42,7 @@ Map<String, dynamic> _$CattleToJson(Cattle instance) => <String, dynamic>{
   'imageUrl': instance.imageUrl,
   'milkCartonUrl': instance.milkCartonUrl,
   'tagNumber': instance.tagNumber,
-  'cattleCategory': instance.cattleCategory.toJson(),
+  'cattleCategory': instance.cattleCategory?.toJson(),
   'breedOfCattle': instance.breedOfCattle,
   'age': instance.age,
   'litersPerDay': instance.litersPerDay,

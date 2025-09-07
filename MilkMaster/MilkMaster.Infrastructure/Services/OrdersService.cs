@@ -79,8 +79,28 @@ namespace MilkMaster.Infrastructure.Services
         protected override async Task BeforeCreateAsync(Orders entity, OrdersCreateDto dto)
         {
             if (_isSeeding)
-                return;
+            {
+                if (dto is OrdersSeederDto seederDto)
+                {
+                    foreach (var item in seederDto.Items.Cast<OrderItemsSeederDto>())
+                    {
+                        var orderItem = new OrderItems
+                        {
+                            ProductId = item.ProductId,
+                            Quantity = item.Quantity,
+                            UnitSize = item.UnitSize,
+                            PricePerUnit = item.PricePerUnit,
+                            TotalPrice = item.TotalPrice
+                        };
 
+                        entity.Items.Add(orderItem);
+                    }
+
+                    entity.ItemCount = entity.Items.Count;
+                    entity.Total = entity.Items.Sum(i => i.TotalPrice);
+                }
+                return;
+            }
             var userClaim = _httpContextAccessor.HttpContext?.User;
 
             if (userClaim == null)

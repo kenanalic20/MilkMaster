@@ -49,7 +49,7 @@ class _HomeShellState extends State<HomeShell>
   }
 
   final List<String> _titles = [
-    'Dashboard',
+    'Welcome to MilkMaster Administration',
     'Products',
     'Cattle',
     'Product categories',
@@ -58,53 +58,56 @@ class _HomeShellState extends State<HomeShell>
   ];
 
   final List<String> _subtitles = [
-    'Overview of your dashboard',
-    'Manage your products',
-    'Manage your cattle',
+    "Here's an overview of your product sales and performance",
+    'Manage your dairy products inventory',
+    'Manage and track your cattle',
     'Manage your product categories',
     'Manage and track customer orders',
-    'Manage your customers',
+    'Manage and track customers',
   ];
 
   List<Widget?> get _headerActions => [
-        Text('Dashboard headeraction'), // Dashboard
-        null, // Products
-        null, // Cattle
-        ProductCategoriesHeaderAction(
-          onPressed: () {
-            setState(() => _selectedIndex = 3);
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              (_categoriesScreenKey.currentState as dynamic)?.openForm();
-            });
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              (_categoriesScreenKey.currentState as dynamic)?.openForm();
-            });
-          },
-        ), // Categories
-        null, // Orders
-        null, // Customers
-      ];
+    Container(
+      height: 45,
+      margin: EdgeInsets.only(
+        top: Theme.of(context).extension<AppSpacing>()!.medium,
+      ),
+      child: ElevatedButton(
+        onPressed: () async => {},
+        child: Text('Download Business Report'),
+      ),
+    ),// Dashboard
+    null, // Products
+    null, // Cattle
+    ProductCategoriesHeaderAction(
+      onPressed: () {
+        setState(() => _selectedIndex = 3);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          (_categoriesScreenKey.currentState as dynamic)?.openForm();
+        });
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          (_categoriesScreenKey.currentState as dynamic)?.openForm();
+        });
+      },
+    ), // Categories
+    null, // Orders
+    null, // Customers
+  ];
 
   Widget get _currentPage {
     switch (_selectedIndex) {
       case 0:
         return const DashboardScreen();
       case 1:
-        return ProductScreen(
-            openForm: _onFormOpened,
-            closeForm: _onFormClosed,
-        );
+        return ProductScreen(openForm: _onFormOpened, closeForm: _onFormClosed);
       case 2:
-        return CattleScreen(
-          openForm: _onFormOpened,
-          closeForm: _onFormClosed,
-        );
+        return CattleScreen(openForm: _onFormOpened, closeForm: _onFormClosed);
       case 3:
         return CategoriesScreen(
           key: _categoriesScreenKey,
           openForm: _onFormOpened,
           closeForm: _onFormClosed,
-        ); 
+        );
       case 4:
         return const OrdersScreen();
       case 5:
@@ -182,22 +185,19 @@ class _HomeShellState extends State<HomeShell>
 
 class ProductCategoriesHeaderAction extends StatelessWidget {
   final VoidCallback? onPressed;
-  const ProductCategoriesHeaderAction({
-    super.key,
-    this.onPressed,
-  });
+  const ProductCategoriesHeaderAction({super.key, this.onPressed});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       height: 45,
-      margin: EdgeInsets.only(top: Theme.of(context).extension<AppSpacing>()!.medium),
-      child: 
-        ElevatedButton(
+      margin: EdgeInsets.only(
+        top: Theme.of(context).extension<AppSpacing>()!.medium,
+      ),
+      child: ElevatedButton(
         onPressed: onPressed ?? () async => {},
         child: Text('Add Product Category'),
       ),
-      
     );
   }
 }

@@ -38,4 +38,11 @@
         public NutritionsDto? Nutrition { get; set; }
 
     }
+    public class TopSellingProductDto
+    {
+        public string Title { get; set; }
+        public string ImageUrl { get; set; }
+        public decimal TotalSales { get; set; }
+        public int QuantitySold { get; set; }                                     
+    }
 }

@@ -12,7 +12,7 @@ class Cattle {
   final String imageUrl;
   final String milkCartonUrl;
   final String tagNumber;
-  final CattleCategory cattleCategory;
+  final CattleCategory? cattleCategory;
   final String? breedOfCattle;
   final int age;
   final double litersPerDay;
@@ -28,7 +28,7 @@ class Cattle {
     required this.imageUrl,
     required this.milkCartonUrl,
     required this.tagNumber,
-    required this.cattleCategory,
+    this.cattleCategory,
     this.breedOfCattle,
     required this.age,
     required this.litersPerDay,
