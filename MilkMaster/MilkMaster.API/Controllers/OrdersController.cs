@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MilkMaster.Application.Common;
 using MilkMaster.Application.DTOs;
 using MilkMaster.Application.Filters;
@@ -27,6 +28,13 @@ namespace MilkMaster.API.Controllers
                 PageNumber = queryFilter.PageNumber
             };
             var result = await _ordersService.GetPagedAsync(paginationRequest, queryFilter);
+            return Ok(result);
+        }
+        [Authorize(Roles = "Admin")]
+        [HttpGet("total-revenue")]
+        public async Task<ActionResult<decimal>> GetTotalSoldProductsCountAsync()
+        {
+            var result = await _ordersService.GetTotalRevenueAsync();
             return Ok(result);
         }
     }

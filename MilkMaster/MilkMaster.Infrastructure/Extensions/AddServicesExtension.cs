@@ -4,6 +4,7 @@ using MilkMaster.Application.Interfaces.Repositories;
 using MilkMaster.Application.Interfaces.Services;
 using MilkMaster.Infrastructure.Repositories;
 using MilkMaster.Infrastructure.Services;
+using QuestPDF.Infrastructure;
 
 namespace MilkMaster.Infrastructure.Extensions
 {
@@ -11,6 +12,7 @@ namespace MilkMaster.Infrastructure.Extensions
     {
         public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
         {
+            QuestPDF.Settings.License = LicenseType.Community;
             var rabbitMqHost = Environment.GetEnvironmentVariable("RabbitMQ__ConnectionString")??"localhost";
             services.AddTransient<IJwtService, JwtService>();
             services.AddTransient<IAuthService, AuthService>();
@@ -40,6 +42,7 @@ namespace MilkMaster.Infrastructure.Extensions
             services.AddScoped<IOrderItemsService, OrderItemsService>();
 
             services.AddTransient<IEmailService, EmailService>();
+            services.AddScoped<IReportService, ReportService>();
 
 
 

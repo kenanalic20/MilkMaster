@@ -630,7 +630,7 @@ class _CattleScreenState extends State<CattleScreen> {
                             ),
                           )
                           .toList(),
-                  initialValue: cattle?.cattleCategory?.id ?? '',
+                  initialValue: cattle?.cattleCategory?.id ?? null,
                 ),
               ),
             ),

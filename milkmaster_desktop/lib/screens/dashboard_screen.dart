@@ -1,28 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:intl/intl.dart';
 import 'package:milkmaster_desktop/main.dart';
 import 'package:milkmaster_desktop/models/orders_model.dart';
-import 'package:milkmaster_desktop/models/products_model.dart';
 import 'package:milkmaster_desktop/models/top_selling_product_model.dart';
 import 'package:milkmaster_desktop/providers/orders_provider.dart';
 import 'package:milkmaster_desktop/providers/products_provider.dart';
+import 'package:milkmaster_desktop/providers/report_provider.dart';
 import 'package:milkmaster_desktop/utils/widget_helpers.dart';
 import 'package:milkmaster_desktop/widgets/master_screen.dart';
 import 'package:provider/provider.dart';
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({super.key});
+  final void Function(Widget form) openForm;
+  final void Function() closeForm;
+
+  const DashboardScreen({
+    super.key,
+    required this.openForm,
+    required this.closeForm,
+  });
 
   @override
-  State<DashboardScreen> createState() => _DashboardScreenState();
+  State<DashboardScreen> createState() => DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
+class DashboardScreenState extends State<DashboardScreen> {
   late OrdersProvider _ordersProvider;
   late ProductProvider _productProvider;
+  late ReportProvider _reportProvider;
   List<Order> _orders = [];
   List<TopSellingProduct> _topSellingProducts = [];
+  final _formKey = GlobalKey<FormBuilderState>();
   int _soldProducts = 0;
+  double _totalRevenue = 0;
   int _pageSize = 4;
   int _totalCount = 0;
 
@@ -31,9 +43,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
     super.initState();
     _ordersProvider = context.read<OrdersProvider>();
     _productProvider = context.read<ProductProvider>();
+    _reportProvider = context.read<ReportProvider>();
     _fetchOrders(extraQuery: {"pageSize": _pageSize, "orderBy": 'date_desc'});
     _fetchTopProducts();
     _fetchSoldProducts();
+    _fetchTotalRevenue();
+  }
+
+  void openForm() {
+    _formKey.currentState?.reset();
+    widget.openForm(
+      SingleChildScrollView(
+        child: MasterWidget(
+          title: 'Report settings',
+          subtitle: 'Select what you want to export',
+          body: _buildReportForm(),
+        ),
+      ),
+    );
   }
 
   Future<void> _fetchOrders({
@@ -58,6 +85,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
       print("Error fetching orders: $e");
     }
   }
+
+  Future<void> _fetchTotalRevenue() async {
+    try {
+      final result = await _ordersProvider.getTotalRevenue();
+      if (mounted) {
+        setState(() {
+          _totalRevenue = result;
+        });
+      }
+    } catch (e) {
+      print("Error fetching top products: $e");
+    }
+  }
+
   Future<void> _fetchTopProducts() async {
     try {
       final result = await _productProvider.getTopSellingProducts();
@@ -66,12 +107,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
           _topSellingProducts = result;
         });
       }
-
     } catch (e) {
       print("Error fetching top products: $e");
     }
   }
-    Future<void> _fetchSoldProducts() async {
+
+  Future<void> _fetchSoldProducts() async {
     try {
       final result = await _productProvider.getSoldProductCount();
       if (mounted) {
@@ -79,11 +120,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
           _soldProducts = result;
         });
       }
-
     } catch (e) {
       print("Error fetching top products: $e");
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Column(children: [_buildDashboardStats(), _buildDashboard()]);
@@ -111,7 +152,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 subtitleStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context).colorScheme.tertiary,
                 ),
-                body: _productProvider.isLoading //temporary
+                body:
+                    _productProvider.isLoading
                         ? const Center(child: CircularProgressIndicator())
                         : _topSellingProducts.isEmpty
                         ? const NoDataWidget()
@@ -124,7 +166,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         Theme.of(
                                           context,
                                         ).extension<AppSpacing>()!.large,
-                                        bottom: 5
+                                    bottom: 5,
                                   ),
                                   decoration: BoxDecoration(
                                     border: Border(
@@ -144,13 +186,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           MainAxisAlignment.spaceBetween,
                                       children: [
                                         Row(
-                                          mainAxisAlignment: MainAxisAlignment.start,
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           spacing: 5,
                                           children: [
-                                            product.imageUrl != ''?
-                                            Image.network(product.imageUrl,width: 24, height: 24,color: Colors.amber,):
-                                            Image.asset('assets/icons/milk_icon_yellow.png'),
+                                            product.imageUrl != ''
+                                                ? Image.network(
+                                                  product.imageUrl,
+                                                  width: 24,
+                                                  height: 24,
+                                                  color: Colors.amber,
+                                                )
+                                                : Image.asset(
+                                                  'assets/icons/milk_icon_yellow.png',
+                                                ),
                                             Text(
                                               product.title,
                                               style: Theme.of(
@@ -158,7 +209,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                               ).textTheme.bodyMedium?.copyWith(
                                                 fontWeight: FontWeight.w600,
                                               ),
-                                            )
+                                            ),
                                           ],
                                         ),
                                         Text(
@@ -208,7 +259,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         Theme.of(
                                           context,
                                         ).extension<AppSpacing>()!.large,
-                                        bottom: 5
+                                    bottom: 5,
                                   ),
                                   decoration: BoxDecoration(
                                     border: Border(
@@ -226,8 +277,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       Column(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             'Order ${order.orderNumber}',
@@ -254,8 +307,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         ],
                                       ),
                                       Column(
-                                        mainAxisAlignment: MainAxisAlignment.end,
-                                        crossAxisAlignment: CrossAxisAlignment.end,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
                                         children: [
                                           Text(
                                             '${formatDouble(order.total)} BAM',
@@ -286,6 +341,171 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ],
         ),
       ],
+    );
+  }
+
+  FormBuilder _buildReportForm() {
+    return FormBuilder(
+      key: _formKey,
+      child: Column(
+        children: [
+          // Report Name
+          Center(
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width * 0.5,
+              child: FormBuilderTextField(
+                name: 'name',
+                decoration: const InputDecoration(labelText: 'Report Name'),
+                validator: FormBuilderValidators.required(
+                  errorText: 'Report name is required',
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+
+          Center(
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width * 0.5,
+              child: FormBuilderTextField(
+                name: 'description',
+                maxLines: 3,
+                decoration: const InputDecoration(
+                  labelText: 'Report Description',
+                ),
+                validator: FormBuilderValidators.required()
+              ),
+            ),
+          ),
+          SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+
+          Center(
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width * 0.5,
+              child: FormBuilderTextField(
+                name: 'topProductsCount',
+                initialValue: '4',
+                decoration: const InputDecoration(
+                  labelText: 'Top Products Count',
+                ),
+                keyboardType: TextInputType.number,
+                validator: FormBuilderValidators.compose([
+                  FormBuilderValidators.required(errorText: 'Required'),
+                  FormBuilderValidators.numeric(errorText: 'Must be a number'),
+                ]),
+              ),
+            ),
+          ),
+          SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+
+          Center(
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width * 0.5,
+              child: FormBuilderTextField(
+                name: 'recentOrdersCount',
+                initialValue: '10',
+                decoration: const InputDecoration(
+                  labelText: 'Recent Orders Count',
+                ),
+                keyboardType: TextInputType.number,
+                validator: FormBuilderValidators.compose([
+                  FormBuilderValidators.required(errorText: 'Required'),
+                  FormBuilderValidators.numeric(errorText: 'Must be a number'),
+                ]),
+              ),
+            ),
+          ),
+          SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+
+          Center(
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width * 0.5,
+              child: FormBuilderSwitch(
+                name: 'includeTopOrder',
+                title: const Text('Include Top Order'),
+                initialValue: true,
+              ),
+            ),
+          ),
+          Center(
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width * 0.5,
+
+              child: FormBuilderSwitch(
+                name: 'includeTopCustomer',
+                title: const Text('Include Top Customer'),
+                initialValue: true,
+              ),
+            ),
+          ),
+          Center(
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width * 0.5,
+
+              child: FormBuilderSwitch(
+                name: 'includeLowestSellingProduct',
+                title: const Text('Include Lowest Selling Product'),
+                initialValue: true,
+              ),
+            ),
+          ),
+
+          SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
+
+          // Submit Button
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.5,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                ElevatedButton(
+                  onPressed: () => widget.closeForm(),
+                  child: const Text('Cancel'),
+                ),
+                const SizedBox(width: 16),
+                Builder(
+                  builder: (context) {
+                    return ElevatedButton(
+                      onPressed: () async {
+                        if (_formKey.currentState?.saveAndValidate() ?? false) {
+                          final body = Map<String, dynamic>.from(
+                            _formKey.currentState!.value,
+                          );
+                          print('Report options submitted: $body');
+                          await showCustomDialog(
+                            context: context,
+                            title: "Get Report",
+                            message:
+                                "Are you sure you want to download report?",
+                            onConfirm: () async {
+                              await _reportProvider.downloadPdfToUserLocation(
+                                body: body,
+                              );
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    "Report Downloaded successfully",
+                                    style: TextStyle(color: Colors.black),
+                                  ),
+                                  backgroundColor:
+                                      Theme.of(context).colorScheme.secondary,
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                              widget.closeForm();
+                            },
+                          );
+                        }
+                      },
+                      child: const Text('Generate Report'),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -325,8 +545,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             Theme.of(context).extension<AppSpacing>()!.small,
                         children: [
                           Text(
-                            formatDouble(11.233),
-                            // _totalCount.toString(),
+                            formatDouble(_totalRevenue),
                             style: Theme.of(context).textTheme.headlineMedium,
                           ),
                           Text(

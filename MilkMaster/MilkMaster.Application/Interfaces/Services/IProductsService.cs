@@ -8,5 +8,6 @@ namespace MilkMaster.Application.Interfaces.Services
     {
         Task<List<ProductsDto>> Recommand();
         Task<List<TopSellingProductDto>> GetTopSellingProductsAsync(int count = 5);
+        Task<TopSellingProductDto?> GetLowestSellingProductAsync();
     }
 }

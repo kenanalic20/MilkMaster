@@ -8,5 +8,7 @@ namespace MilkMaster.Application.Interfaces.Services
     {
         Task RecalculateOrderTotalAsync(int orderId);
         Task<string> GenerateOrderNumberAsync();
+        Task<decimal> GetTotalRevenueAsync();
+        Task<TopCustomerDto?> GetTopCustomerAsync();
     }
 }

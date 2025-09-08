@@ -10,11 +10,13 @@ class ProductProvider extends BaseProvider<Product> {
     : super("Product", fromJson: (json) => Product.fromJson(json));
 
   Future<List<TopSellingProduct>> getTopSellingProducts({int count = 4}) async {
+    isLoading = true;
     final headers = await getHeaders();
     final response = await http.get(
       Uri.parse("$baseUrl/Product/top-selling?count=$count"),
       headers: headers
     );
+    isLoading = false;
     if (response.statusCode == 200) {
       final List<dynamic> jsonData = json.decode(response.body);
       return jsonData.map((json) => TopSellingProduct.fromJson(json)).toList();

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.ML;
 using MilkMaster.Application.DTOs;
 using MilkMaster.Application.Filters;
 using MilkMaster.Application.Interfaces.Repositories;
@@ -108,15 +109,11 @@ namespace MilkMaster.Infrastructure.Services
 
         public async Task<int> GetTotalSoldProductsCountAsync()
         {
-            var user = _httpContextAccessor.HttpContext?.User!;
-            var isAdmin = await _authService.IsAdminAsync(user);
-            if (!isAdmin)
-                throw new UnauthorizedAccessException("User is not admin.");
-
             return await _orderItemsRepository.AsQueryable()
                 .Include(o => o.Order)
                 .Where(o => o.Order.Status.Name == "Completed")
                 .SumAsync(oi => oi.Quantity);
-        }
+        } 
+
     }
 }

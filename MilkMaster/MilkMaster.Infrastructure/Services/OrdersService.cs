@@ -7,6 +7,7 @@ using MilkMaster.Application.Filters;
 using MilkMaster.Application.Interfaces.Repositories;
 using MilkMaster.Application.Interfaces.Services;
 using MilkMaster.Domain.Models;
+using MilkMaster.Infrastructure.Repositories;
 using MilkMaster.Messages;
 
 namespace MilkMaster.Infrastructure.Services
@@ -314,5 +315,39 @@ namespace MilkMaster.Infrastructure.Services
 
             return $"#{nextNumber.ToString("D4")}";
         }
+
+        public async Task<decimal> GetTotalRevenueAsync()
+        {
+            var totalRevenue = await _orderRepository.AsQueryable()
+                .Where(o => o.Status.Name == "Completed")
+                .SumAsync(oi => oi.Total);
+
+            return totalRevenue;
+        }
+
+        public async Task<TopCustomerDto?> GetTopCustomerAsync()
+        {
+            var user = _httpContextAccessor.HttpContext?.User!;
+            var isAdmin = await _authService.IsAdminAsync(user);
+            if (!isAdmin)
+                throw new UnauthorizedAccessException("User is not admin.");
+
+            var topCustomer = await _orderRepository.AsQueryable()
+                .Where(o => o.Status.Name != "Cancelled")
+                .GroupBy(o => new { o.UserId, o.Customer, o.Email, o.PhoneNumber })
+                .Select(g => new TopCustomerDto
+                {
+                    FullName =  g.Key.Customer,
+                    Email = g.Key.Email,
+                    PhoneNumber = g.Key.PhoneNumber,
+                    TotalOrders = g.Count(),
+                    TotalSpent = g.Sum(o => o.Total)
+                })
+                .OrderByDescending(c => c.TotalSpent)
+                .FirstOrDefaultAsync();
+
+            return topCustomer;
+        }
+
     }
 }

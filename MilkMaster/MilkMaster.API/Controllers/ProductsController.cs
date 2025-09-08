@@ -51,6 +51,7 @@ namespace MilkMaster.API.Controllers
             return Ok(recommendations);
 
         }
+        [Authorize(Roles = "Admin")]
         [HttpGet("top-selling")]
         public async Task<ActionResult<List<TopSellingProductDto>>> GetTopSellingProducts([FromQuery] int count = 4)
         {
@@ -58,8 +59,9 @@ namespace MilkMaster.API.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet("sold-products-count")]
-        public async Task<ActionResult<List<TopSellingProductDto>>> GetTotalSoldProductsCountAsync()
+        public async Task<ActionResult<int>> GetTotalSoldProductsCountAsync()
         {
             var result = await _orderItemsService.GetTotalSoldProductsCountAsync();
             return Ok(result);

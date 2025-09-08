@@ -24,6 +24,8 @@ class _HomeShellState extends State<HomeShell>
   late Animation<Offset> _slideAnimation;
 
   final GlobalKey _categoriesScreenKey = GlobalKey();
+ final GlobalKey<DashboardScreenState> _dashboardKey = GlobalKey<DashboardScreenState>();
+
 
   @override
   void initState() {
@@ -73,7 +75,9 @@ class _HomeShellState extends State<HomeShell>
         top: Theme.of(context).extension<AppSpacing>()!.medium,
       ),
       child: ElevatedButton(
-        onPressed: () async => {},
+        onPressed: ()  => {
+          _dashboardKey.currentState?.openForm(),
+        },
         child: Text('Download Business Report'),
       ),
     ),// Dashboard
@@ -97,7 +101,7 @@ class _HomeShellState extends State<HomeShell>
   Widget get _currentPage {
     switch (_selectedIndex) {
       case 0:
-        return const DashboardScreen();
+        return DashboardScreen(key: _dashboardKey,openForm: _onFormOpened,closeForm: _onFormClosed);
       case 1:
         return ProductScreen(openForm: _onFormOpened, closeForm: _onFormClosed);
       case 2:
@@ -113,7 +117,7 @@ class _HomeShellState extends State<HomeShell>
       case 5:
         return const CustomersScreen();
       default:
-        return const DashboardScreen();
+        return DashboardScreen(key: _dashboardKey,openForm: _onFormOpened,closeForm: _onFormClosed);
     }
   }
 

@@ -665,6 +665,8 @@ class _ProductScreenState extends State<ProductScreen> {
                   initialValue: product?.pricePerUnit?.toString() ?? '',
                   decoration: const InputDecoration(
                     labelText: 'Price per Unit',
+                    prefixIcon: Icon(Icons.attach_money_outlined),
+
                   ),
                   keyboardType: TextInputType.number,
                   validator: FormBuilderValidators.compose([
