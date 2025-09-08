@@ -421,7 +421,6 @@ class _CattleScreenState extends State<CattleScreen> {
                       );
                     }).toList(),
                 onChanged: (value) async {
-                  print(_selectedSort);
 
                   setState(() {
                     _selectedSort = value;

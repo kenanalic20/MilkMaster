@@ -42,10 +42,9 @@ class AuthProvider with ChangeNotifier {
     );
 
     if (response.statusCode == 200) {
-      final data = response.body; // Assuming the token is in the response body
+      final data = response.body; 
       await _storage.write(key: 'jwt', value: data);
       notifyListeners();
-      print('Registration successful: $data');
       return true;
     }
     return false;

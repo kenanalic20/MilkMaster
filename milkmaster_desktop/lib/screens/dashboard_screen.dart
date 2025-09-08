@@ -471,7 +471,6 @@ class DashboardScreenState extends State<DashboardScreen> {
                           final body = Map<String, dynamic>.from(
                             _formKey.currentState!.value,
                           );
-                          print('Report options submitted: $body');
                           await showCustomDialog(
                             context: context,
                             title: "Get Report",

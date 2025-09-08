@@ -208,7 +208,6 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                                     'assets/icons/trash_icon.png',
                                   ),
                                   onTap: () async {
-                                    print('Delete category: ${category.name}');
                                     await showCustomDialog(
                                       context: context,
                                       title: "Delete Category",

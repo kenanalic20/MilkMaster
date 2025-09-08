@@ -67,7 +67,6 @@ class ReportProvider with ChangeNotifier {
       final file = File(path);
       await file.writeAsBytes(bytes);
 
-      print('Report saved to $path');
     } catch (e) {
       print('Download failed: $e');
     }

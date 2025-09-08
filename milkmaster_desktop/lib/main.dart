@@ -5,6 +5,7 @@ import 'package:milkmaster_desktop/providers/auth_provider.dart';
 import 'package:milkmaster_desktop/providers/cattle_category_provider.dart';
 import 'package:milkmaster_desktop/providers/cattle_provider.dart';
 import 'package:milkmaster_desktop/providers/file_provider.dart';
+import 'package:milkmaster_desktop/providers/order_status_provider.dart';
 import 'package:milkmaster_desktop/providers/orders_provider.dart';
 import 'package:milkmaster_desktop/providers/product_category_provider.dart';
 import 'package:milkmaster_desktop/providers/products_provider.dart';
@@ -38,8 +39,8 @@ void main() {
         ChangeNotifierProvider(create: (_) => FileProvider()),
         ChangeNotifierProvider(create: (_) => CattleProvider()),
         ChangeNotifierProvider(create: (_) => UnitsProvider()),
-        ChangeNotifierProvider(create: (_) => ReportProvider('Reports/download'))
-
+        ChangeNotifierProvider(create: (_) => ReportProvider('Reports/download')),
+        ChangeNotifierProvider(create: (_) => OrderStatusProvider()),
       ],
 
       child: const MyApp(),

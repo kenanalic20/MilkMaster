@@ -113,7 +113,7 @@ class _HomeShellState extends State<HomeShell>
           closeForm: _onFormClosed,
         );
       case 4:
-        return const OrdersScreen();
+        return OrdersScreen(openForm: _onFormOpened, closeForm: _onFormClosed);
       case 5:
         return const CustomersScreen();
       default:

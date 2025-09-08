@@ -22,10 +22,10 @@ namespace MilkMaster.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<UnitsDto>>> GetAll()
+        public async Task<ActionResult<IEnumerable<OrderStatusDto>>> GetAll()
         {
-            var units = await _context.Units.ToListAsync();
-            var result = _mapper.Map<List<OrderStatusDto>>(units);
+            var statuses = await _context.OrderStatuses.ToListAsync();
+            var result = _mapper.Map<List<OrderStatusDto>>(statuses);
             return Ok(result);
         }
     }

@@ -2,16 +2,28 @@ import 'dart:math';
 
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:intl/intl.dart';
 import 'package:milkmaster_desktop/main.dart';
+import 'package:milkmaster_desktop/models/order_items_model.dart';
+import 'package:milkmaster_desktop/models/order_status_model.dart';
 import 'package:milkmaster_desktop/models/orders_model.dart';
+import 'package:milkmaster_desktop/providers/order_status_provider.dart';
 import 'package:milkmaster_desktop/providers/orders_provider.dart';
 import 'package:milkmaster_desktop/utils/widget_helpers.dart';
 import 'package:milkmaster_desktop/widgets/master_screen.dart';
 import 'package:provider/provider.dart';
 
 class OrdersScreen extends StatefulWidget {
-  const OrdersScreen({super.key});
+  final void Function(Widget form) openForm;
+  final void Function() closeForm;
+
+  const OrdersScreen({
+    super.key,
+    required this.openForm,
+    required this.closeForm,
+  });
 
   @override
   State<OrdersScreen> createState() => _OrdersScreenState();
@@ -19,19 +31,34 @@ class OrdersScreen extends StatefulWidget {
 
 class _OrdersScreenState extends State<OrdersScreen> {
   late OrdersProvider _ordersProvider;
+  late OrderStatusProvider _orderStatusProvider;
   List<Order> _orders = [];
+  List<OrderStatus> _orderStatus = [];
+  Order? _singleOrder;
   int _pageSize = 8;
   int _totalCount = 0;
   int _currentPage = 1;
   String? _selectedStatus;
   String? _selectedSort;
   final TextEditingController _searchController = TextEditingController();
+  final _formKey = GlobalKey<FormBuilderState>();
 
   @override
   void initState() {
     super.initState();
     _ordersProvider = context.read<OrdersProvider>();
+    _orderStatusProvider = context.read<OrderStatusProvider>();
     _fetchOrders(extraQuery: {"pageSize": _pageSize});
+    _fetchStatuses();
+  }
+
+  Future<void> _fetchSingleOrder(int id) async {
+    final result = await _ordersProvider.getById(id);
+    if (mounted) {
+      setState(() {
+        _singleOrder = result;
+      });
+    }
   }
 
   Future<void> _fetchOrders({
@@ -58,8 +85,13 @@ class _OrdersScreenState extends State<OrdersScreen> {
     }
   }
 
-   Future<void> _fetchStatuses() async {
-    
+  Future<void> _fetchStatuses() async {
+    final result = await _orderStatusProvider.fetchAll();
+    if (mounted) {
+      setState(() {
+        _orderStatus = result.items;
+      });
+    }
   }
 
   Future<void> _deleteOrder(order) async {
@@ -70,11 +102,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: [
-        _buildSearch(),
-        _buildOrders(context),
-        _buildPagination(),
-      ],
+      children: [_buildSearch(), _buildOrders(context), _buildPagination()],
     );
   }
 
@@ -92,9 +120,90 @@ class _OrdersScreenState extends State<OrdersScreen> {
     );
   }
 
-  Widget _buildSearch() {
-    final orderStatuses = ['Pending', 'Processing', 'Completed', 'Cancelled'];
+  FormBuilder _buildOrderForm(Order order) {
+    return FormBuilder(
+      key: _formKey,
+      child: Column(
+        children: [
+          Center(
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width * 0.5,
+              child: FormBuilderDropdown<int>(
+                name: 'statusId',
+                decoration: const InputDecoration(
+                  labelText: 'Order Status',
+                  border: OutlineInputBorder(),
+                ),
+                initialValue: order.status?.id,
+                items:
+                    _orderStatus
+                        .map(
+                          (status) => DropdownMenuItem<int>(
+                            value: status.id,
+                            child: Text(status.name),
+                          ),
+                        )
+                        .toList(),
+                validator: FormBuilderValidators.required(),
+              ),
+            ),
+          ),
+          SizedBox(height: Theme.of(context).extension<AppSpacing>()!.medium),
 
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.5,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    widget.closeForm();
+                  },
+                  child: const Text('Cancle'),
+                ),
+                const SizedBox(width: 16),
+                Builder(
+                  builder: (context) {
+                    return ElevatedButton(
+                      onPressed: () async {
+                        if (_formKey.currentState?.saveAndValidate() ?? false) {
+                          final formData = _formKey.currentState!.value;
+                          await showCustomDialog(
+                            context: context,
+                            title: "Update Order ${order.orderNumber}",
+                            message:
+                                "Are you sure you want to update '${order.orderNumber}'?",
+                            onConfirm: () async {
+                              await _ordersProvider.update(order.id, formData);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    "Order Updated successfully",
+                                    style: TextStyle(color: Colors.black),
+                                  ),
+                                  backgroundColor:
+                                      Theme.of(context).colorScheme.secondary,
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                              widget.closeForm();
+                            },
+                          );
+                        }
+                      },
+                      child: const Text('Update Order'),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSearch() {
     final sortOptions = [
       {'label': 'Date Asc', 'value': 'date_asc'},
       {'label': 'Date Desc', 'value': 'date_desc'},
@@ -121,7 +230,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context).colorScheme.tertiary,
                 ),
-                prefixIcon: Icon(Icons.search,color: Theme.of(context).colorScheme.tertiary),
+                prefixIcon: Icon(
+                  Icons.search,
+                  color: Theme.of(context).colorScheme.tertiary,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -153,10 +265,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
               child: DropdownButton2<String>(
                 value: _selectedStatus,
                 items:
-                    orderStatuses.map((status) {
+                    _orderStatus.map((status) {
                       return DropdownMenuItem(
-                        value: status,
-                        child: Text(status),
+                        value: status.name,
+                        child: Text(status.name),
                       );
                     }).toList(),
                 onChanged: (value) async {
@@ -173,11 +285,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
                     },
                   );
                 },
-                 hint: Text(
+                hint: Text(
                   'Status',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium,
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 style: Theme.of(context).textTheme.bodyMedium,
                 buttonStyleData: ButtonStyleData(
@@ -240,9 +350,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 },
                 hint: Text(
                   'Sort',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium,
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 style: Theme.of(context).textTheme.bodyMedium,
                 buttonStyleData: ButtonStyleData(
@@ -282,6 +390,109 @@ class _OrdersScreenState extends State<OrdersScreen> {
     );
   }
 
+  Widget _buildOrderView(Order order) {
+    final status = order.status;
+    final items = order.items as List<OrderItem>;
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Card(
+        margin: const EdgeInsets.only(bottom: 16),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Order Info',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 12),
+              buildInfoRow('Order Number', order.orderNumber),
+              buildInfoRow(
+                'Created At',
+                order.createdAt != null
+                    ? DateFormat.yMMMd().format(order.createdAt)
+                    : '-',
+              ),
+              buildInfoRow('Customer', order.customer),
+              buildInfoRow('Email', order.email),
+              buildInfoRow('Phone', order.phoneNumber),
+              buildInfoRow('Total', "${formatDouble(order.total)} BAM"),
+              buildInfoRow('Item Count', order.itemCount.toString()),
+            ],
+          ),
+        ),
+      ),
+
+      Card(
+        margin: const EdgeInsets.only(bottom: 16),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Status',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(status?.name ?? '-', style: const TextStyle(fontSize: 16)),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Color(int.parse(
+                        status?.colorCode.replaceFirst('#', '0xFF') ?? '0xFF9CA3AF',
+                      )),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      status?.name ?? '-',
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+
+      Card(
+        margin: const EdgeInsets.only(bottom: 16),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Items',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 12),
+              ...items.map((item) {
+                return Column(
+                  children: [
+                    buildInfoRow('Product', item.productTitle),
+                    buildInfoRow('Quantity', item.quantity.toString()),
+                    buildInfoRow('Unit Size', item.unitSize.toString()),
+                    buildInfoRow('Price per Unit', "${formatDouble(item.pricePerUnit)}"),
+                    buildInfoRow('Total Price', "${formatDouble(item.totalPrice)}"),
+                    const Divider(),
+                  ],
+                );
+              }).toList(),
+            ],
+          ),
+        ),
+      ),
+    ],
+  );
+}
+
   Container _buildOrders(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
@@ -301,139 +512,190 @@ class _OrdersScreenState extends State<OrdersScreen> {
           color: Theme.of(context).colorScheme.tertiary,
         ),
         subtitle: 'Latest customer orders',
-        body: _ordersProvider.isLoading? const Center(child: CircularProgressIndicator()) :
-        _orders.isEmpty? NoDataWidget() : SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Container(
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey),
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(12),
-                topRight: Radius.circular(12),
-              ),
-            ),
-            child: DataTable(
-              columnSpacing: 50,
-              dataRowHeight: 40,
-              headingTextStyle: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                color: Theme.of(context).colorScheme.tertiary,
-              ),
-              dataTextStyle: Theme.of(context).textTheme.bodyLarge,
-              border: TableBorder(
-                horizontalInside: BorderSide(
-                  color: Theme.of(context).colorScheme.tertiary,
-                  width: 2,
-                ),
-              ),
+        body:
+            _ordersProvider.isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _orders.isEmpty
+                ? NoDataWidget()
+                : SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(12),
+                        topRight: Radius.circular(12),
+                      ),
+                    ),
+                    child: DataTable(
+                      columnSpacing: 35,
+                      dataRowHeight: 40,
+                      headingTextStyle: Theme.of(
+                        context,
+                      ).textTheme.bodyLarge!.copyWith(
+                        color: Theme.of(context).colorScheme.tertiary,
+                      ),
+                      dataTextStyle: Theme.of(context).textTheme.bodyLarge,
+                      border: TableBorder(
+                        horizontalInside: BorderSide(
+                          color: Theme.of(context).colorScheme.tertiary,
+                          width: 2,
+                        ),
+                      ),
 
-              columns: const [
-                DataColumn(label: Text('Order Number')),
-                DataColumn(label: Text('Customer')),
-                DataColumn(label: Text('Products')),
-                DataColumn(label: Text('Date')),
-                DataColumn(label: Text('Total')),
-                DataColumn(label: Text('Status')),
-                DataColumn(label: Text('Actions')),
-              ],
-              rows:
-                  _orders.map((order) {
-                    return DataRow(
-                      cells: [
-                        DataCell(
-                          Text(
-                            order.orderNumber,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        DataCell(
-                          SizedBox(
-                            width: 120,
-                            child: Text(
-                              order.customer,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ),
-
-                        DataCell(Text('${order.itemCount} items')),
-                        DataCell(
-                          Text(
-                            DateFormat('dd/MM/yyyy').format(order.createdAt),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        DataCell(
-                          Text(
-                            '${order.total.toStringAsPrecision(2)} BAM',
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        DataCell(
-                          Text(
-                            order.status!.name,
-                            style: TextStyle(
-                              color: hexToColor(order.status!.colorCode),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ),
-                        DataCell(
-                          Row(
-                            children: [
-                              MouseRegion(
-                                cursor: SystemMouseCursors.click,
-                                child: GestureDetector(
-                                  child: leadingIcon(
-                                    'assets/icons/eye.png',
-                                    width: 24,
-                                    height: 24,
-                                  ),
-                                  onTap: () {},
-                                ),
-                              ),
-                              const SizedBox(width: 5),
-                              MouseRegion(
-                                cursor: SystemMouseCursors.click,
-                                child: GestureDetector(
-                                  child: leadingIcon(
-                                    'assets/icons/pentool_transparent_icon.png',
-                                    width: 24,
-                                    height: 24,
-                                  ),
-                                  onTap: () {},
-                                ),
-                              ),
-                              const SizedBox(width: 5),
-                              MouseRegion(
-                                cursor: SystemMouseCursors.click,
-                                child: GestureDetector(
-                                  child: leadingIcon(
-                                    'assets/icons/trash_transparent_icon.png',
-                                    width: 24,
-                                    height: 24,
-                                  ),
-                                  onTap: () async {
-                                    await showCustomDialog(
-                                      context: context,
-                                      title: "Delete Order",
-                                      message:
-                                          "Are you sure you want to delete '${order.orderNumber}'?",
-                                      onConfirm: () async {
-                                        await _deleteOrder(order);
-                                      },
-                                    );
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                      columns: const [
+                        DataColumn(label: Text('Order Number')),
+                        DataColumn(label: Text('Customer')),
+                        DataColumn(label: Text('Products')),
+                        DataColumn(label: Text('Date')),
+                        DataColumn(label: Text('Total')),
+                        DataColumn(label: Text('Status')),
+                        DataColumn(label: Text('Actions')),
                       ],
-                    );
-                  }).toList(),
-            ),
-          ),
-        ),
+                      rows:
+                          _orders.map((order) {
+                            return DataRow(
+                              cells: [
+                                DataCell(
+                                  SizedBox(
+                                    width: 90,
+                                    child: Text(
+                                      order.orderNumber,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ),
+                                DataCell(
+                                  SizedBox(
+                                    width: 120,
+                                    child: Text(
+                                      order.customer,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ),
+
+                                DataCell(Text('${order.itemCount} items')),
+                                DataCell(
+                                  SizedBox(
+                                    width: 100,
+                                    child: Text(
+                                      DateFormat(
+                                        'dd/MM/yyyy',
+                                      ).format(order.createdAt),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ),
+                                DataCell(
+                                  SizedBox(
+                                    width: 100,
+                                    child: Text(
+                                      '${formatDouble(order.total)} BAM',
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ),
+                                DataCell(
+                                  SizedBox(
+                                    width: 120,
+                                    child: Text(
+                                      order.status!.name,
+                                      style: TextStyle(
+                                        color: hexToColor(
+                                          order.status!.colorCode,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                DataCell(
+                                  Row(
+                                    children: [
+                                      MouseRegion(
+                                        cursor: SystemMouseCursors.click,
+                                        child: GestureDetector(
+                                          child: leadingIcon(
+                                            'assets/icons/eye.png',
+                                            width: 24,
+                                            height: 24,
+                                          ),
+                                          onTap: () async {
+                                            await _fetchSingleOrder(order.id);
+                                            widget.openForm(
+                                              SingleChildScrollView(
+                                                child: MasterWidget(
+                                                  title: 'Order: ${order.orderNumber}',
+                                                  subtitle:'',
+                                                  headerActions: Center(
+                                                    child: ElevatedButton(
+                                                      onPressed: () =>widget.closeForm(),
+                                                      child: const Text('X'),
+                                                    ),
+                                                  ),
+                                                  body: _buildOrderView(
+                                                    _singleOrder!
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                      const SizedBox(width: 5),
+                                      MouseRegion(
+                                        cursor: SystemMouseCursors.click,
+                                        child: GestureDetector(
+                                          child: leadingIcon(
+                                            'assets/icons/pentool_transparent_icon.png',
+                                            width: 24,
+                                            height: 24,
+                                          ),
+                                          onTap: () async {
+                                            widget.openForm(
+                                              SingleChildScrollView(
+                                                child: MasterWidget(
+                                                  title: 'Update order status',
+                                                  subtitle: '',
+                                                  body: _buildOrderForm(order),
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                      const SizedBox(width: 5),
+                                      MouseRegion(
+                                        cursor: SystemMouseCursors.click,
+                                        child: GestureDetector(
+                                          child: leadingIcon(
+                                            'assets/icons/trash_transparent_icon.png',
+                                            width: 24,
+                                            height: 24,
+                                          ),
+                                          onTap: () async {
+                                            await showCustomDialog(
+                                              context: context,
+                                              title: "Delete Order",
+                                              message:
+                                                  "Are you sure you want to delete '${order.orderNumber}'?",
+                                              onConfirm: () async {
+                                                await _deleteOrder(order);
+                                              },
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            );
+                          }).toList(),
+                    ),
+                  ),
+                ),
       ),
     );
   }

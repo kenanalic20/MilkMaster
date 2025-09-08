@@ -23,8 +23,6 @@ namespace MilkMaster.Application.DTOs
 
     public class OrdersUpdateDto
     {
-        public string Customer { get; set; }
-        public string PhoneNumber { get; set; }
         public int StatusId { get; set; }
     }
 
