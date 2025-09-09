@@ -5,6 +5,7 @@ using MilkMaster.Application.DTOs;
 using MilkMaster.Application.Filters;
 using MilkMaster.Application.Interfaces.Repositories;
 using MilkMaster.Application.Interfaces.Services;
+using MilkMaster.Domain.Models;
 using QuestPDF.Fluent;
 using System;
 using System.Collections.Generic;
@@ -18,14 +19,14 @@ namespace MilkMaster.Infrastructure.Services
     {
         private readonly IProductsService _productsService;
         private readonly IOrdersService _ordersService;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<User> _userManager;
         private readonly IOrderItemsService _orderItemsService;
         private readonly IOrdersRepository _ordersRepository;
         public ReportService
         (
             IProductsService productsService,
             IOrdersService ordersService,
-            UserManager<IdentityUser> userManager,
+            UserManager<User> userManager,
             IOrderItemsService orderItemsService,
             IOrdersRepository ordersRepository
         ) 

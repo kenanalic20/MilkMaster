@@ -3,6 +3,7 @@ using MilkMaster.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MilkMaster.Application.Filters;
+using MilkMaster.Domain.Models;
 
 namespace MilkMaster.Infrastructure.Seeders;
 
@@ -10,12 +11,12 @@ public class OrdersSeeder
 {
     private readonly IOrdersService _ordersService;
     private readonly IProductsService _productsService;
-    private readonly UserManager<IdentityUser> _userManager;
+    private readonly UserManager<User> _userManager;
 
     public OrdersSeeder(
         IOrdersService ordersService,
         IProductsService productsService,
-        UserManager<IdentityUser> userManager)
+        UserManager<User> userManager)
     {
         _ordersService = ordersService;
         _productsService = productsService;

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using MilkMaster.Domain.Data;
+using MilkMaster.Domain.Models;
 
 
 namespace MilkMaster.Infrastructure.Extensions
@@ -13,7 +14,7 @@ namespace MilkMaster.Infrastructure.Extensions
     {
         public static IServiceCollection AddAuthService(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddIdentity<IdentityUser, IdentityRole>(options =>
+            services.AddIdentity<User, IdentityRole>(options =>
             {
                 options.Password.RequireDigit = true;
                 options.Password.RequiredLength = 8;

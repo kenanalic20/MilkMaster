@@ -14,6 +14,6 @@ namespace MilkMaster.Domain.Models
         public string? ZipCode { get; set; }
         public string? Country { get; set; }
 
-        public IdentityUser User { get; set; }
+        public User User { get; set; }
     }
 }

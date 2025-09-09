@@ -7,7 +7,6 @@ using MilkMaster.Application.Filters;
 using MilkMaster.Application.Interfaces.Repositories;
 using MilkMaster.Application.Interfaces.Services;
 using MilkMaster.Domain.Models;
-using MilkMaster.Infrastructure.Repositories;
 using MilkMaster.Messages;
 
 namespace MilkMaster.Infrastructure.Services
@@ -194,6 +193,7 @@ namespace MilkMaster.Infrastructure.Services
         {
             if (_isSeeding)
                 return;
+
             var orderWithStatus = await _orderRepository.AsQueryable()
                 .Include(o => o.Status)
                 .FirstOrDefaultAsync(o => o.Id == entity.Id);

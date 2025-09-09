@@ -2,11 +2,10 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using MilkMaster.Domain.Models;
-using System.Reflection.Emit;
 
 namespace MilkMaster.Domain.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<IdentityUser>
+    public class ApplicationDbContext : IdentityDbContext<User>
     {
         public DbSet<UserDetails> UserDetails { get; set; }
         public DbSet<Settings> Settings { get; set; }
@@ -33,24 +32,24 @@ namespace MilkMaster.Domain.Data
 
             // User Details - IdentityUsers
             builder.Entity<UserDetails>()
-            .HasOne(p => p.User)
+            .HasOne(d => d.User)
             .WithOne()
-            .HasForeignKey<UserDetails>(p => p.UserId)
-            .IsRequired();
+            .HasForeignKey<UserDetails>(d => d.UserId)
+            .HasPrincipalKey<User>(u => u.Id);
 
             // User Address - IdentityUsers
             builder.Entity<UserAddress>()
             .HasOne(a => a.User)
             .WithOne()
             .HasForeignKey<UserAddress>(a => a.UserId)
-            .IsRequired();
+            .HasPrincipalKey<User>(u => u.Id);
 
             // User Settings - IdentityUsers
-            builder.Entity<Settings>().
-            HasOne(s => s.User)
+            builder.Entity<Settings>()
+            .HasOne(s => s.User)
             .WithOne()
             .HasForeignKey<Settings>(s => s.UserId)
-            .IsRequired();
+            .HasPrincipalKey<User>(u => u.Id);
 
             // Product Categories - Products
             builder.Entity<ProductCategoriesProducts>()

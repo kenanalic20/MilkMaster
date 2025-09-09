@@ -43,6 +43,7 @@ namespace MilkMaster.Infrastructure.Extensions
 
             services.AddTransient<IEmailService, EmailService>();
             services.AddScoped<IReportService, ReportService>();
+            services.AddScoped<IUserService, UserService>();
 
 
 

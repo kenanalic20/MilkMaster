@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using MilkMaster.Domain.Models;
 
 public class IdentitySeeder
 {
-    private readonly UserManager<IdentityUser> _userManager;
+    private readonly UserManager<User> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
 
-    public IdentitySeeder(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
+    public IdentitySeeder(UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
     {
         _userManager = userManager;
         _roleManager = roleManager;
@@ -25,7 +26,7 @@ public class IdentitySeeder
         var adminUser = await _userManager.FindByEmailAsync(adminEmail);
         if (adminUser == null)
         {
-            adminUser = new IdentityUser
+            adminUser = new User
             {
                 UserName = "desktop",
                 Email = adminEmail,
@@ -39,7 +40,7 @@ public class IdentitySeeder
         var appUser = await _userManager.FindByEmailAsync(userEmail);
         if (appUser == null)
         {
-            appUser = new IdentityUser
+            appUser = new User
             {
                 UserName = "mobile",
                 Email = userEmail,
@@ -55,7 +56,7 @@ public class IdentitySeeder
             var appUserLoop = await _userManager.FindByEmailAsync(userEmailLoop);
             if (appUserLoop == null)
             {
-                appUserLoop = new IdentityUser
+                appUserLoop = new User
                 {
                     UserName = $"mobile{i+1}",
                     Email = userEmailLoop,

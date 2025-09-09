@@ -5,19 +5,20 @@ using System.Security.Claims;
 using AutoMapper;
 using MilkMaster.Infrastructure.Seeders;
 using MilkMaster.Application.Exceptions;
+using MilkMaster.Domain.Models;
 
 namespace MilkMaster.Infrastructure.Services
 {
     public class AuthService : IAuthService
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<User> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly SettingsSeeder _settingsSeeder;
         private readonly IJwtService _jwtService;
         private readonly IMapper _mapper;
 
         public AuthService(
-            UserManager<IdentityUser> userManager,
+            UserManager<User> userManager,
             RoleManager<IdentityRole> roleManager,
             SettingsSeeder settingsSeeder,
             IJwtService jwtService, 
@@ -33,7 +34,7 @@ namespace MilkMaster.Infrastructure.Services
         public async Task<string> RegisterAsync(RegisterDto register)
         {
 
-            var user = new IdentityUser
+            var user = new User
             {
                 UserName = register.Username,
                 Email = register.Email,

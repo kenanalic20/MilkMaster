@@ -25,6 +25,13 @@ namespace MilkMaster.Infrastructure.Repositories
                 .FirstOrDefaultAsync(o => o.Id == id);
         }
 
+        public async Task<List<Orders>> GetByIdUserAsync(string id)
+        {
+            return await _context.Orders.Where(o=> o.UserId == id)
+                .OrderByDescending(o=>o.CreatedAt)
+                .ToListAsync();
+        }
+
 
     }
 }

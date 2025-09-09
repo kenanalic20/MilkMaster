@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using MilkMaster.Application.Interfaces.Services;
+using MilkMaster.Domain.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -11,13 +12,13 @@ namespace MilkMaster.Infrastructure.Services
     public class JwtService : IJwtService
     {
         private readonly IConfiguration _configuration;
-        private readonly UserManager<IdentityUser> _userManager;
-        public JwtService(IConfiguration configuration, UserManager<IdentityUser> userManager)
+        private readonly UserManager<User> _userManager;
+        public JwtService(IConfiguration configuration, UserManager<User> userManager)
         {
             _configuration = configuration;
             _userManager = userManager;
         }
-        public async Task<string> GenerateJwtToken(IdentityUser user)
+        public async Task<string> GenerateJwtToken(User user)
         {
             var jwtKey = _configuration["JWT:Secret"] ?? throw new Exception("JWT Secret key is not configured.");
             var jwtIssuer = _configuration["JWT:ValidIssuer"] ?? throw new Exception("JWT Secret key is not configured.");
