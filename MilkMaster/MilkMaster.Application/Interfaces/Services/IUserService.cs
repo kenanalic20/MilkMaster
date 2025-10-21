@@ -9,7 +9,7 @@ namespace MilkMaster.Application.Interfaces.Services
     public interface IUserService
     {
         Task<PagedResult<UserDto>> GetAllUsersAsync(UserQueryFilter? filter);
-        Task<User?> GetByIdAsync(string userId);
+        Task<UserDto?> GetByIdAsync(string userId);
         //Task DeleteUserAsync(string userId);
 
         //Task UpdateUserDetailsAsync(string userId, UserDetails updatedDetails);

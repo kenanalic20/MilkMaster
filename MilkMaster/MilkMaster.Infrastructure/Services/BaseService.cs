@@ -52,14 +52,14 @@ namespace MilkMaster.Infrastructure.Services
             return _mapper.Map<IEnumerable<TDto>>(entities);
         }
 
-        public virtual async Task<TDto?> CreateAsync(TCreateDto dto, bool returnDto = true)
+        public virtual async Task<TDto?> CreateAsync(TCreateDto dto)
         {
             var entity = _mapper.Map<T>(dto);
             await BeforeCreateAsync(entity, dto);
             await _repository.AddAsync(entity);
             await AfterCreateAsync(entity, dto);
 
-            return returnDto ? _mapper.Map<TDto>(entity) : null;
+            return _mapper.Map<TDto>(entity);
         }
 
         public virtual async Task<TDto> UpdateAsync(TKey id, TUpdateDto dto)

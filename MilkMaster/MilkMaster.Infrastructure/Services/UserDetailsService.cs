@@ -36,13 +36,13 @@ namespace MilkMaster.Infrastructure.Services
         }
 
 
-        public override async Task<UserDetailsDto?> CreateAsync(UserDetailsCreateDto dto, bool returnDto = true)
+        public override async Task<UserDetailsDto?> CreateAsync(UserDetailsCreateDto dto)
         {
             var exists = await _userDetailsRepository.ExistsAsync(dto.UserId);
             if (exists)
                 throw new InvalidOperationException("User details already exist");
 
-            return await base.CreateAsync(dto, returnDto);
+            return await base.CreateAsync(dto);
         }
 
 

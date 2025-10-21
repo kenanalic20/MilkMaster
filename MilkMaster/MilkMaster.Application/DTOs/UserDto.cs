@@ -16,6 +16,6 @@ namespace MilkMaster.Application.DTOs
         public int OrderCount { get; set; }
         public DateTime? LastOrderDate { get; set; }
         public string? Street { get; set; }
-        public IList<string>? Roles { get; set; }
+        public string? ImageUrl { get; set; }
     }
 }

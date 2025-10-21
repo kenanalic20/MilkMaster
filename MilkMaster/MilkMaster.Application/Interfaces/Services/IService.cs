@@ -12,7 +12,7 @@ namespace MilkMaster.Application.Interfaces.Services
     {
         Task<TDto> GetByIdAsync(TKey id);
         Task<IEnumerable<TDto>> GetAllAsync(TQueryFilter? queryFilter);
-        Task<TDto> CreateAsync(TCreateDto dto, bool returnDto = true);
+        Task<TDto> CreateAsync(TCreateDto dto);
         Task<TDto> UpdateAsync(TKey id, TUpdateDto dto);
         Task DeleteAsync(TKey id);
         Task<PagedResult<TDto>> GetPagedAsync(PaginationRequest pagination, TQueryFilter? filter = null);

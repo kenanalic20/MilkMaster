@@ -27,5 +27,10 @@ namespace MilkMaster.Infrastructure.Services
             var dto = _mapper.Map<SettingsDto>(settings);
             return dto;
         }
+        protected override async Task BeforeCreateAsync(Settings entity, SettingsCreateDto dto)
+        {
+            if (_isSeeding)
+                return;
+        }
     }
 }

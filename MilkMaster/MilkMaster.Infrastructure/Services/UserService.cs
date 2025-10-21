@@ -1,11 +1,13 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.ML;
 using MilkMaster.Application.Common;
 using MilkMaster.Application.DTOs;
 using MilkMaster.Application.Filters;
 using MilkMaster.Application.Interfaces.Repositories;
 using MilkMaster.Application.Interfaces.Services;
+using MilkMaster.Domain.Data;
 using MilkMaster.Domain.Models;
 
 
@@ -18,12 +20,14 @@ namespace MilkMaster.Infrastructure.Services
         private readonly IUserAddressRepository _userAddressRepository;
         private readonly IMapper _mapper;
         private readonly IOrdersRepository _ordersRepository;
+        private readonly ApplicationDbContext _context;
         public UserService(
             UserManager<User> userManager,
             IUserDetailsRepository userDetailsRepository,
             IUserAddressRepository userAddressRepository,
             IMapper mapper,
-            IOrdersRepository ordersRepository
+            IOrdersRepository ordersRepository,
+            ApplicationDbContext context
 
         )
         {
@@ -32,11 +36,50 @@ namespace MilkMaster.Infrastructure.Services
             _userAddressRepository = userAddressRepository;
             _mapper = mapper;
             _ordersRepository = ordersRepository;
+            _context = context;
         }
+        public async Task<UserDto?> GetByIdAsync(string userId)
+        {
+            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null)
+                return null;
+
+            var userDto = _mapper.Map<UserDto>(user);
+
+            var userDetails = await _userDetailsRepository.GetByIdAsync(user.Id);
+            var userAddress = await _userAddressRepository.GetByIdAsync(user.Id);
+            var orders = await _ordersRepository.GetByIdUserAsync(user.Id);
+
+            if (orders.Any())
+            {
+                userDto.OrderCount = orders.Count();
+                userDto.LastOrderDate = orders.Max(o => o.CreatedAt);
+            }
+
+            if (userDetails != null &&
+                (!string.IsNullOrEmpty(userDetails.FirstName) || !string.IsNullOrEmpty(userDetails.LastName)))
+            {
+                userDto.CustomerName = $"{userDetails.FirstName} {userDetails.LastName}".Trim();
+            }
+            else
+            {
+                userDto.CustomerName = user.UserName;
+            }
+
+            userDto.Street = userAddress?.Street;
+            userDto.ImageUrl = userDetails?.ImageUrl;
+
+            return userDto;
+        }
+
         public async Task<PagedResult<UserDto>> GetAllUsersAsync(UserQueryFilter? filter)
         {
             filter ??= new UserQueryFilter();
-            var query = _userManager.Users.AsQueryable();
+            var query = from u in _context.Users
+                        join ur in _context.UserRoles on u.Id equals ur.UserId
+                        join r in _context.Roles on ur.RoleId equals r.Id
+                        where r.Name == "User"
+                        select u;
 
             if (filter != null && !string.IsNullOrEmpty(filter.Search))
             {
@@ -84,24 +127,30 @@ namespace MilkMaster.Infrastructure.Services
 
             var userIds = users.Select(u => u.Id).ToList();
 
+            var orderStatsAll = await _ordersRepository.GetAllAsync();
+            var userDetailsAll = await _userDetailsRepository.GetAllAsync();
+            var userAddressAll = await _userAddressRepository.GetAllAsync();
+
             foreach (var user in userDtos)
             {
-                var orderStats = await _ordersRepository.GetByIdUserAsync(user.Id);
-                var userDetails = await _userDetailsRepository.GetByIdAsync(user.Id);
-                var userAddress = await _userAddressRepository.GetByIdAsync(user.Id);
 
-                var stats = orderStats.FirstOrDefault();
+                var stats = orderStatsAll.Where(o => o.UserId == user.Id && o.StatusId==3);
+                var userDetails = userDetailsAll.FirstOrDefault(ud => ud.UserId == user.Id);
+                var userAddress = userAddressAll.FirstOrDefault(ua => ua.UserId == user.Id);
 
-                if (stats != null)
+              
+                if (userDetails == null || (string.IsNullOrEmpty(userDetails.FirstName) && string.IsNullOrEmpty(userDetails.LastName)))
+                    user.CustomerName = user.UserName;
+                else
+                    user.CustomerName = $"{userDetails.FirstName} {userDetails.LastName}".Trim();
+                var statsForUser = stats.ToList();
+                if (statsForUser.Any())
                 {
-                    if (userDetails == null || (string.IsNullOrEmpty(userDetails.FirstName) && string.IsNullOrEmpty(userDetails.LastName)))
-                        user.CustomerName = user.UserName;
-                    else
-                        user.CustomerName = $"{userDetails.FirstName} {userDetails.LastName}".Trim();
-                    user.OrderCount = orderStats.Count();
-                    user.LastOrderDate = stats.CreatedAt;
-                    user.Street = userAddress?.Street;
+                    user.OrderCount = statsForUser.Count;
+                    user.LastOrderDate = statsForUser.Max(o => o.CreatedAt);
                 }
+                user.Street = userAddress?.Street;
+                
             }
 
             return new PagedResult<UserDto>
