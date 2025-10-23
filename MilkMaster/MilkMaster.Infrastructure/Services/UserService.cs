@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.ML;
 using MilkMaster.Application.Common;
 using MilkMaster.Application.DTOs;
 using MilkMaster.Application.Filters;
@@ -9,11 +8,13 @@ using MilkMaster.Application.Interfaces.Repositories;
 using MilkMaster.Application.Interfaces.Services;
 using MilkMaster.Domain.Data;
 using MilkMaster.Domain.Models;
+using MilkMaster.Infrastructure.Repositories;
+using MilkMaster.Messages;
 
 
 namespace MilkMaster.Infrastructure.Services
 {
-    public class UserService:IUserService
+    public class UserService : IUserService
     {
         private readonly UserManager<User> _userManager;
         private readonly IUserDetailsRepository _userDetailsRepository;
@@ -21,14 +22,17 @@ namespace MilkMaster.Infrastructure.Services
         private readonly IMapper _mapper;
         private readonly IOrdersRepository _ordersRepository;
         private readonly ApplicationDbContext _context;
+        private readonly IEmailService _emailService;
+        private readonly ISettingsRepository _settingsRepository;
         public UserService(
             UserManager<User> userManager,
             IUserDetailsRepository userDetailsRepository,
             IUserAddressRepository userAddressRepository,
             IMapper mapper,
             IOrdersRepository ordersRepository,
-            ApplicationDbContext context
-
+            ApplicationDbContext context,
+            IEmailService emailService,
+            ISettingsRepository settingsRepository
         )
         {
             _userManager = userManager;
@@ -37,6 +41,8 @@ namespace MilkMaster.Infrastructure.Services
             _mapper = mapper;
             _ordersRepository = ordersRepository;
             _context = context;
+            _emailService = emailService;
+            _settingsRepository = settingsRepository;
         }
         public async Task<UserDto?> GetByIdAsync(string userId)
         {
@@ -134,11 +140,11 @@ namespace MilkMaster.Infrastructure.Services
             foreach (var user in userDtos)
             {
 
-                var stats = orderStatsAll.Where(o => o.UserId == user.Id && o.StatusId==3);
+                var stats = orderStatsAll.Where(o => o.UserId == user.Id && o.StatusId == 3);
                 var userDetails = userDetailsAll.FirstOrDefault(ud => ud.UserId == user.Id);
                 var userAddress = userAddressAll.FirstOrDefault(ua => ua.UserId == user.Id);
 
-              
+
                 if (userDetails == null || (string.IsNullOrEmpty(userDetails.FirstName) && string.IsNullOrEmpty(userDetails.LastName)))
                     user.CustomerName = user.UserName;
                 else
@@ -150,7 +156,7 @@ namespace MilkMaster.Infrastructure.Services
                     user.LastOrderDate = statsForUser.Max(o => o.CreatedAt);
                 }
                 user.Street = userAddress?.Street;
-                
+
             }
 
             return new PagedResult<UserDto>
@@ -160,6 +166,90 @@ namespace MilkMaster.Infrastructure.Services
                 PageNumber = filter?.PageNumber ?? 1
             };
         }
+
+        public async Task<bool> UpdateUserCredentialsAsync(UserAdminDto dto)
+        {
+            var user = await _userManager.FindByIdAsync(dto.UserId);
+            if (user == null)
+                throw new KeyNotFoundException("User not found.");
+            var oldEmail = user.Email;
+
+            bool updated = false;
+
+            if (!string.IsNullOrEmpty(dto.Email) && dto.Email != user.Email)
+            {
+                var token = await _userManager.GenerateChangeEmailTokenAsync(user, dto.Email);
+                var result = await _userManager.ChangeEmailAsync(user, dto.Email, token);
+
+                if (!result.Succeeded)
+                    throw new InvalidOperationException($"Credential update failed");
+
+
+                updated = true;
+            }
+
+            if (!string.IsNullOrEmpty(dto.Password))
+            {
+                var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var result = await _userManager.ResetPasswordAsync(user, resetToken, dto.Password);
+
+                if (!result.Succeeded)
+                    throw new InvalidOperationException($"Credential update failed");
+
+                updated = true;
+            }
+
+            if (updated)
+            {
+                var messages = new List<EmailMessage>
+                {
+                    new EmailMessage
+                    {
+                        Email = dto.Email,
+                        Subject = "Your Email Address Has Been Changed",
+                        Body = $"Hello {user.UserName},\n\nYour account email has been changed to {dto.Email}."
+                    },
+                    new EmailMessage
+                    {
+                        Email = oldEmail,
+                        Subject = "Your Account Email Was Updated",
+                        Body = $"Hello {user.UserName},\n\nYour account email has been changed from {oldEmail} to {dto.Email}. If this wasn't you, please contact support immediately."
+                    }
+                };
+
+                foreach (var emailMessage in messages)
+                    await _emailService.SendEmailAsync(user.Id, emailMessage, skipSettingsCheck: true);
+            }
+
+            return updated;
+        }
+
+        public async Task<bool> DeleteUserAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                throw new KeyNotFoundException("User not found.");
+            var settings = await _settingsRepository.GetByIdAsync(userId);
+
+            var result = await _userManager.DeleteAsync(user);
+            if (!result.Succeeded)
+                throw new InvalidOperationException($"Failed to delete user");
+
+            if (!string.IsNullOrEmpty(user.Email))
+            {
+                var emailMessage = new EmailMessage
+                {
+                    Email = user.Email,
+                    Subject = "Your Account Has Been Deleted",
+                    Body = $"Hello {user.UserName},\n\nYour account has been permanently deleted by an administrator.\nIf you believe this was a mistake, please contact support."
+                };
+
+                await _emailService.SendEmailAsync(user.Id, emailMessage, skipSettingsCheck: true);
+            }
+
+            return true;
+        }
+
 
     }
 }

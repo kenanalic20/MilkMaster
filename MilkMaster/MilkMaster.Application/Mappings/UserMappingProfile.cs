@@ -9,6 +9,7 @@ namespace MilkMaster.Application.Mappings
         public UserMappingProfile() 
         { 
             CreateMap<User, UserDto>();
+            CreateMap<User, UserAuthDto>();
         }
     }
 }

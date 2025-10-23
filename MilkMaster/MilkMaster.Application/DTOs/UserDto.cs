@@ -18,4 +18,15 @@ namespace MilkMaster.Application.DTOs
         public string? Street { get; set; }
         public string? ImageUrl { get; set; }
     }
+    public class UserAdminDto
+    {
+        public string UserId { get; set; }
+        public string Email { get; set; }
+        public string Password { get; set; }
+    }
+
+    public class UserAuthDto:UserDto
+    {
+        public IList<string>? Roles { get; set; }
+    }
 }

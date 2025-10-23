@@ -35,21 +35,23 @@ namespace MilkMaster.Domain.Data
             .HasOne(d => d.User)
             .WithOne()
             .HasForeignKey<UserDetails>(d => d.UserId)
-            .HasPrincipalKey<User>(u => u.Id);
+            .HasPrincipalKey<User>(u => u.Id)
+            .OnDelete(DeleteBehavior.Cascade);
 
             // User Address - IdentityUsers
             builder.Entity<UserAddress>()
             .HasOne(a => a.User)
             .WithOne()
             .HasForeignKey<UserAddress>(a => a.UserId)
-            .HasPrincipalKey<User>(u => u.Id);
-
+            .HasPrincipalKey<User>(u => u.Id)
+            .OnDelete(DeleteBehavior.Cascade);
             // User Settings - IdentityUsers
             builder.Entity<Settings>()
             .HasOne(s => s.User)
             .WithOne()
             .HasForeignKey<Settings>(s => s.UserId)
-            .HasPrincipalKey<User>(u => u.Id);
+            .HasPrincipalKey<User>(u => u.Id)
+            .OnDelete(DeleteBehavior.Cascade);
 
             // Product Categories - Products
             builder.Entity<ProductCategoriesProducts>()
@@ -111,6 +113,12 @@ namespace MilkMaster.Domain.Data
             .WithOne(i => i.Order)
             .HasForeignKey(i => i.OrderId);
 
+            //Users - Orders
+            builder.Entity<Orders>()
+            .HasOne(o => o.User)
+            .WithMany(u => u.Orders)
+            .HasForeignKey(o => o.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
 
             //Products - OrderItems
             builder.Entity<OrderItems>()

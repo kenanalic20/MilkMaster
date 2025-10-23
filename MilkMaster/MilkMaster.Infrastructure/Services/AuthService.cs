@@ -90,7 +90,7 @@ namespace MilkMaster.Infrastructure.Services
             return await Task.FromResult(user.IsInRole("Admin"));
         }
 
-        public async Task<UserDto> GetUserAsync(ClaimsPrincipal userPrincipal)
+        public async Task<UserAuthDto> GetUserAsync(ClaimsPrincipal userPrincipal)
         {
             var userId = userPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
@@ -105,7 +105,7 @@ namespace MilkMaster.Infrastructure.Services
             if (roles == null || roles.Count == 0)
                 throw new KeyNotFoundException("User has no roles");
             
-            var userDetails = _mapper.Map<UserDto>(user);
+            var userDetails = _mapper.Map<UserAuthDto>(user);
 
             userDetails.Roles = roles;
 

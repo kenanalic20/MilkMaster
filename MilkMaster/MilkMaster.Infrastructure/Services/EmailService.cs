@@ -19,15 +19,19 @@ namespace MilkMaster.Infrastructure.Services
             _rabbitMqPublisher = rabbitMqPublisher;
         }
 
-        public async Task SendEmailAsync(string userId, EmailMessage message)
+        public async Task SendEmailAsync(string userId, EmailMessage message, bool skipSettingsCheck = false)
         {
             var settings = await _settingsRepository.GetByIdAsync(userId);
 
-            if (settings == null)
-                throw new KeyNotFoundException("Email settings not found.");
-            
-            if (settings.NotificationsEnabled == false)
-                return;
+            if (!skipSettingsCheck)
+            {
+                if (settings == null)
+                    throw new KeyNotFoundException("Email settings not found.");
+
+                if (!settings.NotificationsEnabled)
+                    return;
+            }
+
 
             await _rabbitMqPublisher.PublishAsync(message);
         }

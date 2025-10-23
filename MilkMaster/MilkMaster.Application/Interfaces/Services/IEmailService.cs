@@ -4,6 +4,6 @@ namespace MilkMaster.Application.Interfaces.Services
 {
     public interface IEmailService
     {
-        Task SendEmailAsync(string userId, EmailMessage message);
+        Task SendEmailAsync(string userId, EmailMessage message, bool skipSettingsCheck = false);
     }
 }
