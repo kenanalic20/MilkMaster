@@ -12,14 +12,14 @@ namespace MilkMaster.Infrastructure.Services
     public class AuthService : IAuthService
     {
         private readonly UserManager<User> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly RoleManager<Role> _roleManager;
         private readonly SettingsSeeder _settingsSeeder;
         private readonly IJwtService _jwtService;
         private readonly IMapper _mapper;
 
         public AuthService(
             UserManager<User> userManager,
-            RoleManager<IdentityRole> roleManager,
+            RoleManager<Role> roleManager,
             SettingsSeeder settingsSeeder,
             IJwtService jwtService, 
             IMapper mapper
@@ -51,7 +51,8 @@ namespace MilkMaster.Infrastructure.Services
             string role = register.Platform.ToLower() == "desktop" ? "Admin" : "User";
 
             if (!await _roleManager.RoleExistsAsync(role))
-                await _roleManager.CreateAsync(new IdentityRole(role));
+                await _roleManager.CreateAsync(new Role { Name = role });
+
 
             await _userManager.AddToRoleAsync(user, role);
 

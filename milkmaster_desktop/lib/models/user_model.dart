@@ -1,45 +1,32 @@
+import 'package:json_annotation/json_annotation.dart';
+
+part 'user_model.g.dart';
+
+@JsonSerializable()
 class User {
-  final String id;
-  final String userName;
-  final String email;
+  final String? id;
+  final String? userName;
+  final String? customerName;
+  final String? email;
   final String? phoneNumber;
-  final List<String> roles;
+  final int orderCount;
+  final DateTime? lastOrderDate;
+  final String? street;
+  final String? imageUrl;
 
   User({
-    required this.id,
-    required this.userName,
-    required this.email,
+    this.id,
+    this.userName,
+    this.customerName,
+    this.email,
     this.phoneNumber,
-    required this.roles,
+    this.orderCount = 0,
+    this.lastOrderDate,
+    this.street,
+    this.imageUrl,
   });
 
-  factory User.fromJson(Map<String, dynamic> json) {
-    return User(
-      id: json['id'],
-      userName: json['userName'],
-      email: json['email'],
-      phoneNumber: json['phoneNumber'] as String?,
-      roles: List<String>.from(json['roles'] ?? []),
-    );
-  }
+  factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'userName': userName,
-      'email': email,
-      'phoneNumber': phoneNumber,
-      'roles': roles,
-    };
-  }
-
-  static Future<User> empty() {
-    return Future.value(User(
-      id: '',
-      userName: '',
-      email: '',
-      phoneNumber: null,
-      roles: [],
-    ));
-  }
+  Map<String, dynamic> toJson() => _$UserToJson(this);
 }

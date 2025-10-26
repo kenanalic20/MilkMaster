@@ -14,7 +14,7 @@ namespace MilkMaster.Infrastructure.Extensions
     {
         public static IServiceCollection AddAuthService(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddIdentity<User, IdentityRole>(options =>
+            services.AddIdentity<User, Role>(options =>
             {
                 options.Password.RequireDigit = true;
                 options.Password.RequiredLength = 8;

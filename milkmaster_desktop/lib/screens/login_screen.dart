@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:milkmaster_desktop/main.dart';
 import 'package:milkmaster_desktop/providers/auth_provider.dart';
@@ -133,6 +135,26 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                         );
                         return;
+                      }
+                      final user = _authProvider.currentUser;
+                      if (user == null || !user.roles.contains('Admin')) {
+                        showDialog(
+                          context: context,
+                          builder:
+                              (context) => AlertDialog(
+                                title: Text("Access Denied"),
+                                content: Text(
+                                  "You do not have admin privileges.",
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: Text("OK"),
+                                  ),
+                                ],
+                              ),
+                        );
+                        return; 
                       }
 
                       Navigator.of(context).pushReplacementNamed('/home');

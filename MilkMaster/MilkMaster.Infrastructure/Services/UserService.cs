@@ -81,53 +81,17 @@ namespace MilkMaster.Infrastructure.Services
         public async Task<PagedResult<UserDto>> GetAllUsersAsync(UserQueryFilter? filter)
         {
             filter ??= new UserQueryFilter();
-            var query = from u in _context.Users
-                        join ur in _context.UserRoles on u.Id equals ur.UserId
-                        join r in _context.Roles on ur.RoleId equals r.Id
-                        where r.Name == "User"
-                        select u;
+            var query = _context.Users
+                        .Include(u => u.UserRoles)
+                            .ThenInclude(ur => ur.Role)
+                        .Where(u => u.UserRoles.Any(ur => ur.Role.Name == "User"))
+                        .AsQueryable();
 
-            if (filter != null && !string.IsNullOrEmpty(filter.Search))
-            {
-                var search = filter.Search.ToLower();
-                query = query.Where(u =>
-                    u.UserName.ToLower().Contains(search.ToLower()) ||
-                    u.Email.ToLower().Contains(search.ToLower()) ||
-                    u.PhoneNumber.ToLower().Contains(search.ToLower()));
-            }
-
-            if (filter != null && !string.IsNullOrEmpty(filter.OrderBy))
-            {
-                switch (filter.OrderBy.ToLower())
-                {
-                    case "date_asc":
-                        query = query.OrderBy(u => u.LastOrderDate);
-                        break;
-                    case "date_desc":
-                        query = query.OrderByDescending(u => u.LastOrderDate);
-                        break;
-                    case "order_asc":
-                        query = query.OrderBy(u => u.OrderCount);
-                        break;
-                    case "order_desc":
-                        query = query.OrderByDescending(u => u.OrderCount);
-                        break;
-                    default:
-                        query = query.OrderBy(u => u.UserName);
-                        break;
-                }
-            }
-            else
-            {
-                query = query.OrderBy(u => u.UserName);
-            }
+            
 
             var totalCount = await query.CountAsync();
 
-            var users = await query
-                .Skip((filter.PageNumber - 1) * filter.PageSize)
-                .Take(filter.PageSize)
-                .ToListAsync();
+            var users = await query.ToListAsync();
 
             var userDtos = _mapper.Map<List<UserDto>>(users);
 
@@ -158,10 +122,30 @@ namespace MilkMaster.Infrastructure.Services
                 user.Street = userAddress?.Street;
 
             }
-
+            if (!string.IsNullOrEmpty(filter.Search))
+            {
+                var search = filter.Search.ToLower();
+                userDtos = userDtos.Where(u =>
+                    (!string.IsNullOrEmpty(u.UserName) && u.UserName.ToLower().Contains(search)) ||
+                    (!string.IsNullOrEmpty(u.CustomerName) && u.CustomerName.ToLower().Contains(search)) ||
+                    (!string.IsNullOrEmpty(u.Street) && u.Street.ToLower().Contains(search))
+                ).ToList();
+            }
+            IEnumerable<UserDto> sortedUsers = filter.OrderBy?.ToLower() switch
+            {
+                "date_asc" => userDtos.OrderBy(u => u.LastOrderDate),
+                "date_desc" => userDtos.OrderByDescending(u => u.LastOrderDate),
+                "order_asc" => userDtos.OrderBy(u => u.OrderCount),
+                "order_desc" => userDtos.OrderByDescending(u => u.OrderCount),
+                _ => userDtos.OrderBy(u => u.UserName)
+            };
+            var pagedUsers = sortedUsers
+                .Skip((filter.PageNumber - 1) * filter.PageSize)
+                .Take(filter.PageSize)
+                .ToList();
             return new PagedResult<UserDto>
             {
-                Items = userDtos,
+                Items = pagedUsers,
                 TotalCount = totalCount,
                 PageNumber = filter?.PageNumber ?? 1
             };

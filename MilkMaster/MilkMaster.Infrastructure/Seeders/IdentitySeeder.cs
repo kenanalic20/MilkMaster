@@ -6,12 +6,12 @@ using MilkMaster.Infrastructure.Seeders;
 public class IdentitySeeder
 {
     private readonly UserManager<User> _userManager;
-    private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly RoleManager<Role> _roleManager;
     private readonly SettingsSeeder _settingsSeeder;
 
     public IdentitySeeder(
         UserManager<User> userManager, 
-        RoleManager<IdentityRole> roleManager, 
+        RoleManager<Role> roleManager, 
         SettingsSeeder settingsSeeder)
     {
         _userManager = userManager;
@@ -27,7 +27,7 @@ public class IdentitySeeder
         foreach (var role in roles)
         {
             if (!await _roleManager.RoleExistsAsync(role))
-                await _roleManager.CreateAsync(new IdentityRole(role));
+                await _roleManager.CreateAsync(new Role { Name=role });
         }
 
         var adminEmail = "admin@milk.com";

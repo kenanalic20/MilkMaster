@@ -11,6 +11,7 @@ import 'package:milkmaster_desktop/providers/product_category_provider.dart';
 import 'package:milkmaster_desktop/providers/products_provider.dart';
 import 'package:milkmaster_desktop/providers/report_provider.dart';
 import 'package:milkmaster_desktop/providers/units_provider.dart';
+import 'package:milkmaster_desktop/providers/user_provider.dart';
 import 'package:milkmaster_desktop/widgets/home_shell.dart';
 import 'package:provider/provider.dart';
 import 'package:window_manager/window_manager.dart';
@@ -41,6 +42,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => UnitsProvider()),
         ChangeNotifierProvider(create: (_) => ReportProvider('Reports/download')),
         ChangeNotifierProvider(create: (_) => OrderStatusProvider()),
+        ChangeNotifierProvider(create: (_) => UserProvider()),
       ],
 
       child: const MyApp(),
