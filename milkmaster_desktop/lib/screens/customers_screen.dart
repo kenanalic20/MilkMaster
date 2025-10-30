@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:intl/intl.dart';
 import 'package:milkmaster_desktop/main.dart';
 import 'package:milkmaster_desktop/models/user_model.dart';
@@ -33,6 +34,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
   List<User> _customers = [];
   String? _selectedSort;
+  User? _singleCustomer;
 
   @override
   void initState() {
@@ -57,10 +59,20 @@ class _CustomersScreenState extends State<CustomersScreen> {
       if (mounted) {
         setState(() {
           _customers = result.items;
+          _totalCount = result.totalCount;
         });
       }
     } catch (e) {
-      print("Error fetching orders: $e");
+      print("Error fetching customer: $e");
+    }
+  }
+
+  Future<void> _fetchSingleCustomer(String? id) async {
+    final result = await _userProvider.getById(id);
+    if (mounted) {
+      setState(() {
+        _singleCustomer = result;
+      });
     }
   }
 
@@ -142,14 +154,13 @@ class _CustomersScreenState extends State<CustomersScreen> {
                                   SizedBox(
                                     width: 90,
                                     child: Text(
-                                      'Kenan Alic',
-                                      // customer.customerName != null &&
-                                      //         customer.customerName!.isNotEmpty
-                                      //     ? customer.customerName!
-                                      //     : (customer.userName != null &&
-                                      //             customer.userName!.isNotEmpty
-                                      //         ? customer.userName!
-                                      //         : '-'),
+                                      customer.customerName != null &&
+                                              customer.customerName!.isNotEmpty
+                                          ? customer.customerName!
+                                          : (customer.userName != null &&
+                                                  customer.userName!.isNotEmpty
+                                              ? customer.userName!
+                                              : 'No Name'),
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
@@ -166,7 +177,8 @@ class _CustomersScreenState extends State<CustomersScreen> {
                                         SizedBox(width: 4),
                                         Expanded(
                                           child: Text(
-                                            customer.street ?? 'Ulica Bosanska',
+                                            customer.street ??
+                                                'Street is not set',
                                             overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
@@ -194,16 +206,14 @@ class _CustomersScreenState extends State<CustomersScreen> {
                                     child: Row(
                                       children: [
                                         Icon(
-                                          Icons.phone, // phone icon
+                                          Icons.phone, 
                                           size: 24,
                                         ),
-                                        SizedBox(
-                                          width: 4,
-                                        ), 
+                                        SizedBox(width: 4),
                                         Expanded(
                                           child: Text(
                                             customer.phoneNumber ??
-                                                '+387 00 000 000', // placeholder
+                                                'Phone is not set',
                                             overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
@@ -224,28 +234,28 @@ class _CustomersScreenState extends State<CustomersScreen> {
                                             height: 24,
                                           ),
                                           onTap: () async {
-                                            // await _fetchSingleOrder(order.id);
-                                            // widget.openForm(
-                                            //   SingleChildScrollView(
-                                            //     child: MasterWidget(
-                                            //       title:
-                                            //           'Order: ${order.orderNumber}',
-                                            //       subtitle: '',
-                                            //       headerActions: Center(
-                                            //         child: ElevatedButton(
-                                            //           onPressed:
-                                            //               () =>
-                                            //                   widget
-                                            //                       .closeForm(),
-                                            //           child: const Text('X'),
-                                            //         ),
-                                            //       ),
-                                            //       body: _buildOrderView(
-                                            //         _singleOrder!,
-                                            //       ),
-                                            //     ),
-                                            //   ),
-                                            // );
+                                            await _fetchSingleCustomer(customer.id);
+                                            widget.openForm(
+                                              SingleChildScrollView(
+                                                child: MasterWidget(
+                                                  title:
+                                                      'Customer: ${customer.userName}',
+                                                  subtitle: '',
+                                                  headerActions: Center(
+                                                    child: ElevatedButton(
+                                                      onPressed:
+                                                          () =>
+                                                              widget
+                                                                  .closeForm(),
+                                                      child: const Text('X'),
+                                                    ),
+                                                  ),
+                                                  body: _buildCustomerView(
+                                                    _singleCustomer!,
+                                                  ),
+                                                ),
+                                              ),
+                                            );
                                           },
                                         ),
                                       ),
@@ -262,11 +272,9 @@ class _CustomersScreenState extends State<CustomersScreen> {
                                             widget.openForm(
                                               SingleChildScrollView(
                                                 child: MasterWidget(
-                                                  title: 'Update order status',
-                                                  subtitle: '',
-                                                  body: Text(
-                                                    'test',
-                                                  ), //_buildOrderForm(order),
+                                                  title: 'Update customer: ${customer.userName}',
+                                                  subtitle: 'Manage customers credentials',
+                                                  body: _buildCustomerForm(customer),
                                                 ),
                                               ),
                                             );
@@ -307,6 +315,119 @@ class _CustomersScreenState extends State<CustomersScreen> {
       ),
     );
   }
+  FormBuilder _buildCustomerForm(User customer) {
+  return FormBuilder(
+    key: _formKey,
+    child: Column(
+      children: [
+        Center(
+          child: SizedBox(
+            width: MediaQuery.of(context).size.width * 0.5,
+            child: FormBuilderTextField(
+              name: 'userName',
+              initialValue: customer.userName,
+              decoration: const InputDecoration(
+                labelText: 'Username',
+                border: OutlineInputBorder(),
+              ),
+              validator: FormBuilderValidators.required(),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        Center(
+          child: SizedBox(
+            width: MediaQuery.of(context).size.width * 0.5,
+            child: FormBuilderTextField(
+              name: 'email',
+              initialValue: customer.email,
+              decoration: const InputDecoration(
+                labelText: 'Email',
+                border: OutlineInputBorder(),
+              ),
+              validator: FormBuilderValidators.compose([
+                FormBuilderValidators.required(),
+                FormBuilderValidators.email(),
+              ]),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        Center(
+          child: SizedBox(
+            width: MediaQuery.of(context).size.width * 0.5,
+            child: FormBuilderTextField(
+              name: 'password',
+              obscureText: true,
+              decoration: const InputDecoration(
+                labelText: 'Password (leave empty to keep current)',
+                border: OutlineInputBorder(),
+              ),
+              
+            ),
+          ),
+        ),
+        const SizedBox(height: 24),
+
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.5,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  widget.closeForm();
+                },
+                child: const Text('Cancel'),
+              ),
+              const SizedBox(width: 16),
+              Builder(
+                builder: (context) {
+                  return ElevatedButton(
+                    onPressed: () async {
+                      if (_formKey.currentState?.saveAndValidate() ?? false) {
+                        final formData = _formKey.currentState!.value;
+
+                        await showCustomDialog(
+                          context: context,
+                          title: "Update Customer ${customer.userName}",
+                          message:
+                              "Are you sure you want to update '${customer.userName}'?",
+                          onConfirm: () async {
+                            print(formData);
+                            print(customer.id);
+                            await _userProvider.update(customer.id, formData);
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: const Text(
+                                  "User updated successfully",
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.secondary,
+                                duration: const Duration(seconds: 2),
+                              ),
+                            );
+
+                            widget.closeForm();
+                          },
+                        );
+                      }
+                    },
+                    child: const Text('Update User'),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
 
   Widget _buildPagination() {
     return PaginationWidget(
@@ -321,6 +442,102 @@ class _CustomersScreenState extends State<CustomersScreen> {
           extraQuery: {"page": page, "pageSize": _pageSize},
         );
       },
+    );
+  }
+
+  Widget _buildCustomerView(User customer) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (customer.imageUrl != null && customer.imageUrl!.isNotEmpty)
+          FilePickerWithPreview(imageUrl: customer.imageUrl, hasButton: false),
+        const SizedBox(height: 16),
+        Card(
+          margin: const EdgeInsets.only(bottom: 16),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Customer Info',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 12),
+                buildInfoRow('Username', customer.userName ?? '-'),
+                buildInfoRow('Customer Name', customer.customerName ?? '-'),
+                buildInfoRow('Email', customer.email ?? '-'),
+                buildInfoRow('Phone Number', customer.phoneNumber ?? '-'),
+                buildInfoRow('Street', customer.street ?? '-'),
+              ],
+            ),
+          ),
+        ),
+
+        Card(
+          margin: const EdgeInsets.only(bottom: 16),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Orders Overview',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 12),
+                buildInfoRow(
+                  'Order Count',
+                  customer.orderCount?.toString() ?? '0',
+                ),
+                buildInfoRow(
+                  'Last Order Date',
+                  customer.lastOrderDate != null
+                      ? DateFormat.yMMMd().add_jm().format(
+                        customer.lastOrderDate!,
+                      )
+                      : '-',
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        if (customer.imageUrl != null && customer.imageUrl!.isNotEmpty)
+          Card(
+            margin: const EdgeInsets.only(bottom: 16),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Profile Image',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 12),
+                  Center(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.network(
+                        customer.imageUrl!,
+                        height: 120,
+                        width: 120,
+                        fit: BoxFit.cover,
+                        errorBuilder:
+                            (context, error, stackTrace) => const Icon(
+                              Icons.person,
+                              size: 80,
+                              color: Colors.grey,
+                            ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+      ],
     );
   }
 

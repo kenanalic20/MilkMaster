@@ -8,6 +8,7 @@ import 'package:milkmaster_desktop/models/top_selling_product_model.dart';
 import 'package:milkmaster_desktop/providers/orders_provider.dart';
 import 'package:milkmaster_desktop/providers/products_provider.dart';
 import 'package:milkmaster_desktop/providers/report_provider.dart';
+import 'package:milkmaster_desktop/providers/user_provider.dart';
 import 'package:milkmaster_desktop/utils/widget_helpers.dart';
 import 'package:milkmaster_desktop/widgets/master_screen.dart';
 import 'package:provider/provider.dart';
@@ -30,6 +31,7 @@ class DashboardScreenState extends State<DashboardScreen> {
   late OrdersProvider _ordersProvider;
   late ProductProvider _productProvider;
   late ReportProvider _reportProvider;
+  late UserProvider _userProvider;
   List<Order> _orders = [];
   List<TopSellingProduct> _topSellingProducts = [];
   final _formKey = GlobalKey<FormBuilderState>();
@@ -37,6 +39,7 @@ class DashboardScreenState extends State<DashboardScreen> {
   double _totalRevenue = 0;
   int _pageSize = 4;
   int _totalCount = 0;
+  int _customerCount = 0;
 
   @override
   void initState() {
@@ -44,10 +47,12 @@ class DashboardScreenState extends State<DashboardScreen> {
     _ordersProvider = context.read<OrdersProvider>();
     _productProvider = context.read<ProductProvider>();
     _reportProvider = context.read<ReportProvider>();
+    _userProvider = context.read<UserProvider>();
     _fetchOrders(extraQuery: {"pageSize": _pageSize, "orderBy": 'date_desc'});
     _fetchTopProducts();
     _fetchSoldProducts();
     _fetchTotalRevenue();
+    _fetchCustomers();
   }
 
   void openForm() {
@@ -62,7 +67,18 @@ class DashboardScreenState extends State<DashboardScreen> {
       ),
     );
   }
-
+Future<void> _fetchCustomers() async {
+    try {
+      final result = await _userProvider.fetchAll();
+      if (mounted) {
+        setState(() {
+          _customerCount = result.totalCount;
+        });
+      }
+    } catch (e) {
+      print("Error fetching customer: $e");
+    }
+  }
   Future<void> _fetchOrders({
     int? page,
     Map<String, dynamic>? extraQuery,
@@ -666,7 +682,7 @@ class DashboardScreenState extends State<DashboardScreen> {
                             color: Theme.of(context).colorScheme.secondary,
                           ),
                           Text(
-                            _totalCount.toString(),
+                            _customerCount.toString(),
                             style: Theme.of(context).textTheme.headlineMedium,
                           ),
                         ],

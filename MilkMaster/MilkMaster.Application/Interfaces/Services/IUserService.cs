@@ -9,6 +9,6 @@ namespace MilkMaster.Application.Interfaces.Services
         Task<PagedResult<UserDto>> GetAllUsersAsync(UserQueryFilter? filter);
         Task<UserDto?> GetByIdAsync(string userId);
         Task<bool> DeleteUserAsync(string userId);
-        Task<bool> UpdateUserCredentialsAsync(UserAdminDto dto);
+        Task<bool> UpdateUserCredentialsAsync(string userId,UserAdminDto dto);
     }
 }

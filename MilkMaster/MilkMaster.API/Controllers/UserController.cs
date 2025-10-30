@@ -36,10 +36,10 @@ namespace MilkMaster.API.Controllers
                 return NotFound();
             return Ok(result);
         }
-        [HttpPut]
-        public async Task<IActionResult> UpdateUserCredentials([FromBody] UserAdminDto dto)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateUserCredentials(string id,[FromBody] UserAdminDto dto)
         {
-            var result = await _userService.UpdateUserCredentialsAsync(dto);
+            var result = await _userService.UpdateUserCredentialsAsync(id,dto);
             if (!result)
                 return BadRequest("Could not update user credentials.");
             return NoContent();

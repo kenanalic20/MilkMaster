@@ -8,7 +8,6 @@ using MilkMaster.Application.Interfaces.Repositories;
 using MilkMaster.Application.Interfaces.Services;
 using MilkMaster.Domain.Data;
 using MilkMaster.Domain.Models;
-using MilkMaster.Infrastructure.Repositories;
 using MilkMaster.Messages;
 
 
@@ -151,12 +150,14 @@ namespace MilkMaster.Infrastructure.Services
             };
         }
 
-        public async Task<bool> UpdateUserCredentialsAsync(UserAdminDto dto)
+        public async Task<bool> UpdateUserCredentialsAsync(string userId, UserAdminDto dto)
         {
-            var user = await _userManager.FindByIdAsync(dto.UserId);
+            var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
                 throw new KeyNotFoundException("User not found.");
+
             var oldEmail = user.Email;
+            var oldUsername = user.UserName;
 
             bool updated = false;
 
@@ -166,8 +167,19 @@ namespace MilkMaster.Infrastructure.Services
                 var result = await _userManager.ChangeEmailAsync(user, dto.Email, token);
 
                 if (!result.Succeeded)
-                    throw new InvalidOperationException($"Credential update failed");
+                    throw new InvalidOperationException("Credential update failed.");
 
+                user.UserName = dto.Email;
+                updated = true;
+            }
+
+            if (!string.IsNullOrEmpty(dto.UserName) && dto.UserName != user.UserName)
+            {
+                user.UserName = dto.UserName;
+                var result = await _userManager.UpdateAsync(user);
+
+                if (!result.Succeeded)
+                    throw new InvalidOperationException("Credential update failed.");
 
                 updated = true;
             }
@@ -178,28 +190,40 @@ namespace MilkMaster.Infrastructure.Services
                 var result = await _userManager.ResetPasswordAsync(user, resetToken, dto.Password);
 
                 if (!result.Succeeded)
-                    throw new InvalidOperationException($"Credential update failed");
+                    throw new InvalidOperationException("Credential update failed.");
 
                 updated = true;
             }
 
             if (updated)
             {
-                var messages = new List<EmailMessage>
+                var messages = new List<EmailMessage>();
+
+                if (!string.IsNullOrEmpty(dto.Email) && dto.Email != oldEmail)
                 {
-                    new EmailMessage
+                    messages.Add(new EmailMessage
                     {
                         Email = dto.Email,
                         Subject = "Your Email Address Has Been Changed",
                         Body = $"Hello {user.UserName},\n\nYour account email has been changed to {dto.Email}."
-                    },
-                    new EmailMessage
+                    });
+                    messages.Add(new EmailMessage
                     {
                         Email = oldEmail,
                         Subject = "Your Account Email Was Updated",
-                        Body = $"Hello {user.UserName},\n\nYour account email has been changed from {oldEmail} to {dto.Email}. If this wasn't you, please contact support immediately."
-                    }
-                };
+                        Body = $"Hello {oldUsername},\n\nYour account email has been changed from {oldEmail} to {dto.Email}. If this wasn't you, please contact support immediately."
+                    });
+                }
+
+                if (!string.IsNullOrEmpty(dto.UserName) && dto.UserName != oldUsername)
+                {
+                    messages.Add(new EmailMessage
+                    {
+                        Email = user.Email,
+                        Subject = "Your Username Has Been Changed",
+                        Body = $"Hello {oldUsername},\n\nYour account username has been changed to {dto.UserName}."
+                    });
+                }
 
                 foreach (var emailMessage in messages)
                     await _emailService.SendEmailAsync(user.Id, emailMessage, skipSettingsCheck: true);
@@ -207,6 +231,7 @@ namespace MilkMaster.Infrastructure.Services
 
             return updated;
         }
+
 
         public async Task<bool> DeleteUserAsync(string userId)
         {
