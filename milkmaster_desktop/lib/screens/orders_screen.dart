@@ -393,105 +393,117 @@ class _OrdersScreenState extends State<OrdersScreen> {
   Widget _buildOrderView(Order order) {
     final status = order.status;
     final items = order.items as List<OrderItem>;
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Card(
-        margin: const EdgeInsets.only(bottom: 16),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Order Info',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 12),
-              buildInfoRow('Order Number', order.orderNumber),
-              buildInfoRow(
-                'Created At',
-                order.createdAt != null
-                    ? DateFormat.yMMMd().format(order.createdAt)
-                    : '-',
-              ),
-              buildInfoRow('Customer', order.customer),
-              buildInfoRow('Email', order.email),
-              buildInfoRow('Phone', order.phoneNumber),
-              buildInfoRow('Total', "${formatDouble(order.total)} BAM"),
-              buildInfoRow('Item Count', order.itemCount.toString()),
-            ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Card(
+          margin: const EdgeInsets.only(bottom: 16),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Order Info',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 12),
+                buildInfoRow('Order Number', order.orderNumber),
+                buildInfoRow(
+                  'Created At',
+                  order.createdAt != null
+                      ? DateFormat.yMMMd().format(order.createdAt)
+                      : '-',
+                ),
+                buildInfoRow('Customer', order.customer),
+                buildInfoRow('Email', order.email),
+                buildInfoRow('Phone', order.phoneNumber),
+                buildInfoRow('Total', "${formatDouble(order.total)} BAM"),
+                buildInfoRow('Item Count', order.itemCount.toString()),
+              ],
+            ),
           ),
         ),
-      ),
 
-      Card(
-        margin: const EdgeInsets.only(bottom: 16),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Status',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(status?.name ?? '-', style: const TextStyle(fontSize: 16)),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Color(int.parse(
-                        status?.colorCode.replaceFirst('#', '0xFF') ?? '0xFF9CA3AF',
-                      )),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      status?.name ?? '-',
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-
-      Card(
-        margin: const EdgeInsets.only(bottom: 16),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Items',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 12),
-              ...items.map((item) {
-                return Column(
+        Card(
+          margin: const EdgeInsets.only(bottom: 16),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Status', style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    buildInfoRow('Product', item.productTitle),
-                    buildInfoRow('Quantity', item.quantity.toString()),
-                    buildInfoRow('Unit Size', item.unitSize.toString()),
-                    buildInfoRow('Price per Unit', "${formatDouble(item.pricePerUnit)}"),
-                    buildInfoRow('Total Price', "${formatDouble(item.totalPrice)}"),
-                    const Divider(),
+                    Text(
+                      status?.name ?? '-',
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Color(
+                          int.parse(
+                            status?.colorCode.replaceFirst('#', '0xFF') ??
+                                '0xFF9CA3AF',
+                          ),
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        status?.name ?? '-',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
                   ],
-                );
-              }).toList(),
-            ],
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-    ],
-  );
-}
+
+        Card(
+          margin: const EdgeInsets.only(bottom: 16),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Items', style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(height: 12),
+                ...items.map((item) {
+                  return Column(
+                    children: [
+                      buildInfoRow('Product', item.productTitle),
+                      buildInfoRow('Quantity', item.quantity.toString()),
+                      buildInfoRow('Unit Size', item.unitSize.toString()),
+                      buildInfoRow(
+                        'Price per Unit',
+                        "${formatDouble(item.pricePerUnit)}",
+                      ),
+                      buildInfoRow(
+                        'Total Price',
+                        "${formatDouble(item.totalPrice)}",
+                      ),
+                      const Divider(),
+                    ],
+                  );
+                }).toList(),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
   Container _buildOrders(BuildContext context) {
     return Container(
@@ -626,16 +638,20 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                             widget.openForm(
                                               SingleChildScrollView(
                                                 child: MasterWidget(
-                                                  title: 'Order: ${order.orderNumber}',
-                                                  subtitle:'',
+                                                  title:
+                                                      'Order: ${order.orderNumber}',
+                                                  subtitle: '',
                                                   headerActions: Center(
                                                     child: ElevatedButton(
-                                                      onPressed: () =>widget.closeForm(),
+                                                      onPressed:
+                                                          () =>
+                                                              widget
+                                                                  .closeForm(),
                                                       child: const Text('X'),
                                                     ),
                                                   ),
                                                   body: _buildOrderView(
-                                                    _singleOrder!
+                                                    _singleOrder!,
                                                   ),
                                                 ),
                                               ),
@@ -682,6 +698,25 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                                   "Are you sure you want to delete '${order.orderNumber}'?",
                                               onConfirm: () async {
                                                 await _deleteOrder(order);
+                                                ScaffoldMessenger.of(
+                                                  context,
+                                                ).showSnackBar(
+                                                  SnackBar(
+                                                    content: Text(
+                                                      "Order Deleted successfully",
+                                                      style: TextStyle(
+                                                        color: Colors.black,
+                                                      ),
+                                                    ),
+                                                    backgroundColor:
+                                                        Theme.of(
+                                                          context,
+                                                        ).colorScheme.secondary,
+                                                    duration: Duration(
+                                                      seconds: 2,
+                                                    ),
+                                                  ),
+                                                );
                                               },
                                             );
                                           },

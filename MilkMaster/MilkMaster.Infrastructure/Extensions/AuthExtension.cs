@@ -20,7 +20,6 @@ namespace MilkMaster.Infrastructure.Extensions
                 options.Password.RequiredLength = 8;
                 options.Password.RequireNonAlphanumeric = false;
                 options.Password.RequireUppercase = true;
-                options.Password.RequireLowercase = true;
 
                 options.User.RequireUniqueEmail = true;
             })

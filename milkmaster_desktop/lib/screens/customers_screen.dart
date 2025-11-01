@@ -205,10 +205,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
                                     width: 170,
                                     child: Row(
                                       children: [
-                                        Icon(
-                                          Icons.phone, 
-                                          size: 24,
-                                        ),
+                                        Icon(Icons.phone, size: 24),
                                         SizedBox(width: 4),
                                         Expanded(
                                           child: Text(
@@ -234,7 +231,9 @@ class _CustomersScreenState extends State<CustomersScreen> {
                                             height: 24,
                                           ),
                                           onTap: () async {
-                                            await _fetchSingleCustomer(customer.id);
+                                            await _fetchSingleCustomer(
+                                              customer.id,
+                                            );
                                             widget.openForm(
                                               SingleChildScrollView(
                                                 child: MasterWidget(
@@ -272,9 +271,13 @@ class _CustomersScreenState extends State<CustomersScreen> {
                                             widget.openForm(
                                               SingleChildScrollView(
                                                 child: MasterWidget(
-                                                  title: 'Update customer: ${customer.userName}',
-                                                  subtitle: 'Manage customers credentials',
-                                                  body: _buildCustomerForm(customer),
+                                                  title:
+                                                      'Update customer: ${customer.userName}',
+                                                  subtitle:
+                                                      'Manage customers credentials',
+                                                  body: _buildCustomerForm(
+                                                    customer,
+                                                  ),
                                                 ),
                                               ),
                                             );
@@ -298,6 +301,25 @@ class _CustomersScreenState extends State<CustomersScreen> {
                                                   "Are you sure you want to delete '${customer.userName}'?",
                                               onConfirm: () async {
                                                 await _deleteCustomer(customer);
+                                                ScaffoldMessenger.of(
+                                                  context,
+                                                ).showSnackBar(
+                                                  SnackBar(
+                                                    content: Text(
+                                                      "Customer Deleted successfully",
+                                                      style: TextStyle(
+                                                        color: Colors.black,
+                                                      ),
+                                                    ),
+                                                    backgroundColor:
+                                                        Theme.of(
+                                                          context,
+                                                        ).colorScheme.secondary,
+                                                    duration: Duration(
+                                                      seconds: 2,
+                                                    ),
+                                                  ),
+                                                );
                                               },
                                             );
                                           },
@@ -315,119 +337,147 @@ class _CustomersScreenState extends State<CustomersScreen> {
       ),
     );
   }
+
   FormBuilder _buildCustomerForm(User customer) {
-  return FormBuilder(
-    key: _formKey,
-    child: Column(
-      children: [
-        Center(
-          child: SizedBox(
-            width: MediaQuery.of(context).size.width * 0.5,
-            child: FormBuilderTextField(
-              name: 'userName',
-              initialValue: customer.userName,
-              decoration: const InputDecoration(
-                labelText: 'Username',
-                border: OutlineInputBorder(),
+    return FormBuilder(
+      key: _formKey,
+      child: Column(
+        children: [
+          Center(
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width * 0.5,
+              child: FormBuilderTextField(
+                name: 'userName',
+                initialValue: customer.userName,
+                decoration: const InputDecoration(
+                  labelText: 'Username',
+                  border: OutlineInputBorder(),
+                ),
+                validator: FormBuilderValidators.required(),
               ),
-              validator: FormBuilderValidators.required(),
             ),
           ),
-        ),
-        const SizedBox(height: 16),
+          const SizedBox(height: 16),
 
-        Center(
-          child: SizedBox(
-            width: MediaQuery.of(context).size.width * 0.5,
-            child: FormBuilderTextField(
-              name: 'email',
-              initialValue: customer.email,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(),
+          Center(
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width * 0.5,
+              child: FormBuilderTextField(
+                name: 'email',
+                initialValue: customer.email,
+                decoration: const InputDecoration(
+                  labelText: 'Email',
+                  border: OutlineInputBorder(),
+                ),
+                validator: FormBuilderValidators.compose([
+                  FormBuilderValidators.required(),
+                  FormBuilderValidators.email(),
+                ]),
               ),
-              validator: FormBuilderValidators.compose([
-                FormBuilderValidators.required(),
-                FormBuilderValidators.email(),
-              ]),
             ),
           ),
-        ),
-        const SizedBox(height: 16),
+          const SizedBox(height: 16),
 
-        Center(
-          child: SizedBox(
-            width: MediaQuery.of(context).size.width * 0.5,
-            child: FormBuilderTextField(
-              name: 'password',
-              obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'Password (leave empty to keep current)',
-                border: OutlineInputBorder(),
-              ),
-              
-            ),
-          ),
-        ),
-        const SizedBox(height: 24),
-
-        SizedBox(
-          width: MediaQuery.of(context).size.width * 0.5,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  widget.closeForm();
-                },
-                child: const Text('Cancel'),
-              ),
-              const SizedBox(width: 16),
-              Builder(
-                builder: (context) {
-                  return ElevatedButton(
-                    onPressed: () async {
-                      if (_formKey.currentState?.saveAndValidate() ?? false) {
-                        final formData = _formKey.currentState!.value;
-
-                        await showCustomDialog(
-                          context: context,
-                          title: "Update Customer ${customer.userName}",
-                          message:
-                              "Are you sure you want to update '${customer.userName}'?",
-                          onConfirm: () async {
-                            print(formData);
-                            print(customer.id);
-                            await _userProvider.update(customer.id, formData);
-
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: const Text(
-                                  "User updated successfully",
-                                  style: TextStyle(color: Colors.black),
-                                ),
-                                backgroundColor:
-                                    Theme.of(context).colorScheme.secondary,
-                                duration: const Duration(seconds: 2),
-                              ),
-                            );
-
-                            widget.closeForm();
-                          },
-                        );
-                      }
-                    },
-                    child: const Text('Update User'),
-                  );
+          Center(
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width * 0.5,
+              child: FormBuilderTextField(
+                name: 'password',
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'Password (leave empty to keep current)',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return null;
+                  }
+                  if (value.length < 8) {
+                    return 'Password must be at least 8 characters';
+                  }
+                  if (!RegExp(r'^(?=.*[A-Z])(?=.*\d).{8,}$').hasMatch(value)) {
+                    return 'Password must contain at least one uppercase letter and one number';
+                  }
+                  return null;
                 },
               ),
-            ],
+            ),
           ),
-        ),
-      ],
-    ),
-  );
-}
+          const SizedBox(height: 24),
+
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.5,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    widget.closeForm();
+                  },
+                  child: const Text('Cancel'),
+                ),
+                const SizedBox(width: 16),
+                Builder(
+                  builder: (context) {
+                    return ElevatedButton(
+                      onPressed: () async {
+                        if (_formKey.currentState?.saveAndValidate() ?? false) {
+                          final formData = _formKey.currentState!.value;
+
+                          await showCustomDialog(
+                            context: context,
+                            title: "Update Customer ${customer.userName}",
+                            message:
+                                "Are you sure you want to update '${customer.userName}'?",
+                            onConfirm: () async {
+                              final response = await _userProvider.update(
+                                customer.id,
+                                formData,
+                              );
+                              if (!response.success) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      response.errorMessage ??
+                                          "An error occurred",
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    backgroundColor:
+                                        Theme.of(context).colorScheme.error,
+                                    duration: const Duration(seconds: 2),
+                                  ),
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: const Text(
+                                      "User updated successfully",
+                                      style: TextStyle(color: Colors.black),
+                                    ),
+                                    backgroundColor:
+                                        Theme.of(context).colorScheme.secondary,
+                                    duration: const Duration(seconds: 2),
+                                  ),
+                                );
+                                widget.closeForm();
+                              }
+                            },
+                          );
+                        }
+                      },
+                      child: const Text('Update User'),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildPagination() {
     return PaginationWidget(
@@ -593,7 +643,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
           const SizedBox(width: 10),
 
           SizedBox(
-            width: 115,
+            width: 130,
             child: DropdownButtonHideUnderline(
               child: DropdownButton2<String>(
                 value: _selectedSort,
@@ -602,7 +652,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
                       return DropdownMenuItem(
                         value: option['value'],
                         child: SizedBox(
-                          width: 70,
+                          width: 80,
                           child: Text(option['label']!),
                         ),
                       );

@@ -163,6 +163,10 @@ namespace MilkMaster.Infrastructure.Services
 
             if (!string.IsNullOrEmpty(dto.Email) && dto.Email != user.Email)
             {
+                var existingEmailUser = await _userManager.FindByEmailAsync(dto.Email);
+                if (existingEmailUser != null && existingEmailUser.Id != user.Id)
+                    throw new ArgumentException("Another user with this email already exists.");
+
                 var token = await _userManager.GenerateChangeEmailTokenAsync(user, dto.Email);
                 var result = await _userManager.ChangeEmailAsync(user, dto.Email, token);
 
@@ -175,6 +179,10 @@ namespace MilkMaster.Infrastructure.Services
 
             if (!string.IsNullOrEmpty(dto.UserName) && dto.UserName != user.UserName)
             {
+                var existingUserNameUser = await _userManager.FindByNameAsync(dto.UserName);
+                if (existingUserNameUser != null && existingUserNameUser.Id != user.Id)
+                    throw new ArgumentException("Another user with this username already exists.");
+
                 user.UserName = dto.UserName;
                 var result = await _userManager.UpdateAsync(user);
 

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:milkmaster_desktop/models/api_response.dart';
 import 'package:milkmaster_desktop/models/paginated_result.dart';
 
 class BaseProvider<T> with ChangeNotifier {
@@ -111,14 +112,40 @@ class BaseProvider<T> with ChangeNotifier {
     return response.statusCode == 201 || response.statusCode == 200;
   }
 
-  Future<bool> update(dynamic id, Map<String, dynamic> body) async {
+  Future<ApiResponse> update(dynamic id, Map<String, dynamic> body) async {
     final headers = await getHeaders();
     final response = await http.put(
       Uri.parse('$_baseUrl/$_endPoint/$id'),
       headers: headers,
       body: json.encode(body),
     );
-    return response.statusCode == 204 || response.statusCode == 200;
+
+    dynamic responseBody;
+    try {
+      responseBody = json.decode(response.body);
+    } catch (_) {
+      responseBody = response.body;
+    }
+
+    if (response.statusCode == 200 || response.statusCode == 204) {
+      return ApiResponse(
+        success: true,
+        statusCode: response.statusCode,
+        data: responseBody,
+      );
+    } else {
+      String? errorMessage;
+      if (responseBody is Map) {
+        errorMessage = responseBody['error']?.toString();
+        errorMessage ??= responseBody['message']?.toString();
+      }
+      return ApiResponse(
+        success: false,
+        statusCode: response.statusCode,
+        errorMessage:
+            errorMessage ?? responseBody?.toString() ?? 'Unknown error',
+      );
+    }
   }
 
   Future<bool> delete(dynamic id) async {
