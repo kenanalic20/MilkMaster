@@ -5,9 +5,11 @@ namespace MilkMaster.Domain.Models
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public string ImageUrl { get; set; }
         public string MilkCartonUrl { get; set; }
-        public int CattleCategoryId { get; set; }
-        public CattleCategories CattleCategory { get; set; } = null!;
+        public string TagNumber { get; set; }
+        public int? CattleCategoryId { get; set; }
+        public CattleCategories? CattleCategory { get; set; } = null!;
         public string? BreedOfCattle { get; set; }
         public int Age { get; set; }
         public float LitersPerDay { get; set; }

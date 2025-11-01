@@ -1,4 +1,6 @@
-﻿using MilkMaster.Domain.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using MilkMaster.Application.DTOs;
+using MilkMaster.Domain.Models;
 
 namespace MilkMaster.Application.Interfaces.Repositories
 {

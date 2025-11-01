@@ -15,6 +15,6 @@ namespace MilkMaster.Domain.Models
         public bool NotificationsEnabled { get; set; }
         public bool PushNotificationsEnabled { get; set; }
 
-        public IdentityUser User { get; set; }
+        public User User { get; set; }
     }
 }

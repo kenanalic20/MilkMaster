@@ -23,6 +23,7 @@ services:
       - 5068:5068
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+      - ASPNETCORE_URLS=${ASPNETCORE_URLS}
       - APP_BASE_URL=${APP_BASE_URL} 
       - ConnectionStrings__DefaultConnection=${DEFAULT_CONNECTION}
       - RabbitMQ__ConnectionString=${RABBITMQ_CONNECTIONSTRING}
@@ -34,7 +35,22 @@ services:
       - rabbitmq 
     networks:
       - milkmaster-net
-   
+
+  milkmaster-subscriber:
+    build:
+      context: .
+      dockerfile: Dockerfile-Subscriber
+    environment:
+      - RABBITMQ_CONNECTIONSTRING=${RABBITMQ_CONNECTIONSTRING}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USERNAME=${SMTP_USERNAME}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+    depends_on:
+      - rabbitmq
+    networks:
+      - milkmaster-net
+
   rabbitmq:
     image: rabbitmq:3-management
     restart: unless-stopped

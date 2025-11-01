@@ -1,22 +1,33 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:milkmaster_desktop/main.dart';
 import 'package:milkmaster_desktop/providers/auth_provider.dart';
+import 'package:milkmaster_desktop/screens/products_screen.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _authProvider = AuthProvider();
+  late AuthProvider _authProvider;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _usernameController.dispose();
     _passwordController.dispose();
-    _authProvider.dispose();
     super.dispose();
   }
 
@@ -34,7 +45,6 @@ class _LoginScreenState extends State<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Logo
                 Padding(
                   padding: const EdgeInsets.only(bottom: 32.0),
                   child: Image.asset(
@@ -44,21 +54,20 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 TextFormField(
-                  controller: _emailController,
+                  controller: _usernameController,
                   decoration: InputDecoration(
-                    labelText: 'Email',
+                    labelText: 'Username',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
-                    }
-                    if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+').hasMatch(value)) {
-                      return 'Enter a valid email';
+                      return 'Please enter your username';
                     }
                     return null;
                   },
@@ -71,8 +80,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                   ),
                   obscureText: true,
                   validator: (value) {
@@ -82,34 +93,90 @@ class _LoginScreenState extends State<LoginScreen> {
                     if (value.length < 8) {
                       return 'Password must be at least 8 characters';
                     }
+                    if (!RegExp(
+                      r'^(?=.*[A-Z])(?=.*\d).{8,}$',
+                    ).hasMatch(value)) {
+                      return 'Password must contain at least one uppercase letter and one number';
+                    }
                     return null;
                   },
                 ),
                 SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: () async {
+                    _authProvider = Provider.of<AuthProvider>(
+                      context,
+                      listen: false,
+                    );
                     if (_formKey.currentState!.validate()) {
                       // Access input values:
-                      final email = _emailController.text;
+                      final username = _usernameController.text;
                       final password = _passwordController.text;
-                      final success = await _authProvider.login(email, password);
-
+                      final success = await _authProvider.login(
+                        username,
+                        password,
+                      );
 
                       if (!success) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Login failed')),
+                        showDialog(
+                          context: context,
+                          builder:
+                              (BuildContext context) => AlertDialog(
+                                title: Text("Login Failed"),
+                                content: Text(
+                                  "Login failed. Username or password is incorrect",
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: Text("OK"),
+                                  ),
+                                ],
+                              ),
                         );
                         return;
                       }
+                      final user = _authProvider.currentUser;
+                      if (user == null || !user.roles.contains('Admin')) {
+                        showDialog(
+                          context: context,
+                          builder:
+                              (context) => AlertDialog(
+                                title: Text("Access Denied"),
+                                content: Text(
+                                  "You do not have admin privileges.",
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: Text("OK"),
+                                  ),
+                                ],
+                              ),
+                        );
+                        return; 
+                      }
+
+                      Navigator.of(context).pushReplacementNamed('/home');
 
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Logging in as: ' + email)),
+                        SnackBar(
+                          content: Text(
+                            'Logging in as: $username',
+                            style: TextStyle(color: Colors.black),
+                          ),
+                          backgroundColor:
+                              Theme.of(context).colorScheme.secondary,
+                        ),
                       );
                     }
                   },
                   child: Text('Login'),
                 ),
                 TextButton(
+                  style: TextButton.styleFrom(
+                    foregroundColor: Theme.of(context).colorScheme.secondary,
+                  ),
                   onPressed: () {
                     Navigator.pushNamed(context, '/register');
                   },

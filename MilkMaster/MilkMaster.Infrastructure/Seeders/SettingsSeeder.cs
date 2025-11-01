@@ -14,6 +14,7 @@ namespace MilkMaster.Infrastructure.Seeders
 
         public async Task SeedSettingsAsync(string userId)
         {
+            _settingsService.EnableSeedingMode();
             var defaultSettingsDto = new SettingsCreateDto
             {
                 UserId = userId,

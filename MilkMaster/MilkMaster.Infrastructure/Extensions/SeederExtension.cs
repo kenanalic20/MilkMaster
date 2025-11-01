@@ -11,6 +11,10 @@ namespace MilkMaster.Infrastructure.Extensions
             services.AddScoped<SettingsSeeder>();
             services.AddScoped<ProductCategoriesSeeder>();
             services.AddScoped<CattleCategoriesSeeder>();
+            services.AddScoped<IdentitySeeder>();
+            services.AddScoped<ProductsSeeder>();
+            services.AddScoped<CattleSeeder>();
+            services.AddScoped<OrdersSeeder>();
             return services;
         }
     }

@@ -13,10 +13,12 @@ namespace MilkMaster.API.Controllers
     public class ProductController : BaseController<Products, ProductsDto, ProductsCreateDto, ProductsUpdateDto, ProductQueryFilter, int>
     {
         private readonly IProductsService _productService;
-        public ProductController(IProductsService service):base(service)
-       {
+        private readonly IOrderItemsService _orderItemsService;
+        public ProductController(IProductsService service, IOrderItemsService orderItemsService) : base(service)
+        {
             _productService = service;
-       }
+            _orderItemsService = orderItemsService;
+        }
 
         [HttpGet]
         public override async Task<IActionResult> GetAll([FromQuery] ProductQueryFilter? queryFilter = null)
@@ -40,5 +42,29 @@ namespace MilkMaster.API.Controllers
             return Ok(result);
         }
 
+        [HttpGet("recommend")]
+        public async Task<IActionResult> Recommend()
+        {
+            var recommendations = await _productService.Recommand();
+            if (recommendations == null || !recommendations.Any())
+                return NotFound("No recommanded products found for this user.");
+            return Ok(recommendations);
+
+        }
+        [Authorize(Roles = "Admin")]
+        [HttpGet("top-selling")]
+        public async Task<ActionResult<List<TopSellingProductDto>>> GetTopSellingProducts([FromQuery] int count = 4)
+        {
+            var result = await _productService.GetTopSellingProductsAsync(count);
+            return Ok(result);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("sold-products-count")]
+        public async Task<ActionResult<int>> GetTotalSoldProductsCountAsync()
+        {
+            var result = await _orderItemsService.GetTotalSoldProductsCountAsync();
+            return Ok(result);
+        }
     }
 }

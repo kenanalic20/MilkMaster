@@ -1,30 +1,75 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:milkmaster_desktop/providers/auth_provider.dart';
+import 'package:milkmaster_desktop/providers/cattle_category_provider.dart';
+import 'package:milkmaster_desktop/providers/cattle_provider.dart';
+import 'package:milkmaster_desktop/providers/file_provider.dart';
+import 'package:milkmaster_desktop/providers/order_status_provider.dart';
+import 'package:milkmaster_desktop/providers/orders_provider.dart';
+import 'package:milkmaster_desktop/providers/product_category_provider.dart';
+import 'package:milkmaster_desktop/providers/products_provider.dart';
+import 'package:milkmaster_desktop/providers/report_provider.dart';
+import 'package:milkmaster_desktop/providers/units_provider.dart';
+import 'package:milkmaster_desktop/providers/user_provider.dart';
+import 'package:milkmaster_desktop/widgets/home_shell.dart';
+import 'package:provider/provider.dart';
+import 'package:window_manager/window_manager.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 
 void main() {
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  windowManager.ensureInitialized();
+
+  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+    WindowManager.instance.setMinimumSize(const Size(1366, 768));
+    WindowManager.instance.setTitle('MilkMaster');
+    WindowManager.instance.setMaximumSize(const Size(1366, 768));
+    WindowManager.instance.setSize(const Size(1366, 768));
+  }
+
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => ProductProvider()),
+        ChangeNotifierProvider(create: (_) => OrdersProvider()),
+        ChangeNotifierProvider(create: (_) => CattleCategoryProvider()),
+        ChangeNotifierProvider(create: (_) => ProductCategoryProvider()),
+        ChangeNotifierProvider(create: (_) => FileProvider()),
+        ChangeNotifierProvider(create: (_) => CattleProvider()),
+        ChangeNotifierProvider(create: (_) => UnitsProvider()),
+        ChangeNotifierProvider(create: (_) => ReportProvider('Reports/download')),
+        ChangeNotifierProvider(create: (_) => OrderStatusProvider()),
+        ChangeNotifierProvider(create: (_) => UserProvider()),
+      ],
+
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'MilkMaster',
       theme: ThemeData(
         colorScheme: ColorScheme(
           brightness: Brightness.light,
-          primary: Color(0xFFFFC107),         
-          onPrimary: Colors.black,            
-          secondary: Color(0xFF212121),      
-          onSecondary: Colors.white,          
-          surface: Colors.white,         
-          onSurface: Color(0xFF212121),       
-          error: Color(0xFFD32F2F),           
-          onError: const Color.fromARGB(255, 0, 0, 0), 
+          primary: Color.fromRGBO(253, 216, 53, 1),
+          onPrimary: Colors.black,
+          secondary: Color.fromRGBO(249, 168, 37, 1),
+          onSecondary: Colors.white,
+          tertiary: Colors.grey,
+          surface: Colors.white,
+          onSurface: Color(0xFF212121),
+          error: Color(0xFFD32F2F),
+          onError: const Color.fromARGB(255, 0, 0, 0),
         ),
         appBarTheme: AppBarTheme(
           backgroundColor: Colors.white,
@@ -37,20 +82,26 @@ class MyApp extends StatelessWidget {
           ),
         ),
         textTheme: TextTheme(
-          headlineLarge: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.black),
-          headlineMedium: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.black),
+          headlineLarge: TextStyle(
+            fontSize: 30,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+          headlineMedium: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+          headlineSmall: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
+          ),
           bodyLarge: TextStyle(fontSize: 18, color: Colors.black),
           bodyMedium: TextStyle(fontSize: 14, color: Colors.black),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Color(0xFFFFC107),
-            foregroundColor: Colors.black,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            textStyle: TextStyle(fontWeight: FontWeight.bold),
-          ),
+          style: AppButtonStyles.primary,
         ),
         inputDecorationTheme: InputDecorationTheme(
           border: OutlineInputBorder(
@@ -72,92 +123,53 @@ class MyApp extends StatelessWidget {
         iconTheme: IconThemeData(color: Color(0xFF212121)),
         // Example of custom spacing extension
         extensions: <ThemeExtension<dynamic>>[
-          AppSpacing(
-            small: 8.0,
-            medium: 16.0,
-            large: 32.0,
-          ),
+          AppSpacing(small: 8.0, medium: 16.0, large: 32.0),
         ],
       ),
       initialRoute: '/login',
       routes: {
         '/login': (context) => LoginScreen(),
         '/register': (context) => RegisterScreen(),
+        '/home': (context) => HomeShell(),
       },
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+class AppButtonStyles {
 
-  final String title;
+  static ButtonStyle primary = ElevatedButton.styleFrom(
+    foregroundColor:  Color.fromRGBO(249,168,37,1),
+    shadowColor: Colors.transparent,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+    side: BorderSide(
+      color: Color.fromRGBO(249,168,37,1),
+    ),
+  );
 
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
+  static ButtonStyle secondary = ElevatedButton.styleFrom(
+     backgroundColor: Colors.transparent,
+    foregroundColor: Colors.black,
+    shadowColor: Colors.transparent,
+    side: BorderSide(color:Colors.black ),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+  );
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
-    );
-  }
+  // Danger / Delete button
+  static ButtonStyle danger = ElevatedButton.styleFrom(
+    backgroundColor: Colors.transparent,
+    foregroundColor: Color(0xFFD32F2F),
+    shadowColor: Colors.transparent,
+    side: BorderSide(color:Color(0xFFD32F2F) ),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+     
+    ),
+  );
 }
 
 class AppSpacing extends ThemeExtension<AppSpacing> {
@@ -172,11 +184,7 @@ class AppSpacing extends ThemeExtension<AppSpacing> {
   });
 
   @override
-  AppSpacing copyWith({
-    double? small,
-    double? medium,
-    double? large,
-  }) {
+  AppSpacing copyWith({double? small, double? medium, double? large}) {
     return AppSpacing(
       small: small ?? this.small,
       medium: medium ?? this.medium,

@@ -4,22 +4,22 @@ using MilkMaster.Application.DTOs;
 using System.Security.Claims;
 using AutoMapper;
 using MilkMaster.Infrastructure.Seeders;
-using System.ComponentModel.DataAnnotations;
 using MilkMaster.Application.Exceptions;
+using MilkMaster.Domain.Models;
 
 namespace MilkMaster.Infrastructure.Services
 {
     public class AuthService : IAuthService
     {
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly UserManager<User> _userManager;
+        private readonly RoleManager<Role> _roleManager;
         private readonly SettingsSeeder _settingsSeeder;
         private readonly IJwtService _jwtService;
         private readonly IMapper _mapper;
 
         public AuthService(
-            UserManager<IdentityUser> userManager,
-            RoleManager<IdentityRole> roleManager,
+            UserManager<User> userManager,
+            RoleManager<Role> roleManager,
             SettingsSeeder settingsSeeder,
             IJwtService jwtService, 
             IMapper mapper
@@ -33,11 +33,10 @@ namespace MilkMaster.Infrastructure.Services
         }
         public async Task<string> RegisterAsync(RegisterDto register)
         {
-            string username = register.Email.Split('@')[0];
 
-            var user = new IdentityUser
+            var user = new User
             {
-                UserName = username,
+                UserName = register.Username,
                 Email = register.Email,
             };
 
@@ -52,7 +51,8 @@ namespace MilkMaster.Infrastructure.Services
             string role = register.Platform.ToLower() == "desktop" ? "Admin" : "User";
 
             if (!await _roleManager.RoleExistsAsync(role))
-                await _roleManager.CreateAsync(new IdentityRole(role));
+                await _roleManager.CreateAsync(new Role { Name = role });
+
 
             await _userManager.AddToRoleAsync(user, role);
 
@@ -65,13 +65,13 @@ namespace MilkMaster.Infrastructure.Services
 
         public async Task<string> LoginAsync(LoginDto login)
         {
-            var user = await _userManager.FindByEmailAsync(login.Email);
+            var user = await _userManager.FindByNameAsync(login.Username);
             if (user == null)
                 throw new KeyNotFoundException("User not found");
 
             var result = await _userManager.CheckPasswordAsync(user, login.Password);
             if (!result)
-                throw new KeyNotFoundException("Invalid password");
+                throw new KeyNotFoundException("User credentials not valid");
 
             var token = await _jwtService.GenerateJwtToken(user);
 
@@ -91,7 +91,7 @@ namespace MilkMaster.Infrastructure.Services
             return await Task.FromResult(user.IsInRole("Admin"));
         }
 
-        public async Task<UserDto> GetUserAsync(ClaimsPrincipal userPrincipal)
+        public async Task<UserAuthDto> GetUserAsync(ClaimsPrincipal userPrincipal)
         {
             var userId = userPrincipal.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
@@ -106,7 +106,7 @@ namespace MilkMaster.Infrastructure.Services
             if (roles == null || roles.Count == 0)
                 throw new KeyNotFoundException("User has no roles");
             
-            var userDetails = _mapper.Map<UserDto>(user);
+            var userDetails = _mapper.Map<UserAuthDto>(user);
 
             userDetails.Roles = roles;
 

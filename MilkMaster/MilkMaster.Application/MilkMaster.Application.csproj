@@ -14,6 +14,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\MilkMaster.Domain\MilkMaster.Domain.csproj" />
+      <ProjectReference Include="..\MilkMaster.Messages\MilkMaster.Messages.csproj" />
     </ItemGroup>
 
 

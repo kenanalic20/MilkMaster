@@ -6,5 +6,8 @@ namespace MilkMaster.Application.Interfaces.Services
 {
     public interface IProductsService : IService<Products, ProductsDto, ProductsCreateDto, ProductsUpdateDto, ProductQueryFilter, int>
     {
+        Task<List<ProductsDto>> Recommand();
+        Task<List<TopSellingProductDto>> GetTopSellingProductsAsync(int count = 5);
+        Task<TopSellingProductDto?> GetLowestSellingProductAsync();
     }
 }

@@ -8,7 +8,7 @@ namespace MilkMaster.Application.Interfaces.Services
     {
         Task<string> RegisterAsync(RegisterDto register);
         Task<string> LoginAsync(LoginDto login);
-        Task<UserDto> GetUserAsync(ClaimsPrincipal user);
+        Task<UserAuthDto> GetUserAsync(ClaimsPrincipal user);
         Task<string> GetUserIdAsync(ClaimsPrincipal user);
         Task<bool> IsAdminAsync(ClaimsPrincipal user);
     }
