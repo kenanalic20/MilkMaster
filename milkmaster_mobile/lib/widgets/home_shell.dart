@@ -1,0 +1,133 @@
+import 'package:flutter/material.dart';
+import 'package:milkmaster_mobile/screens/home_screen.dart';
+import 'package:milkmaster_mobile/screens/orders_screen.dart';
+import 'package:milkmaster_mobile/screens/profile_screen.dart';
+
+class HomeShell extends StatefulWidget {
+  const HomeShell({super.key});
+
+  @override
+  State<HomeShell> createState() => _HomeShellState();
+}
+
+class _HomeShellState extends State<HomeShell> {
+  int _selectedIndex = 0;
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  Widget _buildScreen(int index) {
+    switch (index) {
+      case 0:
+        return const HomeScreen();
+      case 1:
+        return const OrdersScreen();
+      case 2:
+        return const ProfileScreen();
+      default:
+        return const HomeScreen();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(70.0),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primary,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                spreadRadius: 1,
+                blurRadius: 6,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: AppBar(
+            backgroundColor: Colors.transparent,
+            title: Padding(
+              padding: EdgeInsets.only(top: 16),
+              child: Image.asset(
+                'assets/images/logo.png',
+                height: 35,
+                fit: BoxFit.contain,
+              ),
+            ),
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(top: 16),
+                child: IconButton(
+                  icon: const Icon(Icons.search),
+                  iconSize: 30,
+                  onPressed: () {
+                    // TODO: Implement search action
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 16, right: 9),
+                child: IconButton(
+                  icon: const Icon(Icons.shopping_cart_outlined),
+                  iconSize: 30,
+                  onPressed: () {
+                    // TODO: Implement cart action
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        transitionBuilder: (child, animation) {
+          final inFromRight = _selectedIndex > 0; // or track previous index
+          final offsetTween = Tween<Offset>(
+            begin: inFromRight ? const Offset(1, 0) : const Offset(-1, 0),
+            end: Offset.zero,
+          ).chain(CurveTween(curve: Curves.easeInOut));
+
+          return SlideTransition(
+            position: animation.drive(offsetTween),
+            child: child,
+          );
+        },
+        child: _buildScreen(_selectedIndex),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        iconSize: 30.0,
+        type: BottomNavigationBarType.fixed,
+        selectedIconTheme: IconThemeData(
+          color: Theme.of(context).colorScheme.secondary,
+        ),
+        unselectedIconTheme: const IconThemeData(color: Colors.grey),
+
+        selectedLabelStyle: const TextStyle(color: Colors.black),
+        unselectedLabelStyle: const TextStyle(color: Colors.black),
+        selectedItemColor: Colors.black,
+
+        items: <BottomNavigationBarItem>[
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.shopping_bag),
+            label: 'Products',
+          ),
+          BottomNavigationBarItem(icon: Icon(Icons.pets), label: 'Cattle'),
+          BottomNavigationBarItem(icon: Icon(Icons.info), label: 'About'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.account_circle),
+            label: 'Profile',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+      ),
+    );
+  }
+}
