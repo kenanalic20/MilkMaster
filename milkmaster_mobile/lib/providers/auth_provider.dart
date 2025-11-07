@@ -9,7 +9,7 @@ class AuthProvider with ChangeNotifier {
   final _storage = FlutterSecureStorage();
   final String baseUrl = String.fromEnvironment(
     'BASE_URL',
-    defaultValue: 'http://localhost:5068',
+    defaultValue: 'http://10.0.2.2:5068',
   );
   late UserAuth? currentUser;
   Future<bool> login(String username, String password) async {

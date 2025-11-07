@@ -19,7 +19,7 @@ class BaseProvider<T> with ChangeNotifier {
     _endPoint = endPoint;
     _baseUrl = String.fromEnvironment(
       'BASE_URL',
-      defaultValue: 'http://localhost:5068',
+      defaultValue: 'http://10.0.2.2:5068',
     );
   }
 

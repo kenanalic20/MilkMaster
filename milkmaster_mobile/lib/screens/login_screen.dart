@@ -133,7 +133,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         return;
                       }
                       final user = _authProvider.currentUser;
-                      if (user == null || !user.roles.contains('Admin')) {
+                      if (user == null || user.roles.contains('Admin')) {
                         showDialog(
                           context: context,
                           builder:

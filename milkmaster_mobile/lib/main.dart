@@ -86,11 +86,13 @@ class MyApp extends StatelessWidget {
           ),
           headlineSmall: TextStyle(
             fontSize: 12,
-            fontWeight: FontWeight.normal,
+            fontWeight: FontWeight.w600,
             color: Colors.black,
           ),
           bodyLarge: TextStyle(fontSize: 16, color: Colors.black),
           bodyMedium: TextStyle(fontSize: 14, color: Colors.black),
+          bodySmall: TextStyle(fontSize: 12, color: Colors.black),
+
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: AppButtonStyles.primary,
@@ -118,10 +120,10 @@ class MyApp extends StatelessWidget {
           AppSpacing(small: 8.0, medium: 15.0, large: 32.0),
         ],
       ),
-      initialRoute: '/home',
+      initialRoute: '/login',
       routes: {
-        // '/login': (context) => const LoginScreen(),
-        // '/register': (context) => const RegisterScreen(),
+        '/login': (context) => const LoginScreen(),
+        '/register': (context) => const RegisterScreen(),
         '/home': (context) => const HomeShell(),
       },
     );
