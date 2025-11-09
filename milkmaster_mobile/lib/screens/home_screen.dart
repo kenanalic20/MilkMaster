@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:milkmaster_mobile/main.dart';
 import 'package:milkmaster_mobile/models/products_model.dart';
 import 'package:milkmaster_mobile/models/cattle_category_model.dart';
+import 'package:milkmaster_mobile/models/product_category_model.dart';
 import 'package:milkmaster_mobile/utils/widget_helpers.dart';
 import 'package:provider/provider.dart';
 import 'package:milkmaster_mobile/providers/products_provider.dart';
 import 'package:milkmaster_mobile/providers/cattle_category_provider.dart';
+import 'package:milkmaster_mobile/providers/product_category_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,16 +19,22 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late ProductProvider _productProvider;
   late CattleCategoryProvider _cattleCategoryProvider;
+  late ProductCategoryProvider _productCategoryProvider;
+
   List<Product> _products = [];
   List<CattleCategory> _cattleCategories = [];
+  List<ProductCategory> _productCategories = [];
 
   @override
   void initState() {
     super.initState();
     _productProvider = context.read<ProductProvider>();
     _cattleCategoryProvider = context.read<CattleCategoryProvider>();
+    _productCategoryProvider = context.read<ProductCategoryProvider>();
+
     _fetchRecommendedProducts();
     _fetchCattleCategories();
+    _fetchProductCategories();
   }
 
   Future<void> _fetchCattleCategories() async {
@@ -39,6 +47,19 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     } catch (e) {
       debugPrint('Error fetching cattle categories: $e');
+    }
+  }
+
+  Future<void> _fetchProductCategories() async {
+    try {
+      var items = await _productCategoryProvider.fetchAll();
+      if (mounted) {
+        setState(() {
+          _productCategories = items.items;
+        });
+      }
+    } catch (e) {
+      print("Error fetching product categories: $e");
     }
   }
 
@@ -61,18 +82,19 @@ class _HomeScreenState extends State<HomeScreen> {
     children: [
       Text(
         category.title,
-        style: TextStyle(
-          fontSize: Theme.of(context).textTheme.headlineMedium?.fontSize,
+        style: Theme.of(context).textTheme.headlineLarge?.copyWith(
           color: Color.fromRGBO(245, 127, 23, 1),
-          fontWeight: Theme.of(context).textTheme.headlineMedium?.fontWeight,
         ),
       ),
-      Text(category.description),
+      Text(category.description, style: Theme.of(context).textTheme.bodySmall),
     ],
   );
   Widget _buildCattleCategories() {
     if (_cattleCategoryProvider.isLoading) {
-      return Center(child: CircularProgressIndicator());
+      return SizedBox(
+        height: 200,
+        child: Center(child: CircularProgressIndicator()),
+      );
     }
 
     if (_cattleCategories.isEmpty) {
@@ -88,33 +110,69 @@ class _HomeScreenState extends State<HomeScreen> {
             final rowChildren =
                 index % 2 == 0
                     ? [
-                      Container(
-                        padding: const EdgeInsets.fromLTRB(10, 15, 10, 40),
-                        child: ColumnWidget(category),
-                      ),
-
-                      Image.network(
-                        fixLocalhostUrl(category.imageUrl),
-                        width: 50,
-                        height: 50,
+                      InkWell(
+                        onTap: () async {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(category.name)),
+                          );
+                        },
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Container(
+                                padding: const EdgeInsets.fromLTRB(
+                                  10,
+                                  15,
+                                  10,
+                                  40,
+                                ),
+                                child: ColumnWidget(category),
+                              ),
+                            ),
+                            Image.network(
+                              fixLocalhostUrl(category.imageUrl),
+                              width: 90,
+                              height: 90,
+                            ),
+                          ],
+                        ),
                       ),
                     ]
                     : [
-                      Image.network(
-                        fixLocalhostUrl(category.imageUrl),
-                        width: 50,
-                        height: 50,
-                      ),
-                      Container(
-                        padding: const EdgeInsets.fromLTRB(10, 15, 10, 40),
-                        child: Container(
-                          padding: const EdgeInsets.only(left: 60),
-                          child: ColumnWidget(category),
+                      InkWell(
+                        onTap: () async {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(category.name)),
+                          );
+                        },
+                        child: Row(
+                          children: [
+                            Image.network(
+                              fixLocalhostUrl(category.imageUrl),
+                              width: 90,
+                              height: 90,
+                            ),
+                            Expanded(
+                              child: Container(
+                                padding: const EdgeInsets.fromLTRB(
+                                  10,
+                                  15,
+                                  10,
+                                  40,
+                                ),
+                                child: Container(
+                                  padding: const EdgeInsets.only(left: 20),
+                                  child: ColumnWidget(category),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ];
 
             return Container(
+              margin: const EdgeInsets.only(bottom: 16.0),
               decoration: BoxDecoration(
                 color: Colors.white,
                 boxShadow: [
@@ -126,7 +184,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
                 borderRadius: BorderRadius.circular(12),
               ),
-
               child: Stack(
                 children: [
                   Wrap(
@@ -135,9 +192,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           .map(
                             (child) => Stack(
                               children: [
-                                Padding(
+                                Container(
                                   padding: const EdgeInsets.symmetric(
-                                    horizontal: 4,
+                                    vertical: 4,
                                   ),
                                   child: child,
                                 ),
@@ -250,7 +307,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: Theme.of(context).extension<AppSpacing>()?.small,
               ),
               _buildCattleCategories(),
-              const SizedBox(height: 12),
+              Text('Our Categories', style: Theme.of(context).textTheme.titleLarge),
+              SizedBox(
+                height: Theme.of(context).extension<AppSpacing>()?.small,
+              ),
+              _buildProductCategories(),
+              SizedBox(
+                height: Theme.of(context).extension<AppSpacing>()?.small,
+              ),
             ],
           ),
         ),
@@ -258,9 +322,75 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _buildProductCategories() {
+    if (_productCategoryProvider.isLoading) {
+      return SizedBox(
+        height: 200,
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+    if (_productCategories.isEmpty) {
+      return NoDataWidget();
+    }
+    return Center(
+      child: Wrap(
+      spacing: 15,
+      runSpacing: 15,
+      children: _productCategories.map((category) {
+        return Container(
+          width: 181,
+          height: 181,
+          padding: const EdgeInsets.all(15),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.secondary,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 4,
+                offset: Offset(0, 4),
+              ),
+            ],
+          ),
+          child: InkWell(
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(category.name)),
+              );
+            },
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.network(
+                  fixLocalhostUrl(category.imageUrl),
+                  width: 70,
+                  height: 70,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  category.name.toUpperCase(),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        );
+      }).toList(),
+        ),
+    );
+  }
+
   Widget buildRecommendedList() {
     if (_productProvider.isLoading) {
-      return Center(child: CircularProgressIndicator());
+      return SizedBox(
+        height: 200,
+        child: Center(child: CircularProgressIndicator()),
+      );
     }
     if (_products.isEmpty) {
       return NoDataWidget();
@@ -380,7 +510,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         formatDouble(product.pricePerUnit) + ' BAM',
                         style: Theme.of(
                           context,
-                        ).textTheme.headlineSmall?.copyWith(
+                        ).textTheme.headlineMedium?.copyWith(
                           color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),

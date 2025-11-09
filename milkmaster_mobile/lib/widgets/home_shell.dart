@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:milkmaster_mobile/screens/about_screen.dart';
+import 'package:milkmaster_mobile/screens/cattle_screen.dart';
 import 'package:milkmaster_mobile/screens/home_screen.dart';
 import 'package:milkmaster_mobile/screens/orders_screen.dart';
 import 'package:milkmaster_mobile/screens/profile_screen.dart';
@@ -26,6 +28,10 @@ class _HomeShellState extends State<HomeShell> {
       case 1:
         return const OrdersScreen();
       case 2:
+        return const CattleScreen();
+      case 3:
+        return const AboutScreen();
+      case 4:
         return const ProfileScreen();
       default:
         return const HomeScreen();
