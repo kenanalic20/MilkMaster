@@ -10,7 +10,10 @@ import 'package:milkmaster_mobile/providers/cattle_category_provider.dart';
 import 'package:milkmaster_mobile/providers/product_category_provider.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final void Function({int? productCategoryId, int? cattleCategoryId})? onNavigateToProducts;
+  final void Function({int? cattleCategoryId})? onNavigateToCattle;
+  
+  const HomeScreen({super.key, this.onNavigateToProducts, this.onNavigateToCattle});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -112,9 +115,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ? [
                       InkWell(
                         onTap: () async {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(category.name)),
-                          );
+                          widget.onNavigateToCattle?.call(cattleCategoryId: category.id);
                         },
                         child: Row(
                           children: [
@@ -141,9 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     : [
                       InkWell(
                         onTap: () async {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(category.name)),
-                          );
+                          widget.onNavigateToCattle?.call(cattleCategoryId: category.id);
                         },
                         child: Row(
                           children: [
@@ -354,9 +353,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           child: InkWell(
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(category.name)),
-              );
+              widget.onNavigateToProducts?.call(productCategoryId: category.id);
             },
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,

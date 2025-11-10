@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:milkmaster_mobile/screens/about_screen.dart';
 import 'package:milkmaster_mobile/screens/cattle_screen.dart';
 import 'package:milkmaster_mobile/screens/home_screen.dart';
-import 'package:milkmaster_mobile/screens/orders_screen.dart';
+import 'package:milkmaster_mobile/screens/products_screen.dart';
 import 'package:milkmaster_mobile/screens/profile_screen.dart';
 
 class HomeShell extends StatefulWidget {
@@ -14,6 +14,8 @@ class HomeShell extends StatefulWidget {
 
 class _HomeShellState extends State<HomeShell> {
   int _selectedIndex = 0;
+  int? _selectedProductCategory;
+  int? _selectedCattleCategoryForCattle;
 
   void _onItemTapped(int index) {
     setState(() {
@@ -21,20 +23,44 @@ class _HomeShellState extends State<HomeShell> {
     });
   }
 
+  void navigateToProducts({int? productCategoryId, int? cattleCategoryId}) {
+    setState(() {
+      _selectedIndex = 1;
+      _selectedProductCategory = productCategoryId;
+    });
+  }
+
+  void navigateToCattle({int? cattleCategoryId}) {
+    setState(() {
+      _selectedIndex = 2; 
+      _selectedCattleCategoryForCattle = cattleCategoryId;
+    });
+  }
+
   Widget _buildScreen(int index) {
     switch (index) {
       case 0:
-        return const HomeScreen();
+        return HomeScreen(
+          onNavigateToProducts: navigateToProducts,
+          onNavigateToCattle: navigateToCattle,
+        );
       case 1:
-        return const OrdersScreen();
+        return ProductsScreen(
+          selectedProductCategory: _selectedProductCategory,
+        );
       case 2:
-        return const CattleScreen();
+        return CattleScreen(
+          selectedCattleCategory: _selectedCattleCategoryForCattle,
+        );
       case 3:
         return const AboutScreen();
       case 4:
         return const ProfileScreen();
       default:
-        return const HomeScreen();
+        return HomeScreen(
+          onNavigateToProducts: navigateToProducts,
+          onNavigateToCattle: navigateToCattle,
+        );
     }
   }
 
