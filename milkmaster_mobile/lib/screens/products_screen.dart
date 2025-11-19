@@ -148,45 +148,48 @@ class _ProductsScreenState extends State<ProductsScreen> {
       ),
       child: Column(
         children: [
-          TextField(
-         
-            style: Theme.of(context).textTheme.bodyMedium,
-            controller: _searchController,
-            decoration: InputDecoration(
-              hintText: "Search orders...",
-              hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.tertiary,
+          SizedBox(
+            height: 35,
+            child: TextField(
+              style: Theme.of(context).textTheme.bodyMedium,
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: "Search orders...",
+                hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.tertiary,
+                ),
+                prefixIcon: Icon(
+                  Icons.search,
+                  color: Theme.of(context).colorScheme.tertiary,
+                  size: 20,
+                ),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                filled: true,
+                fillColor: const Color.fromRGBO(229, 229, 229, 1),
+                contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
               ),
-              prefixIcon: Icon(
-                Icons.search,
-                color: Theme.of(context).colorScheme.tertiary,
-              ),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-              filled: true,
-              fillColor: Color.fromRGBO(229, 229, 229, 1),
+              onChanged: (value) async {
+                setState(() {
+                  _currentPage = 1;
+                });
+                await _fetchProduct(
+                  extraQuery: {
+                    'title': value,
+                    'cattleCategoryId': _selectedCattleCategory ?? '',
+                    'productCategoryId': _selectedProductCategory ?? '',
+                    'pageSize': _pageSize,
+                    'pageNumber': _currentPage,
+                    'sortDescending': _sortDescending,
+                  },
+                );
+              },
             ),
-            onChanged: (value) async {
-              setState(() {
-                _currentPage = 1;
-              });
-              await _fetchProduct(
-                extraQuery: {
-                  'title': value,
-                  'cattleCategoryId': _selectedCattleCategory ?? '',
-                  'productCategoryId': _selectedProductCategory ?? '',
-                  'pageSize': _pageSize,
-                  'pageNumber': _currentPage,
-                  'sortDescending': _sortDescending,
-                },
-              );
-            },
           ),
           SizedBox(height: Theme.of(context).extension<AppSpacing>()?.medium),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SizedBox(
-                width: 180,
+              Expanded(
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton2<int>(
                     value: _selectedProductCategory,
@@ -220,8 +223,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                     style: Theme.of(context).textTheme.bodyMedium,
                     buttonStyleData: ButtonStyleData(
                       height: 45,
-                      width: 120,
-                      padding: const EdgeInsets.only(left: 15, right: 14),
+                      padding: const EdgeInsets.only(left: 10, right: 10),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(color: Colors.black26, width: 0.5),
@@ -245,8 +247,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
               
               SizedBox(width: Theme.of(context).extension<AppSpacing>()!.medium),
               
-              SizedBox(
-                width: 180,
+              Expanded(
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton2<int>(
                     value: _selectedCattleCategory,
@@ -281,8 +282,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                     style: Theme.of(context).textTheme.bodyMedium,
                     buttonStyleData: ButtonStyleData(
                       height: 45,
-                      width: 200,
-                      padding: const EdgeInsets.only(left: 14, right: 14),
+                      padding: const EdgeInsets.only(left: 10, right: 10),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(color: Colors.black26, width: 0.5),
@@ -407,9 +407,9 @@ class _ProductsScreenState extends State<ProductsScreen> {
             child: GridView.builder(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 0.577,
+                crossAxisSpacing: 7,
+                mainAxisSpacing: 7,
+                childAspectRatio: 0.5,
               ),
               itemCount: _products.length,
               itemBuilder: (context, index) {

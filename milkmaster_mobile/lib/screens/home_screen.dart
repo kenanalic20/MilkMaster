@@ -4,6 +4,8 @@ import 'package:milkmaster_mobile/models/products_model.dart';
 import 'package:milkmaster_mobile/models/cattle_category_model.dart';
 import 'package:milkmaster_mobile/models/product_category_model.dart';
 import 'package:milkmaster_mobile/utils/widget_helpers.dart';
+import 'package:milkmaster_mobile/widgets/product_slider.dart';
+import 'package:milkmaster_mobile/widgets/product_slider_examples.dart';
 import 'package:provider/provider.dart';
 import 'package:milkmaster_mobile/providers/products_provider.dart';
 import 'package:milkmaster_mobile/providers/cattle_category_provider.dart';
@@ -214,11 +216,14 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.all(15),
+        padding: const EdgeInsets.only(left: 15, right: 15),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              SizedBox(
+                height: Theme.of(context).extension<AppSpacing>()?.small,
+              ),
               Text('Home', style: Theme.of(context).textTheme.titleLarge),
               SizedBox(
                 height: Theme.of(context).extension<AppSpacing>()?.small,
@@ -236,36 +241,52 @@ class _HomeScreenState extends State<HomeScreen> {
                       offset: Offset(0, 4),
                     ),
                   ],
-                  image: DecorationImage(
-                    image: AssetImage('assets/images/banner.jpg'),
-                    fit: BoxFit.cover,
-                    colorFilter: ColorFilter.mode(
-                      Colors.black.withOpacity(0.4),
-                      BlendMode.darken,
-                    ),
-                  ),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(15, 20, 15, 20),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Stack(
                     children: [
-                      Text(
-                        'Fresh Dairy Products',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
+                      Transform.rotate(
+                        angle: 3.14159, // 180 degrees in radians
+                        child: Container(
+                          width: double.infinity,
+                          height: double.infinity,
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: AssetImage('assets/images/banner.jpg'),
+                              fit: BoxFit.cover,
+                              colorFilter: ColorFilter.mode(
+                                Colors.black.withOpacity(0.4),
+                                BlendMode.darken,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      SizedBox(
-                        width: 220,
-                        child: Text(
-                          'Discover our premium selection of dairy products',
-                          style: Theme.of(
-                            context,
-                          ).textTheme.bodyLarge?.copyWith(color: Colors.white),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(15, 20, 15, 20),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Fresh Dairy Products',
+                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            SizedBox(
+                              width: 220,
+                              child: Text(
+                                'Discover our premium selection of dairy products',
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.bodyLarge?.copyWith(color: Colors.white),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -275,29 +296,30 @@ class _HomeScreenState extends State<HomeScreen> {
               SizedBox(
                 height: Theme.of(context).extension<AppSpacing>()?.medium,
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Recommended Products',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  InkWell(
-                    onTap: () {
-                      // TODO: Navigate to all products
-                      debugPrint('See all tapped');
-                    },
-                    child: Text(
-                      'See All',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
+              ProductSlider(
+                products: _products,
+                isLoading: _productProvider.isLoading,
+                title: 'Recommended Products',
+                onSeeAll: () {
+                  debugPrint('See all tapped');
+                  widget.onNavigateToProducts?.call();
+                },
+                onProductTap: (product) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(product.title)),
+                  );
+                },
+                onAddToCart: (product) {
+                  // TODO: wire to cart provider
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Added "${product.title}" to cart'),
+                      backgroundColor: Theme.of(context).colorScheme.secondary,
                     ),
-                  ),
-                ],
+                  );
+                },
               ),
 
-              buildRecommendedList(),
               SizedBox(
                 height: Theme.of(context).extension<AppSpacing>()?.small,
               ),
@@ -331,14 +353,17 @@ class _HomeScreenState extends State<HomeScreen> {
     if (_productCategories.isEmpty) {
       return NoDataWidget();
     }
+    
+    final screenWidth = MediaQuery.of(context).size.width;
+    final cardWidth = (screenWidth - 45) / 2;
     return Center(
       child: Wrap(
       spacing: 15,
       runSpacing: 15,
       children: _productCategories.map((category) {
         return Container(
-          width: 181,
-          height: 181,
+          width: cardWidth,
+          height: cardWidth,
           padding: const EdgeInsets.all(15),
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.secondary,
@@ -379,177 +404,6 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       }).toList(),
         ),
-    );
-  }
-
-  Widget buildRecommendedList() {
-    if (_productProvider.isLoading) {
-      return SizedBox(
-        height: 200,
-        child: Center(child: CircularProgressIndicator()),
-      );
-    }
-    if (_products.isEmpty) {
-      return NoDataWidget();
-    }
-
-    return SizedBox(
-      height: 280,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemBuilder: (context, index) {
-          final product = _products[index];
-          return SizedBox(
-            width: 175,
-            child: Card(
-              elevation: 4,
-              shadowColor: Colors.black.withOpacity(1),
-              clipBehavior: Clip.hardEdge,
-              child: InkWell(
-                onTap: () async {
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text(product.title)));
-                },
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Image.network(
-                      fixLocalhostUrl(product.imageUrl),
-                      width: double.infinity,
-                      height: 90,
-                      fit: BoxFit.cover,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 5, left: 5, right: 5),
-                      child: Text(
-                        product.title,
-                        style: Theme.of(context).textTheme.headlineLarge,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 40,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 5),
-                        child: Text(
-                          product.description ?? '',
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ),
-                    ),
-                    Container(
-                      height: 40,
-                      width: 180,
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.vertical,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 5, right: 5),
-                          child: Wrap(
-                            spacing: 2,
-                            runSpacing: 2,
-                            children: [
-                              ...(product.productCategories?.map((category) {
-                                    return Container(
-                                      padding: EdgeInsets.only(
-                                        left: 10,
-                                        right: 10,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color:
-                                            Theme.of(
-                                              context,
-                                            ).colorScheme.primary,
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(
-                                          color: Colors.transparent,
-                                        ),
-                                      ),
-                                      child: Text(
-                                        category.name.toLowerCase(),
-                                        style:
-                                            Theme.of(
-                                              context,
-                                            ).textTheme.bodySmall,
-                                      ),
-                                    );
-                                  }).toList() ??
-                                  []),
-                              if (product.cattleCategory != null)
-                                Container(
-                                  padding: EdgeInsets.only(left: 10, right: 10),
-                                  decoration: BoxDecoration(
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                      color: Colors.transparent,
-                                    ),
-                                  ),
-                                  child: Text(
-                                    product.cattleCategory!.name.toLowerCase(),
-                                    style:
-                                        Theme.of(context).textTheme.bodySmall,
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    // Price
-                    Padding(
-                      padding: const EdgeInsets.only(left: 5),
-                      child: Text(
-                        formatDouble(product.pricePerUnit) + ' BAM',
-                        style: Theme.of(
-                          context,
-                        ).textTheme.headlineMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.secondary,
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: Theme.of(context).extension<AppSpacing>()?.small,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25),
-                            ),
-                          ),
-                          onPressed: () {
-                            // TODO: wire to cart provider
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  'Added "${product.title}" to cart',
-                                ),
-                                backgroundColor:
-                                    Theme.of(context).colorScheme.secondary,
-                              ),
-                            );
-                          },
-                          child: const Text('Add to cart'),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
-        separatorBuilder: (_, __) => const SizedBox(width: 10),
-        itemCount: _products.length,
-      ),
     );
   }
 }

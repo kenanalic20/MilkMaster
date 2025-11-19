@@ -23,7 +23,7 @@ class _CattleScreenState extends State<CattleScreen> {
   List<Cattle> _cattle = [];
   List<CattleCategory> _cattleCategories = [];
   int _currentPage = 1;
-  int _pageSize = 10;
+  int _pageSize = 8;
   int _totalCount = 0;
   int? _selectedCattleCategory;
   bool _sortDescending = true;
@@ -109,41 +109,45 @@ class _CattleScreenState extends State<CattleScreen> {
       ),
       child: Column(
         children: [
-          // Search Bar
-          TextField(
-            style: Theme.of(context).textTheme.bodyMedium,
-            controller: _searchController,
-            decoration: InputDecoration(
-              hintText: "Search cattle...",
-              hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.tertiary,
+          SizedBox(
+            height: 35,
+            child: TextField(
+              style: Theme.of(context).textTheme.bodyMedium,
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: "Search cattle...",
+                hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.tertiary,
+                ),
+                prefixIcon: Icon(
+                  Icons.search,
+                  color: Theme.of(context).colorScheme.tertiary,
+                  size: 20,
+                ),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                filled: true,
+                fillColor: const Color.fromRGBO(229, 229, 229, 1),
+                contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
               ),
-              prefixIcon: Icon(
-                Icons.search,
-                color: Theme.of(context).colorScheme.tertiary,
-              ),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-              filled: true,
-              fillColor: const Color.fromRGBO(229, 229, 229, 1),
+              onChanged: (value) async {
+                setState(() {
+                  _currentPage = 1;
+                });
+                await _fetchCattle(
+                  extraQuery: {
+                    'search': value,
+                    'sortDescending': _sortDescending,
+                  },
+                );
+              },
             ),
-            onChanged: (value) async {
-              setState(() {
-                _currentPage = 1;
-              });
-              await _fetchCattle(
-                extraQuery: {
-                  'name': value,
-                  'sortDescending': _sortDescending,
-                },
-              );
-            },
           ),
           SizedBox(height: Theme.of(context).extension<AppSpacing>()?.medium),
           
           // Category Filter Chips
           if (_cattleCategories.isNotEmpty)
             SizedBox(
-              height: 32,
+              height: 30,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: _cattleCategories.length,
@@ -153,7 +157,7 @@ class _CattleScreenState extends State<CattleScreen> {
                   return Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: FilterChip(
-                      label: Text(category.name),
+                      label: Text(category.name.toLowerCase()),
                       selected: isSelected,
                       onSelected: (selected) async {
                         setState(() {
@@ -167,17 +171,17 @@ class _CattleScreenState extends State<CattleScreen> {
                           },
                         );
                       },
-                      backgroundColor: Colors.white,
-                      selectedColor: Theme.of(context).colorScheme.primary,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      selectedColor: Colors.white,
                       labelStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: isSelected ? Colors.black : Theme.of(context).colorScheme.tertiary,
+                        color: Colors.black
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                         side: BorderSide(
                           color: isSelected 
-                            ? Theme.of(context).colorScheme.primary 
-                            : Colors.black26,
+                            ? Colors.black26 
+                            : Theme.of(context).colorScheme.primary,
                           width: 1,
                         ),
                       ),
@@ -190,61 +194,7 @@ class _CattleScreenState extends State<CattleScreen> {
             ),
           SizedBox(height: Theme.of(context).extension<AppSpacing>()?.medium),
           
-          // Product Count and Sort Row
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '$_totalCount ${_totalCount == 1 ? 'cattle found' : 'cattles found'}',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.tertiary,
-                ),
-              ),
-              Row(
-                children: [
-                  Text(
-                    'Sort: ',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.tertiary,
-                    ),
-                  ),
-                  DropdownButton<bool>(
-                    value: _sortDescending,
-                    underline: const SizedBox(),
-                    items: const [
-                      DropdownMenuItem<bool>(
-                        value: true,
-                        child: Text('Newest'),
-                      ),
-                      DropdownMenuItem<bool>(
-                        value: false,
-                        child: Text('Oldest'),
-                      ),
-                    ],
-                    onChanged: (value) async {
-                      if (value != null) {
-                        setState(() {
-                          _sortDescending = value;
-                          _currentPage = 1;
-                        });
-                        await _fetchCattle(
-                          extraQuery: {
-                            'name': _searchController.text,
-                            'sortDescending': _sortDescending,
-                          },
-                        );
-                      }
-                    },
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                    icon: const Icon(Icons.keyboard_arrow_down, size: 18),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          SizedBox(height: Theme.of(context).extension<AppSpacing>()?.medium),
+          
         ],
       ),
     );
@@ -263,6 +213,20 @@ class _CattleScreenState extends State<CattleScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 15.0),
       child: Column(
         children: [
+          SizedBox(height: Theme.of(context).extension<AppSpacing>()?.medium),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '$_totalCount ${_totalCount == 1 ? 'cattle found' : 'cattles found'}',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.tertiary,
+                ),
+              ),
+             
+            ],
+          ),
+          SizedBox(height: Theme.of(context).extension<AppSpacing>()?.medium),
           Expanded(
             child: ListView.builder(
               itemCount: _cattle.length,
@@ -295,12 +259,18 @@ class _CattleScreenState extends State<CattleScreen> {
   }
 
   Widget _buildCattleCard(Cattle cattle) {
-    return Card(
+    return Container(
       margin: const EdgeInsets.only(bottom: 16),
-      elevation: 2,
-      shadowColor: Colors.black.withOpacity(0.1),
-      shape: RoundedRectangleBorder(
+      decoration: BoxDecoration(
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -353,14 +323,10 @@ class _CattleScreenState extends State<CattleScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Cattle Name
                 Text(
                   cattle.name,
                   style: Theme.of(context).textTheme.headlineLarge,
                 ),
-                const SizedBox(height: 4),
-                
-                // Age and Breed
                 Row(
                   children: [
                     Text(
@@ -368,8 +334,6 @@ class _CattleScreenState extends State<CattleScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
-                // Production Info
                 Row(
                   children: [
                     Expanded(
@@ -382,7 +346,6 @@ class _CattleScreenState extends State<CattleScreen> {
                               color: Theme.of(context).colorScheme.tertiary,
                             ),
                           ),
-                          const SizedBox(height: 4),
                           Text(
                             '${formatDouble(cattle.litersPerDay)} L/day',
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -402,7 +365,6 @@ class _CattleScreenState extends State<CattleScreen> {
                               color: Theme.of(context).colorScheme.tertiary,
                             ),
                           ),
-                          const SizedBox(height: 4),
                           Text(
                             '${formatDouble(cattle.monthlyValue)} BAM', // Assuming 2 BAM per liter
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -415,9 +377,7 @@ class _CattleScreenState extends State<CattleScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
-                
-                // Action Buttons
+                SizedBox(height: Theme.of(context).extension<AppSpacing>()?.small),
                 Row(
                   children: [
                     Expanded(
@@ -444,9 +404,9 @@ class _CattleScreenState extends State<CattleScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: Theme.of(context).extension<AppSpacing>()?.medium),
                     Expanded(
-                      child: ElevatedButton(
+                      child: OutlinedButton(
                         onPressed: () {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
@@ -455,13 +415,22 @@ class _CattleScreenState extends State<CattleScreen> {
                             ),
                           );
                         },
-                        style: ElevatedButton.styleFrom(
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(
+                            color: Colors.black,
+                            width: 1,
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(25),
                           ),
                           padding: const EdgeInsets.symmetric(vertical: 12),
                         ),
-                        child: const Text('Download Milk Card'),
+                        child: const Text(
+                          'Download Milk Card',
+                          style: TextStyle(
+                            color: Colors.black,
+                          ),
+                        ),
                       ),
                     ),
                   ],

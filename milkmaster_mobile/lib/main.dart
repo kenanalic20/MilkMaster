@@ -13,6 +13,9 @@ import 'package:milkmaster_mobile/providers/products_provider.dart';
 import 'package:milkmaster_mobile/providers/report_provider.dart';
 import 'package:milkmaster_mobile/providers/units_provider.dart';
 import 'package:milkmaster_mobile/providers/user_provider.dart';
+import 'package:milkmaster_mobile/providers/user_details_provider.dart';
+import 'package:milkmaster_mobile/providers/user_address_provider.dart';
+import 'package:milkmaster_mobile/providers/settings_provider.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -30,6 +33,9 @@ void main() {
         ChangeNotifierProvider(create: (_) => ReportProvider('Reports/download')),
         ChangeNotifierProvider(create: (_) => OrderStatusProvider()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => UserDetailsProvider()),
+        ChangeNotifierProvider(create: (_) => UserAddressProvider()),
+        ChangeNotifierProvider(create: (_) => SettingsProvider()),
       ],
 
       child: const MyApp(),

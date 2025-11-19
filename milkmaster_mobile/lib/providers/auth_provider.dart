@@ -6,13 +6,18 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:milkmaster_mobile/models/user_auth_model.dart';
 
 class AuthProvider with ChangeNotifier {
-  final _storage = FlutterSecureStorage();
-  final String baseUrl = String.fromEnvironment(
+  final _storage = const FlutterSecureStorage();
+  
+  String get baseUrl => const String.fromEnvironment(
     'BASE_URL',
     defaultValue: 'http://10.0.2.2:5068',
   );
+  
   late UserAuth? currentUser;
+  
   Future<bool> login(String username, String password) async {
+    print('Attempting login to: $baseUrl/Auth/login'); // Debug print
+    
     final response = await http.post(
       Uri.parse('$baseUrl/Auth/login'),
       headers: {'Content-Type': 'application/json'},

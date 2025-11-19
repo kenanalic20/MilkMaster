@@ -17,7 +17,7 @@ class BaseProvider<T> with ChangeNotifier {
 
   BaseProvider(String endPoint, {required this.fromJson}) {
     _endPoint = endPoint;
-    _baseUrl = String.fromEnvironment(
+    _baseUrl = const String.fromEnvironment(
       'BASE_URL',
       defaultValue: 'http://10.0.2.2:5068',
     );
