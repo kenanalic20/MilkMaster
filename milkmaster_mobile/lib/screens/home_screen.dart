@@ -5,7 +5,6 @@ import 'package:milkmaster_mobile/models/cattle_category_model.dart';
 import 'package:milkmaster_mobile/models/product_category_model.dart';
 import 'package:milkmaster_mobile/utils/widget_helpers.dart';
 import 'package:milkmaster_mobile/widgets/product_slider.dart';
-import 'package:milkmaster_mobile/widgets/product_slider_examples.dart';
 import 'package:provider/provider.dart';
 import 'package:milkmaster_mobile/providers/products_provider.dart';
 import 'package:milkmaster_mobile/providers/cattle_category_provider.dart';

@@ -10,7 +10,7 @@ class AuthProvider with ChangeNotifier {
   
   String get baseUrl => const String.fromEnvironment(
     'BASE_URL',
-    defaultValue: 'http://10.0.2.2:5068',
+    defaultValue: 'http://192.168.1.5:5068',
   );
   
   late UserAuth? currentUser;

@@ -16,6 +16,7 @@ import 'package:milkmaster_mobile/providers/user_provider.dart';
 import 'package:milkmaster_mobile/providers/user_details_provider.dart';
 import 'package:milkmaster_mobile/providers/user_address_provider.dart';
 import 'package:milkmaster_mobile/providers/settings_provider.dart';
+import 'package:milkmaster_mobile/providers/search_provider.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -36,6 +37,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => UserDetailsProvider()),
         ChangeNotifierProvider(create: (_) => UserAddressProvider()),
         ChangeNotifierProvider(create: (_) => SettingsProvider()),
+        ChangeNotifierProvider(create: (_) => SearchProvider()),
       ],
 
       child: const MyApp(),

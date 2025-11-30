@@ -4,6 +4,7 @@ import 'package:milkmaster_mobile/screens/cattle_screen.dart';
 import 'package:milkmaster_mobile/screens/home_screen.dart';
 import 'package:milkmaster_mobile/screens/products_screen.dart';
 import 'package:milkmaster_mobile/screens/profile_screen.dart';
+import 'package:milkmaster_mobile/screens/search_screen.dart';
 
 class HomeShell extends StatefulWidget {
   const HomeShell({super.key});
@@ -98,7 +99,12 @@ class _HomeShellState extends State<HomeShell> {
                   icon: const Icon(Icons.search),
                   iconSize: 30,
                   onPressed: () {
-                    // TODO: Implement search action
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SearchScreen(),
+                      ),
+                    );
                   },
                 ),
               ),

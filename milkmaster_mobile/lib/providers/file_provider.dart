@@ -12,7 +12,7 @@ class FileProvider with ChangeNotifier {
   FileProvider({String? baseUrl})
       : _baseUrl = baseUrl ?? const String.fromEnvironment(
           'BASE_URL',
-          defaultValue: 'http://localhost:5068',
+          defaultValue: 'http://192.168.1.5:5068',
         );
 
   final String _endpoint = 'File';
