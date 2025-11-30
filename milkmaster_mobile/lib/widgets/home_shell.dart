@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:milkmaster_mobile/screens/about_screen.dart';
 import 'package:milkmaster_mobile/screens/cattle_screen.dart';
 import 'package:milkmaster_mobile/screens/home_screen.dart';
+import 'package:milkmaster_mobile/screens/product_details_screen.dart';
 import 'package:milkmaster_mobile/screens/products_screen.dart';
 import 'package:milkmaster_mobile/screens/profile_screen.dart';
 import 'package:milkmaster_mobile/screens/search_screen.dart';
@@ -17,10 +18,12 @@ class _HomeShellState extends State<HomeShell> {
   int _selectedIndex = 0;
   int? _selectedProductCategory;
   int? _selectedCattleCategoryForCattle;
+  int? _viewingProductId;
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+      _viewingProductId = null;
     });
   }
 
@@ -28,26 +31,44 @@ class _HomeShellState extends State<HomeShell> {
     setState(() {
       _selectedIndex = 1;
       _selectedProductCategory = productCategoryId;
+      _viewingProductId = null;
     });
   }
 
   void navigateToCattle({int? cattleCategoryId}) {
     setState(() {
-      _selectedIndex = 2; 
+      _selectedIndex = 2;
       _selectedCattleCategoryForCattle = cattleCategoryId;
+      _viewingProductId = null;
+    });
+  }
+
+  void navigateToProductDetails(int productId) {
+    setState(() {
+      _viewingProductId = productId;
     });
   }
 
   Widget _buildScreen(int index) {
+    // If viewing product details, show that instead
+    if (_viewingProductId != null) {
+      return ProductDetailsScreen(
+        productId: _viewingProductId!,
+        onNavigateToProductDetails: navigateToProductDetails,
+      );
+    }
+
     switch (index) {
       case 0:
         return HomeScreen(
           onNavigateToProducts: navigateToProducts,
           onNavigateToCattle: navigateToCattle,
+          onNavigateToProductDetails: navigateToProductDetails,
         );
       case 1:
         return ProductsScreen(
           selectedProductCategory: _selectedProductCategory,
+          onNavigateToProductDetails: navigateToProductDetails,
         );
       case 2:
         return CattleScreen(
@@ -61,6 +82,7 @@ class _HomeShellState extends State<HomeShell> {
         return HomeScreen(
           onNavigateToProducts: navigateToProducts,
           onNavigateToCattle: navigateToCattle,
+          onNavigateToProductDetails: navigateToProductDetails,
         );
     }
   }

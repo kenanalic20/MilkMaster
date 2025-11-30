@@ -9,15 +9,21 @@ import 'package:milkmaster_mobile/models/products_model.dart';
 import 'package:milkmaster_mobile/providers/cattle_category_provider.dart';
 import 'package:milkmaster_mobile/providers/product_category_provider.dart';
 import 'package:milkmaster_mobile/providers/products_provider.dart';
+import 'package:milkmaster_mobile/screens/product_details_screen.dart';
 import 'package:milkmaster_mobile/utils/widget_helpers.dart';
 import 'package:provider/provider.dart';
 
 class ProductsScreen extends StatefulWidget {
   final int? selectedProductCategory;
   final int? selectedCattleCategory;
-  const ProductsScreen(
-      {Key? key, this.selectedProductCategory, this.selectedCattleCategory})
-      : super(key: key);
+  final void Function(int productId)? onNavigateToProductDetails;
+  
+  const ProductsScreen({
+    Key? key,
+    this.selectedProductCategory,
+    this.selectedCattleCategory,
+    this.onNavigateToProductDetails,
+  }) : super(key: key);
 
   @override
   State<ProductsScreen> createState() => _ProductsScreenState();
@@ -450,9 +456,16 @@ class _ProductsScreenState extends State<ProductsScreen> {
       clipBehavior: Clip.hardEdge,
       child: InkWell(
         onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(product.title)),
-          );
+          if (widget.onNavigateToProductDetails != null) {
+            widget.onNavigateToProductDetails!(product.id);
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProductDetailsScreen(productId: product.id),
+              ),
+            );
+          }
         },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

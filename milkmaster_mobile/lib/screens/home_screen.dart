@@ -13,8 +13,14 @@ import 'package:milkmaster_mobile/providers/product_category_provider.dart';
 class HomeScreen extends StatefulWidget {
   final void Function({int? productCategoryId, int? cattleCategoryId})? onNavigateToProducts;
   final void Function({int? cattleCategoryId})? onNavigateToCattle;
+  final void Function(int productId)? onNavigateToProductDetails;
   
-  const HomeScreen({super.key, this.onNavigateToProducts, this.onNavigateToCattle});
+  const HomeScreen({
+    super.key,
+    this.onNavigateToProducts,
+    this.onNavigateToCattle,
+    this.onNavigateToProductDetails,
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -304,9 +310,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   widget.onNavigateToProducts?.call();
                 },
                 onProductTap: (product) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(product.title)),
-                  );
+                  if (widget.onNavigateToProductDetails != null) {
+                    widget.onNavigateToProductDetails!(product.id);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(product.title)),
+                    );
+                  }
                 },
                 onAddToCart: (product) {
                   // TODO: wire to cart provider

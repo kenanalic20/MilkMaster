@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:milkmaster_mobile/screens/product_details_screen.dart';
 import 'package:milkmaster_mobile/utils/widget_helpers.dart';
 import 'package:provider/provider.dart';
 import 'package:milkmaster_mobile/providers/search_provider.dart';
@@ -246,8 +247,12 @@ class _SearchScreenState extends State<SearchScreen> {
         ),
         isThreeLine: product.description != null,
         onTap: () {
-          // Navigate to product details if needed
-          // Navigator.push(context, MaterialPageRoute(builder: (context) => ProductDetailsScreen(product: product)));
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ProductDetailsScreen(productId: product.id),
+            ),
+          );
         },
       ),
     );
