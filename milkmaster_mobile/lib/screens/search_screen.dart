@@ -7,7 +7,9 @@ import 'package:milkmaster_mobile/models/cattle_model.dart';
 import 'package:milkmaster_mobile/models/products_model.dart';
 
 class SearchScreen extends StatefulWidget {
-  const SearchScreen({super.key});
+  final void Function(int productId)? onNavigateToProductDetails;
+
+  const SearchScreen({super.key, this.onNavigateToProductDetails});
 
   @override
   State<SearchScreen> createState() => _SearchScreenState();
@@ -247,12 +249,17 @@ class _SearchScreenState extends State<SearchScreen> {
         ),
         isThreeLine: product.description != null,
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ProductDetailsScreen(productId: product.id),
-            ),
-          );
+          if (widget.onNavigateToProductDetails != null) {
+            widget.onNavigateToProductDetails!(product.id);
+            Navigator.pop(context);
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProductDetailsScreen(productId: product.id),
+              ),
+            );
+          }
         },
       ),
     );

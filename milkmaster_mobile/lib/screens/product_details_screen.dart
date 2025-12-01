@@ -407,32 +407,58 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   Widget _buildTabs() {
     return DefaultTabController(
       length: 2,
-      child: Column(
-        children: [
-          TabBar(
-            labelColor: Theme.of(context).colorScheme.secondary,
-            unselectedLabelColor: Colors.grey,
-            indicatorColor: Theme.of(context).colorScheme.secondary,
-            labelStyle: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 15.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(50),
+              ),
+              child: TabBar(
+                labelColor: Colors.black,
+                unselectedLabelColor: Theme.of(context).colorScheme.tertiary,
+                indicator: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(50),
+                ),
+                indicatorSize: TabBarIndicatorSize.tab,
+                indicatorPadding: const EdgeInsets.all(8),
+                dividerColor: Colors.transparent,
+                tabs: const [
+                  Tab(text: 'Description'),
+                  Tab(text: 'Nutrition'),
+                ],
+              ),
             ),
-            tabs: const [Tab(text: 'Description'), Tab(text: 'Nutrition')],
-          ),
-          SizedBox(
-            height: 200,
-            child: TabBarView(
-              children: [_buildDescriptionTab(), _buildNutritionTab()],
-            ),
-          ),
-        ],
+            const SizedBox(height: 16),
+            _buildTabContent(),
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _buildTabContent() {
+    return Builder(
+      builder: (context) {
+        final tabController = DefaultTabController.of(context);
+        return AnimatedBuilder(
+          animation: tabController,
+          builder: (context, child) {
+            final index = tabController.index;
+            return index == 0 ? _buildDescriptionTab() : _buildNutritionTab();
+          },
+        );
+      },
     );
   }
 
   Widget _buildDescriptionTab() {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Text(
         _product!.description ?? 'No description available.',
         style: const TextStyle(fontSize: 14, height: 1.5),
@@ -442,47 +468,63 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
   Widget _buildNutritionTab() {
     final nutrition = _product!.nutrition;
+    final unitSymbol = _product!.unit?.symbol ?? 'L';
 
     if (nutrition == null) {
       return const Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: EdgeInsets.symmetric(vertical: 8.0),
         child: Center(child: Text('No nutritional information available.')),
       );
     }
 
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.only(bottom: 15),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Nutritional Information',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            style: Theme.of(context).textTheme.headlineMedium
           ),
+          Text(
+            'Per 100 m${unitSymbol.toLowerCase()}',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(context).colorScheme.tertiary,
+            ),
+          ),
+          
           const SizedBox(height: 16),
           if (nutrition.energy != null)
             _buildNutritionRow('Energy', '${nutrition.energy!} kcal'),
           if (nutrition.fat != null)
-            _buildNutritionRow('Fat', '${nutrition.fat!} g'),
+            _buildNutritionRow('Fat', '${nutrition.fat!} ${unitSymbol}'),
           if (nutrition.carbohydrates != null)
             _buildNutritionRow(
               'Carbohydrates',
-              '${nutrition.carbohydrates!} g',
+              '${nutrition.carbohydrates!} ${unitSymbol}',
             ),
           if (nutrition.protein != null)
-            _buildNutritionRow('Protein', '${nutrition.protein!} g'),
+            _buildNutritionRow('Protein', '${nutrition.protein!} ${unitSymbol}'),
           if (nutrition.salt != null)
-            _buildNutritionRow('Salt', '${nutrition.salt!} g'),
+            _buildNutritionRow('Salt', '${nutrition.salt!} ${unitSymbol}'),
           if (nutrition.calcium != null)
-            _buildNutritionRow('Calcium', '${nutrition.calcium!} mg'),
+            _buildNutritionRow('Calcium', '${nutrition.calcium!} ${unitSymbol}'),
         ],
       ),
     );
   }
 
   Widget _buildNutritionRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6.0),
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12.0),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: Colors.grey[300]!,
+            width: 1,
+          ),
+        ),
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

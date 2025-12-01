@@ -124,7 +124,9 @@ class _HomeShellState extends State<HomeShell> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const SearchScreen(),
+                        builder: (context) => SearchScreen(
+                          onNavigateToProductDetails: navigateToProductDetails,
+                        ),
                       ),
                     );
                   },

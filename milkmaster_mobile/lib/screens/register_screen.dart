@@ -34,8 +34,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Register')),
-      body: SingleChildScrollView(
-        child: Center(
+      body: Center(
+        child: SingleChildScrollView(
           child: FractionallySizedBox(
             widthFactor: 0.9,
             child: Form(
@@ -149,7 +149,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       if (value != _passwordController.text) {
                         return 'Passwords do not match';
                       }
-        
+                
                       return null;
                     },
                   ),
@@ -161,7 +161,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         final username = _usernameController.text;
                         final email = _emailController.text;
                         final password = _passwordController.text;
-                        final platform = String.fromEnvironment('PLATFORM', defaultValue: 'desktop');
+                        final platform = String.fromEnvironment('PLATFORM', defaultValue: 'mobile');
                         final success =await _authProvider.register(username, email, password, platform);
                         if (!success) {
                           showDialog(
@@ -180,8 +180,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           );
                           return;
                         }
+                       
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Registering: $email')),
+                          SnackBar(
+                            content: Text(
+                              'Registering: $username',
+                              style: TextStyle(color: Colors.black),
+                            ),
+                            backgroundColor:
+                                Theme.of(context).colorScheme.secondary,
+                          ),
                         );
                       }
                     },
