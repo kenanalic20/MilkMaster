@@ -1,11 +1,9 @@
 import 'dart:convert';
-import 'dart:io';
-
-import 'package:file_selector/file_selector.dart';
 import 'package:http/http.dart' as http;
 import 'package:milkmaster_mobile/models/cattle_model.dart';
 import 'package:milkmaster_mobile/models/cattle_paginated_result.dart';
 import 'package:milkmaster_mobile/providers/base_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class CattleProvider extends BaseProvider<Cattle> {
   CattleProvider() : super("Cattle", fromJson: (json) => Cattle.fromJson(json));
@@ -50,27 +48,23 @@ class CattleProvider extends BaseProvider<Cattle> {
     }
   }
 
-  Future<void> downloadPdfToUserLocation(String url) async {
+  Future<bool> downloadMilkCarton(String url) async {
     try {
-      final response = await http.get(Uri.parse(url));
-      if (response.statusCode != 200)
-        throw Exception('Failed to download file');
-
-      final fileName = url.split('/').last;
-      final typeGroup = XTypeGroup(label: 'PDF', extensions: ['pdf']);
-      final path = await getSavePath(
-        suggestedName: fileName,
-        acceptedTypeGroups: [typeGroup],
-      );
-
-      if (path == null) return;
-
-      final file = File(path);
-      await file.writeAsBytes(response.bodyBytes);
-
-      print('File saved to $path');
+      final Uri pdfUri = Uri.parse(url);
+      
+      if (await canLaunchUrl(pdfUri)) {
+        await launchUrl(
+          pdfUri,
+          mode: LaunchMode.externalApplication,
+        );
+        return true;
+      } else {
+        print('Could not launch $url');
+        return false;
+      }
     } catch (e) {
       print('Download failed: $e');
+      return false;
     }
   }
 }

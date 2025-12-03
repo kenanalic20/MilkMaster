@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:milkmaster_mobile/screens/cattle_details_screen.dart';
 import 'package:milkmaster_mobile/screens/product_details_screen.dart';
 import 'package:milkmaster_mobile/utils/widget_helpers.dart';
 import 'package:provider/provider.dart';
@@ -8,8 +9,13 @@ import 'package:milkmaster_mobile/models/products_model.dart';
 
 class SearchScreen extends StatefulWidget {
   final void Function(int productId)? onNavigateToProductDetails;
+  final void Function(int cattleId)? onNavigateToCattleDetails;
 
-  const SearchScreen({super.key, this.onNavigateToProductDetails});
+  const SearchScreen({
+    super.key,
+    this.onNavigateToProductDetails,
+    this.onNavigateToCattleDetails,
+  });
 
   @override
   State<SearchScreen> createState() => _SearchScreenState();
@@ -330,8 +336,20 @@ class _SearchScreenState extends State<SearchScreen> {
         ),
         isThreeLine: true,
         onTap: () {
-          // Navigate to cattle details if needed
-          // Navigator.push(context, MaterialPageRoute(builder: (context) => CattleDetailsScreen(cattle: cattle)));
+          if (widget.onNavigateToCattleDetails != null) {
+            widget.onNavigateToCattleDetails!(cattle.id);
+            Navigator.pop(context);
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CattleDetailsScreen(
+                  cattleId: cattle.id,
+                  onNavigateToProductDetails: widget.onNavigateToProductDetails,
+                ),
+              ),
+            );
+          }
         },
       ),
     );

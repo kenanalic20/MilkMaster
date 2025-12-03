@@ -8,11 +8,13 @@ import 'package:provider/provider.dart';
 class ProductDetailsScreen extends StatefulWidget {
   final int productId;
   final void Function(int productId)? onNavigateToProductDetails;
+  final VoidCallback? onNavigateToProducts;
 
   const ProductDetailsScreen({
     Key? key,
     required this.productId,
     this.onNavigateToProductDetails,
+    this.onNavigateToProducts,
   }) : super(key: key);
 
   @override
@@ -545,6 +547,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         products: _recommendedProducts,
         isLoading: _isLoadingRecommended,
         title: 'You May Also Like',
+        onSeeAll: widget.onNavigateToProducts,
         onProductTap: (product) {
           if (widget.onNavigateToProductDetails != null) {
             widget.onNavigateToProductDetails!(product.id);

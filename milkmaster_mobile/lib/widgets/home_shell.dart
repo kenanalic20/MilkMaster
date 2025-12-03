@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:milkmaster_mobile/screens/about_screen.dart';
+import 'package:milkmaster_mobile/screens/cattle_details_screen.dart';
 import 'package:milkmaster_mobile/screens/cattle_screen.dart';
 import 'package:milkmaster_mobile/screens/home_screen.dart';
 import 'package:milkmaster_mobile/screens/product_details_screen.dart';
@@ -17,13 +18,16 @@ class HomeShell extends StatefulWidget {
 class _HomeShellState extends State<HomeShell> {
   int _selectedIndex = 0;
   int? _selectedProductCategory;
+  int? _selectedCattleCategoryForProducts;
   int? _selectedCattleCategoryForCattle;
   int? _viewingProductId;
+  int? _viewingCattleId;
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
       _viewingProductId = null;
+      _viewingCattleId = null;
     });
   }
 
@@ -31,7 +35,9 @@ class _HomeShellState extends State<HomeShell> {
     setState(() {
       _selectedIndex = 1;
       _selectedProductCategory = productCategoryId;
+      _selectedCattleCategoryForProducts = cattleCategoryId;
       _viewingProductId = null;
+      _viewingCattleId = null;
     });
   }
 
@@ -40,21 +46,38 @@ class _HomeShellState extends State<HomeShell> {
       _selectedIndex = 2;
       _selectedCattleCategoryForCattle = cattleCategoryId;
       _viewingProductId = null;
+      _viewingCattleId = null;
     });
   }
 
   void navigateToProductDetails(int productId) {
     setState(() {
       _viewingProductId = productId;
+      _viewingCattleId = null;
+    });
+  }
+
+  void navigateToCattleDetails(int cattleId) {
+    setState(() {
+      _viewingCattleId = cattleId;
+      _viewingProductId = null;
     });
   }
 
   Widget _buildScreen(int index) {
-    // If viewing product details, show that instead
     if (_viewingProductId != null) {
       return ProductDetailsScreen(
         productId: _viewingProductId!,
         onNavigateToProductDetails: navigateToProductDetails,
+        onNavigateToProducts: () => navigateToProducts(),
+      );
+    }
+
+    if (_viewingCattleId != null) {
+      return CattleDetailsScreen(
+        cattleId: _viewingCattleId!,
+        onNavigateToProductDetails: navigateToProductDetails,
+        onNavigateToProducts: navigateToProducts,
       );
     }
 
@@ -68,11 +91,14 @@ class _HomeShellState extends State<HomeShell> {
       case 1:
         return ProductsScreen(
           selectedProductCategory: _selectedProductCategory,
+          selectedCattleCategory: _selectedCattleCategoryForProducts,
           onNavigateToProductDetails: navigateToProductDetails,
         );
       case 2:
         return CattleScreen(
           selectedCattleCategory: _selectedCattleCategoryForCattle,
+          onNavigateToProductDetails: navigateToProductDetails,
+          onNavigateToCattleDetails: navigateToCattleDetails,
         );
       case 3:
         return const AboutScreen();
@@ -126,6 +152,7 @@ class _HomeShellState extends State<HomeShell> {
                       MaterialPageRoute(
                         builder: (context) => SearchScreen(
                           onNavigateToProductDetails: navigateToProductDetails,
+                          onNavigateToCattleDetails: navigateToCattleDetails,
                         ),
                       ),
                     );
@@ -149,7 +176,7 @@ class _HomeShellState extends State<HomeShell> {
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 300),
         transitionBuilder: (child, animation) {
-          final inFromRight = _selectedIndex > 0; // or track previous index
+          final inFromRight = _selectedIndex > 0;
           final offsetTween = Tween<Offset>(
             begin: inFromRight ? const Offset(1, 0) : const Offset(-1, 0),
             end: Offset.zero,

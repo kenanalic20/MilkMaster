@@ -4,13 +4,21 @@ import 'package:milkmaster_mobile/models/cattle_category_model.dart';
 import 'package:milkmaster_mobile/models/cattle_model.dart';
 import 'package:milkmaster_mobile/providers/cattle_category_provider.dart';
 import 'package:milkmaster_mobile/providers/cattle_provider.dart';
+import 'package:milkmaster_mobile/screens/cattle_details_screen.dart';
 import 'package:milkmaster_mobile/utils/widget_helpers.dart';
 import 'package:provider/provider.dart';
 
 class CattleScreen extends StatefulWidget {
   final int? selectedCattleCategory;
+  final void Function(int productId)? onNavigateToProductDetails;
+  final void Function(int cattleId)? onNavigateToCattleDetails;
   
-  const CattleScreen({super.key, this.selectedCattleCategory});
+  const CattleScreen({
+    super.key,
+    this.selectedCattleCategory,
+    this.onNavigateToProductDetails,
+    this.onNavigateToCattleDetails,
+  });
 
   @override
   State<CattleScreen> createState() => _CattleScreenState();
@@ -319,7 +327,7 @@ class _CattleScreenState extends State<CattleScreen> {
           
           // Cattle Info
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(15.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -327,13 +335,14 @@ class _CattleScreenState extends State<CattleScreen> {
                   cattle.name,
                   style: Theme.of(context).textTheme.headlineLarge,
                 ),
-                Row(
-                  children: [
-                    Text(
-                      '${cattle.breedOfCattle} - ${cattle.age} years old',
-                    ),
-                  ],
-                ),
+                if (cattle.breedOfCattle != null || cattle.age > 0)
+                  Row(
+                    children: [
+                      Text(
+                        '${cattle.breedOfCattle ?? ''} ${cattle.breedOfCattle != null && cattle.age > 0 ? '-' : ''} ${cattle.age > 0 ? '${cattle.age} years old' : ''}',
+                      ),
+                    ],
+                  ),
                 Row(
                   children: [
                     Expanded(
@@ -383,9 +392,19 @@ class _CattleScreenState extends State<CattleScreen> {
                     Expanded(
                       child: OutlinedButton(
                         onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('View ${cattle.name} details')),
-                          );
+                          if (widget.onNavigateToCattleDetails != null) {
+                            widget.onNavigateToCattleDetails!(cattle.id);
+                          } else {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => CattleDetailsScreen(
+                                  cattleId: cattle.id,
+                                  onNavigateToProductDetails: widget.onNavigateToProductDetails,
+                                ),
+                              ),
+                            );
+                          }
                         },
                         style: OutlinedButton.styleFrom(
                           side: BorderSide(
@@ -407,13 +426,37 @@ class _CattleScreenState extends State<CattleScreen> {
                     SizedBox(width: Theme.of(context).extension<AppSpacing>()?.medium),
                     Expanded(
                       child: OutlinedButton(
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Download milk card for ${cattle.name}'),
-                              backgroundColor: Theme.of(context).colorScheme.secondary,
-                            ),
-                          );
+                        onPressed: () async {
+                          if (cattle.milkCartonUrl != null && cattle.milkCartonUrl.isNotEmpty) {
+                            final success = await _cattleProvider.downloadMilkCarton(
+                              fixLocalhostUrl(cattle.milkCartonUrl),
+                            );
+                            
+                            if (mounted) {
+                              if (success) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Opening milk carton for ${cattle.name}'),
+                                    backgroundColor: Theme.of(context).colorScheme.secondary,
+                                  ),
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Failed to open milk carton'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            }
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('No milk carton available for this cattle'),
+                                backgroundColor: Colors.orange,
+                              ),
+                            );
+                          }
                         },
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(
