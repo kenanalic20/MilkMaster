@@ -145,7 +145,18 @@ namespace MilkMaster.Infrastructure.Services
                         throw new MilkMasterValidationException("Quantity must be greater than zero.");
 
                     if (item.Quantity > product.Quantity)
-                        throw new MilkMasterValidationException($"Product '{product.Title}' out of stock");
+                    {
+                        var requested = item.Quantity;
+                        var available = product.Quantity;
+                        var difference = requested - available;
+
+                        throw new MilkMasterValidationException(
+                            $"Product '{product.Title}' - Insufficient stock.\n" +
+                            $"Requested: {requested} units\n" +
+                            $"Available: {available} units\n" +
+                            $"Short by: {difference} units"
+                        );
+                    }
 
                     if (item.UnitSize <= 0)
                         throw new MilkMasterValidationException("Unit size must be greater than zero.");
@@ -173,7 +184,7 @@ namespace MilkMaster.Infrastructure.Services
                 entity.ItemCount = entity.Items.Count;
                 entity.Total = entity.Items.Sum(i => i.TotalPrice);
             }
-            catch (Exception ex)
+            catch (MilkMasterValidationException ex)
             {
                 foreach (var kvp in originalQuantities)
                 {
@@ -184,7 +195,7 @@ namespace MilkMaster.Infrastructure.Services
                         await _productRepository.UpdateAsync(product);
                     }
                 }
-                throw new MilkMasterValidationException($"Quantity limit exceeded!");
+                throw new MilkMasterValidationException(ex.Message);
 
             }
         }

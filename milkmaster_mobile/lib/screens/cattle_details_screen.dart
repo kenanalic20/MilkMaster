@@ -4,6 +4,7 @@ import 'package:milkmaster_mobile/models/cattle_model.dart';
 import 'package:milkmaster_mobile/models/products_model.dart';
 import 'package:milkmaster_mobile/providers/cattle_provider.dart';
 import 'package:milkmaster_mobile/providers/products_provider.dart';
+import 'package:milkmaster_mobile/providers/cart_provider.dart';
 import 'package:milkmaster_mobile/utils/widget_helpers.dart';
 import 'package:milkmaster_mobile/widgets/product_slider.dart';
 import 'package:provider/provider.dart';
@@ -87,7 +88,7 @@ class _CattleDetailsScreenState extends State<CattleDetailsScreen> {
         final result = await _productProvider.fetchAll(
           queryParams: {
             'cattleCategoryId': _cattle!.cattleCategory!.id,
-            'pageSize': 10,
+            'pageSize': 3,
           },
         );
 
@@ -696,6 +697,34 @@ class _CattleDetailsScreenState extends State<CattleDetailsScreen> {
         onProductTap: (product) {
           if (widget.onNavigateToProductDetails != null) {
             widget.onNavigateToProductDetails!(product.id);
+          }
+        },
+        onAddToCart: (product) async {
+          final cartProvider = Provider.of<CartProvider>(context, listen: false);
+          final success = await cartProvider.addToCart(
+            product,
+            quantity: 1,
+            size: 1.0,
+          );
+          
+          if (mounted) {
+            if (success) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Added "${product.title}" to cart'),
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+            } else {
+              showCustomDialog(
+                context: context,
+                title: 'Cannot Add to Cart',
+                message: 'Not enough stock available or product is out of stock.',
+                onConfirm: () {},
+                showCancel: false,
+              );
+            }
           }
         },
       ),

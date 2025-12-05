@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:milkmaster_mobile/providers/auth_provider.dart';
+import 'package:milkmaster_mobile/providers/cart_provider.dart';
 import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -165,6 +166,19 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                           );
                           return; 
+                        }
+                
+                        // Set user in cart provider to load user-specific cart
+                        if (mounted) {
+                          final cartProvider = Provider.of<CartProvider>(context, listen: false);
+                          try {
+                            final userId = int.tryParse(user.id);
+                            if (userId != null) {
+                              await cartProvider.setUser(userId);
+                            }
+                          } catch (e) {
+                            print('Error setting cart user: $e');
+                          }
                         }
                 
                         Navigator.of(context).pushReplacementNamed('/home');

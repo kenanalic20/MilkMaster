@@ -102,14 +102,41 @@ class BaseProvider<T> with ChangeNotifier {
     }
   }
 
-  Future<bool> create(Map<String, dynamic> body) async {
+  Future<ApiResponse> create(Map<String, dynamic> body) async {
     final headers = await getHeaders();
     final response = await http.post(
       Uri.parse('$_baseUrl/$_endPoint'),
       headers: headers,
       body: json.encode(body),
     );
-    return response.statusCode == 201 || response.statusCode == 200;
+
+    dynamic responseBody;
+    try {
+      responseBody = json.decode(response.body);
+    } catch (_) {
+      responseBody = response.body;
+    }
+
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      return ApiResponse(
+        success: true,
+        statusCode: response.statusCode,
+        data: responseBody,
+      );
+    } else {
+      String? errorMessage;
+      if (responseBody is Map) {
+        errorMessage = responseBody['message']?.toString();
+        errorMessage ??= responseBody['error']?.toString();
+        errorMessage ??= responseBody['title']?.toString();
+      }
+      return ApiResponse(
+        success: false,
+        statusCode: response.statusCode,
+        errorMessage:
+            errorMessage ?? responseBody?.toString() ?? 'Failed to create resource',
+      );
+    }
   }
 
   Future<ApiResponse> update(dynamic id, Map<String, dynamic> body) async {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:milkmaster_mobile/models/products_model.dart';
 import 'package:milkmaster_mobile/providers/products_provider.dart';
+import 'package:milkmaster_mobile/providers/cart_provider.dart';
 import 'package:milkmaster_mobile/utils/widget_helpers.dart';
 import 'package:milkmaster_mobile/widgets/product_slider.dart';
 import 'package:provider/provider.dart';
@@ -383,15 +384,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         width: double.infinity,
         height: 44,
         child: ElevatedButton(
-          onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Added ${_quantity}x "${_product!.title}" to cart',
-                ),
-              ),
-            );
-          },
+          onPressed: _validateAndAddToCart,
          
           child: Text(
             'Add to cart',
@@ -404,6 +397,99 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _validateAndAddToCart() async {
+    if (_product == null) {
+      _showErrorDialog('Error', 'Product not found');
+      return;
+    }
+
+    // Validate quantity
+    if (_quantity <= 0) {
+      _showErrorDialog('Invalid Quantity', 'Please select a valid quantity');
+      return;
+    }
+
+    // Check stock availability
+    final unitSymbol = _product!.unit?.symbol ?? 'L';
+    final totalRequiredQuantity = _quantity * _selectedSize;
+    final availableQuantity = _product!.quantity.toDouble();
+
+    if (availableQuantity < totalRequiredQuantity) {
+      _showErrorDialog(
+        'Not enough stock available.\n',
+        'Available: ${availableQuantity.toStringAsFixed(1)}$unitSymbol\n'
+        'Requested: ${totalRequiredQuantity.toStringAsFixed(1)}$unitSymbol'
+      );
+      return;
+    }
+
+    // Check if adding to existing cart item would exceed stock
+    final cartProvider = Provider.of<CartProvider>(context, listen: false);
+    final existingCartItem = cartProvider.getCartItem(_product!.id, _selectedSize);
+    
+    if (existingCartItem != null) {
+      final existingQuantity = existingCartItem.quantity * existingCartItem.size;
+      final newTotalQuantity = existingQuantity + totalRequiredQuantity;
+      
+      if (availableQuantity < newTotalQuantity) {
+        _showErrorDialog(
+          'Adding this quantity would exceed available stock.\n',
+          'In cart: ${existingQuantity.toStringAsFixed(1)}$unitSymbol\n'
+          'Available: ${availableQuantity.toStringAsFixed(1)}$unitSymbol\n'
+          'Trying to add: ${totalRequiredQuantity.toStringAsFixed(1)}$unitSymbol'
+        );
+        return;
+      }
+    }
+
+    // All validations passed, add to cart
+    final success = await cartProvider.addToCart(
+      _product!,
+      quantity: _quantity,
+      size: _selectedSize,
+    );
+
+    if (mounted) {
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    '${_product!.title} (${_selectedSize == _selectedSize.toInt() ? '${_selectedSize.toInt()}' : '$_selectedSize'}$unitSymbol) x$_quantity added to cart',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Theme.of(context).colorScheme.secondary,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+        // Reset quantity to 1 after successful add
+        setState(() {
+          _quantity = 1;
+        });
+      } else {
+        _showErrorDialog('Failed to Add', 'Failed to add to cart. Please try again.');
+      }
+    }
+  }
+
+  void _showErrorDialog(String title, String message) {
+    showCustomDialog(
+      context: context,
+      title: title,
+      message: message,
+      onConfirm: () {},
+      showCancel: false,
+      );
   }
 
   Widget _buildTabs() {
@@ -559,6 +645,34 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     (context) => ProductDetailsScreen(productId: product.id),
               ),
             );
+          }
+        },
+        onAddToCart: (product) async {
+          final cartProvider = Provider.of<CartProvider>(context, listen: false);
+          final success = await cartProvider.addToCart(
+            product,
+            quantity: 1,
+            size: 1.0,
+          );
+          
+          if (mounted) {
+            if (success) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Added "${product.title}" to cart'),
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+            } else {
+              showCustomDialog(
+                context: context,
+                title: 'Cannot Add to Cart',
+                message: 'Not enough stock available or product is out of stock.',
+                onConfirm: () {},
+                showCancel: false,
+              );
+            }
           }
         },
       ),

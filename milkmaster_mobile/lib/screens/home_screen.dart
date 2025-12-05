@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:milkmaster_mobile/providers/products_provider.dart';
 import 'package:milkmaster_mobile/providers/cattle_category_provider.dart';
 import 'package:milkmaster_mobile/providers/product_category_provider.dart';
+import 'package:milkmaster_mobile/providers/cart_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   final void Function({int? productCategoryId, int? cattleCategoryId})? onNavigateToProducts;
@@ -318,14 +319,33 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                   }
                 },
-                onAddToCart: (product) {
-                  // TODO: wire to cart provider
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Added "${product.title}" to cart'),
-                      backgroundColor: Theme.of(context).colorScheme.secondary,
-                    ),
+                onAddToCart: (product) async {
+                  final cartProvider = Provider.of<CartProvider>(context, listen: false);
+                  final success = await cartProvider.addToCart(
+                    product,
+                    quantity: 1,
+                    size: 1.0,
                   );
+                  
+                  if (mounted) {
+                    if (success) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Added "${product.title}" to cart'),
+                          backgroundColor: Theme.of(context).colorScheme.secondary,
+                          duration: const Duration(seconds: 2),
+                        ),
+                      );
+                    } else {
+                      showCustomDialog(
+                        context: context,
+                        title: 'Cannot Add to Cart',
+                        message: 'Not enough stock available or product is out of stock.',
+                        onConfirm: () {},
+                        showCancel: false,
+                      );
+                    }
+                  }
                 },
               ),
 

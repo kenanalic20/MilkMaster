@@ -61,6 +61,7 @@ class AuthProvider with ChangeNotifier {
 
   Future<void> logout() async {
     await _storage.delete(key: 'jwt');
+    currentUser = null;
     notifyListeners();
   }
 

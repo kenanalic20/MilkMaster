@@ -7,6 +7,9 @@ import 'package:milkmaster_mobile/screens/product_details_screen.dart';
 import 'package:milkmaster_mobile/screens/products_screen.dart';
 import 'package:milkmaster_mobile/screens/profile_screen.dart';
 import 'package:milkmaster_mobile/screens/search_screen.dart';
+import 'package:milkmaster_mobile/screens/cart_screen.dart';
+import 'package:milkmaster_mobile/providers/cart_provider.dart';
+import 'package:provider/provider.dart';
 
 class HomeShell extends StatefulWidget {
   const HomeShell({super.key});
@@ -161,12 +164,54 @@ class _HomeShellState extends State<HomeShell> {
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 16, right: 9),
-                child: IconButton(
-                  icon: const Icon(Icons.shopping_cart_outlined),
-                  iconSize: 30,
-                  onPressed: () {
-                    // TODO: Implement cart action
-                  },
+                child: Stack(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.shopping_cart_outlined),
+                      iconSize: 30,
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => CartScreen(
+                              onNavigateToProductDetails: navigateToProductDetails,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    Consumer<CartProvider>(
+                      builder: (context, cartProvider, child) {
+                        final itemCount = cartProvider.itemCount;
+                        if (itemCount == 0) return const SizedBox.shrink();
+
+                        return Positioned(
+                          right: 8,
+                          top: 8,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            constraints: const BoxConstraints(
+                              minWidth: 16,
+                              minHeight: 16,
+                            ),
+                            child: Text(
+                              '$itemCount',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ),
             ],

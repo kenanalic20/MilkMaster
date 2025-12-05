@@ -43,7 +43,10 @@ Future<void> showCustomDialog({
     context: context,
     builder:
         (BuildContext dialogContext) => AlertDialog(
-          title: Text(title),
+          title: Text(
+            title,
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
           content: Text(message),
           actions: [
             TextButton(

@@ -9,6 +9,7 @@ import 'package:milkmaster_mobile/models/products_model.dart';
 import 'package:milkmaster_mobile/providers/cattle_category_provider.dart';
 import 'package:milkmaster_mobile/providers/product_category_provider.dart';
 import 'package:milkmaster_mobile/providers/products_provider.dart';
+import 'package:milkmaster_mobile/providers/cart_provider.dart';
 import 'package:milkmaster_mobile/screens/product_details_screen.dart';
 import 'package:milkmaster_mobile/utils/widget_helpers.dart';
 import 'package:provider/provider.dart';
@@ -569,13 +570,33 @@ class _ProductsScreenState extends State<ProductsScreen> {
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 8),
                   ),
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Added "${product.title}" to cart'),
-                        backgroundColor: Theme.of(context).colorScheme.secondary,
-                      ),
+                  onPressed: () async {
+                    final cartProvider = Provider.of<CartProvider>(context, listen: false);
+                    final success = await cartProvider.addToCart(
+                      product,
+                      quantity: 1,
+                      size: 1.0,
                     );
+                    
+                    if (context.mounted) {
+                      if (success) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Added "${product.title}" to cart'),
+                            backgroundColor: Theme.of(context).colorScheme.secondary,
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
+                      } else {
+                        showCustomDialog(
+                          context: context,
+                          title: 'Cannot Add to Cart',
+                          message: 'Not enough stock available or product is out of stock.',
+                          onConfirm: () {},
+                          showCancel: false,
+                        );
+                      }
+                    }
                   },
                   child: const Text('Add to cart'),
                 ),

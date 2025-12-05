@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:milkmaster_mobile/main.dart';
 import 'package:milkmaster_mobile/providers/auth_provider.dart';
+import 'package:milkmaster_mobile/providers/cart_provider.dart';
 import 'package:milkmaster_mobile/providers/settings_provider.dart';
 import 'package:milkmaster_mobile/providers/user_address_provider.dart';
 import 'package:milkmaster_mobile/providers/user_details_provider.dart';
@@ -227,6 +228,45 @@ class _ProfileScreenState extends State<ProfileScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Account deletion not implemented yet')),
         );
+      }
+    }
+  }
+
+  Future<void> _logout() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Are you sure you want to logout?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.secondary,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Logout'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final cartProvider = Provider.of<CartProvider>(context, listen: false);
+      
+      // Clear cart for current user
+      await cartProvider.clearUser();
+      
+      // Logout from auth
+      await authProvider.logout();
+      
+      if (mounted) {
+        Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
       }
     }
   }
@@ -517,6 +557,35 @@ class _ProfileScreenState extends State<ProfileScreen>
               ),
               child: const Text(
                 'Save Changes',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 30),
+          Text(
+            'Account',
+            style: Theme.of(context).textTheme.headlineLarge,
+          ),
+          const SizedBox(height: 15),
+          SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: ElevatedButton(
+              onPressed: _logout,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                foregroundColor: Theme.of(context).colorScheme.secondary,
+                side: BorderSide(color: Theme.of(context).colorScheme.secondary),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 0,
+              ),
+              child: const Text(
+                'Logout',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
