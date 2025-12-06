@@ -30,6 +30,8 @@ services:
       - JWT__Secret=${JWT_SECRET}
       - JWT__ValidIssuer=${JWT_ISSUER}
       - JWT__ValidAudience=${JWT_AUDIENCE}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_PUBLISHABLE_KEY=${STRIPE_PUBLISHABLE_KEY}
     depends_on:
       - sqlserver
       - rabbitmq 

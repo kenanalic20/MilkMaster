@@ -19,6 +19,8 @@ namespace MilkMaster.Infrastructure.Services
         private readonly IAuthService _authService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IEmailService _emailService;
+        private readonly IPaymentService _paymentService;
+        
         public OrdersService(
             IOrdersRepository orderRepository,
             IProductsRepository productRepository,
@@ -26,7 +28,8 @@ namespace MilkMaster.Infrastructure.Services
             IMapper mapper,
             IAuthService authService,
             IHttpContextAccessor httpContextAccessor,
-            IEmailService emailService
+            IEmailService emailService,
+            IPaymentService paymentService
             )
             : base(orderRepository, mapper)
         {
@@ -36,6 +39,7 @@ namespace MilkMaster.Infrastructure.Services
             _authService = authService;
             _httpContextAccessor = httpContextAccessor;
             _emailService = emailService;
+            _paymentService = paymentService;
         }
         protected override async Task AfterGetAsync(Orders entity)
         {
@@ -145,7 +149,18 @@ namespace MilkMaster.Infrastructure.Services
                         throw new MilkMasterValidationException("Quantity must be greater than zero.");
 
                     if (item.Quantity > product.Quantity)
-                        throw new MilkMasterValidationException($"Product '{product.Title}' out of stock");
+                    {
+                        var requested = item.Quantity;
+                        var available = product.Quantity;
+                        var difference = requested - available;
+
+                        throw new MilkMasterValidationException(
+                            $"Product '{product.Title}' - Insufficient stock.\n" +
+                            $"Requested: {requested} units\n" +
+                            $"Available: {available} units\n" +
+                            $"Short by: {difference} units"
+                        );
+                    }
 
                     if (item.UnitSize <= 0)
                         throw new MilkMasterValidationException("Unit size must be greater than zero.");
@@ -173,7 +188,7 @@ namespace MilkMaster.Infrastructure.Services
                 entity.ItemCount = entity.Items.Count;
                 entity.Total = entity.Items.Sum(i => i.TotalPrice);
             }
-            catch (Exception ex)
+            catch (MilkMasterValidationException ex)
             {
                 foreach (var kvp in originalQuantities)
                 {
@@ -184,7 +199,7 @@ namespace MilkMaster.Infrastructure.Services
                         await _productRepository.UpdateAsync(product);
                     }
                 }
-                throw new MilkMasterValidationException($"Quantity limit exceeded!");
+                throw new MilkMasterValidationException(ex.Message);
 
             }
         }
@@ -347,6 +362,34 @@ namespace MilkMaster.Infrastructure.Services
                 .FirstOrDefaultAsync();
 
             return topCustomer;
+        }
+
+        public async Task<OrderWithPaymentResponseDto> CreateOrderWithPaymentAsync(OrdersCreateDto dto)
+        {
+            var createdOrder = await CreateAsync(dto);
+
+            if (createdOrder == null)
+                throw new Exception("Failed to create order");
+
+            var order = await _orderRepository.GetByIdAsync(createdOrder.Id);
+            if (order == null)
+                throw new Exception("Order not found after creation");
+
+            var paymentResult = await _paymentService.CreatePaymentIntentAsync(order.Total, "bam");
+
+            order.PaymentIntentId = paymentResult.PaymentIntentId;
+            order.PaymentStatus = "pending";
+            await _orderRepository.UpdateAsync(order);
+
+            return new OrderWithPaymentResponseDto
+            {
+                OrderId = order.Id,
+                OrderNumber = order.OrderNumber,
+                Total = order.Total,
+                PaymentIntentId = paymentResult.PaymentIntentId,
+                ClientSecret = paymentResult.ClientSecret,
+                PublishableKey = paymentResult.PublishableKey
+            };
         }
 
     }

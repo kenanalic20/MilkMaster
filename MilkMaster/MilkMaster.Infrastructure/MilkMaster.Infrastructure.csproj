@@ -16,6 +16,7 @@
     <PackageReference Include="Microsoft.ML.Recommender" Version="0.22.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="RabbitMQ.Client" Version="6.8.1" />
+    <PackageReference Include="Stripe.net" Version="50.0.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.35.0" />
 	<PackageReference Include="QuestPDF" Version="2025.1.5" />
   </ItemGroup>

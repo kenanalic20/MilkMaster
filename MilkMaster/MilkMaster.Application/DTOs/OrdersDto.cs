@@ -14,6 +14,8 @@ namespace MilkMaster.Application.DTOs
         public List<OrderItemsDto> Items { get; set; } = new();
         public int ItemCount { get; set; }
         public OrderStatusDto? Status { get; set; }
+        public string? PaymentIntentId { get; set; }
+        public string? PaymentStatus { get; set; }
     }
 
     public class OrdersCreateDto
@@ -24,6 +26,16 @@ namespace MilkMaster.Application.DTOs
     public class OrdersUpdateDto
     {
         public int StatusId { get; set; }
+    }
+
+    public class OrderWithPaymentResponseDto
+    {
+        public int OrderId { get; set; }
+        public string OrderNumber { get; set; }
+        public decimal Total { get; set; }
+        public string PaymentIntentId { get; set; }
+        public string ClientSecret { get; set; }
+        public string PublishableKey { get; set; }
     }
 
     public class  OrdersSeederDto:OrdersCreateDto
