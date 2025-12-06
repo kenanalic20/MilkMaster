@@ -37,7 +37,6 @@ class PaymentProvider with ChangeNotifier {
       }
       return null;
     } catch (e) {
-      print('Error getting publishable key: $e');
       return null;
     }
   }
@@ -60,11 +59,9 @@ class PaymentProvider with ChangeNotifier {
       if (response.statusCode == 200) {
         return json.decode(response.body);
       } else {
-        print('Error creating payment intent: ${response.body}');
         return null;
       }
     } catch (e) {
-      print('Error creating payment intent: $e');
       return null;
     }
   }
@@ -86,7 +83,6 @@ class PaymentProvider with ChangeNotifier {
       }
       return false;
     } catch (e) {
-      print('Error confirming payment: $e');
       return false;
     }
   }

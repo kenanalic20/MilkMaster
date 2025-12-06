@@ -83,7 +83,6 @@ class _CattleDetailsScreenState extends State<CattleDetailsScreen> {
         _isLoadingRelated = true;
       });
 
-      // Fetch products with this cattle's category ID
       if (_cattle?.cattleCategory?.id != null) {
         final result = await _productProvider.fetchAll(
           queryParams: {

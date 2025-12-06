@@ -187,7 +187,7 @@ class _HomeShellState extends State<HomeShell> {
 
                         return Positioned(
                           right: 8,
-                          top: 8,
+                          top: 0,
                           child: Container(
                             padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(

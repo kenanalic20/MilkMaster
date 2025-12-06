@@ -31,7 +31,6 @@ class _CartScreenState extends State<CartScreen> {
       return;
     }
 
-    // Navigate to payment screen
     if (mounted) {
       Navigator.push(
         context,
@@ -39,11 +38,10 @@ class _CartScreenState extends State<CartScreen> {
           builder: (context) => PaymentScreen(
             amount: cartProvider.totalAmount,
             onPaymentSuccess: () async {
-              // Payment successful, now create the order
               await _createOrder();
             },
             onPaymentCancel: () {
-              Navigator.pop(context); // Go back to cart
+              Navigator.pop(context);
             },
           ),
         ),
@@ -60,7 +58,6 @@ class _CartScreenState extends State<CartScreen> {
     });
 
     try {
-      // Prepare order items in the format backend expects
       final orderItems = cartProvider.items
           .map((item) => {
                 'productId': item.product.id,
@@ -69,15 +66,12 @@ class _CartScreenState extends State<CartScreen> {
               })
           .toList();
 
-      // Create order
       final result = await ordersProvider.checkout(orderItems);
 
       if (mounted) {
-        // Close payment screen
         Navigator.pop(context);
         
         if (result.success) {
-          // Clear cart after successful order
           await cartProvider.clearCart();
 
           showCustomDialog(
@@ -85,7 +79,7 @@ class _CartScreenState extends State<CartScreen> {
             title: 'Order Placed Successfully',
             message: 'Your payment has been processed and order has been placed successfully!',
             onConfirm: () {
-              Navigator.pop(context); // Close cart screen
+              Navigator.pop(context); 
             },
             showCancel: false,
           );
@@ -101,7 +95,7 @@ class _CartScreenState extends State<CartScreen> {
       }
     } catch (e) {
       if (mounted) {
-        Navigator.pop(context); // Close payment screen
+        Navigator.pop(context); 
         showCustomDialog(
           context: context,
           title: 'Error',
@@ -181,7 +175,6 @@ class _CartScreenState extends State<CartScreen> {
                           padding: const EdgeInsets.all(12.0),
                           child: Row(
                             children: [
-                              // Product Image
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(8),
                                 child: Image.network(
@@ -200,7 +193,6 @@ class _CartScreenState extends State<CartScreen> {
                                 ),
                               ),
                               const SizedBox(width: 12),
-                              // Product Details
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -233,7 +225,6 @@ class _CartScreenState extends State<CartScreen> {
                                     const SizedBox(height: 8),
                                     Row(
                                       children: [
-                                        // Quantity Controls
                                         Container(
                                           decoration: BoxDecoration(
                                             border: Border.all(color: Colors.grey[300]!),
@@ -309,7 +300,6 @@ class _CartScreenState extends State<CartScreen> {
                                   ],
                                 ),
                               ),
-                              // Delete Button
                               IconButton(
                                 icon: const Icon(Icons.delete_outline, color: Colors.red),
                                 onPressed: () {
@@ -351,7 +341,6 @@ class _CartScreenState extends State<CartScreen> {
                   },
                 ),
               ),
-              // Bottom Summary
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,

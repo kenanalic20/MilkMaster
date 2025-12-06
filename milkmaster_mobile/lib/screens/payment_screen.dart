@@ -36,10 +36,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
     try {
       final paymentProvider = Provider.of<PaymentProvider>(context, listen: false);
 
-      // Create payment intent
       final paymentIntent = await paymentProvider.createPaymentIntent(
         amount: widget.amount,
-        currency: 'bam', // Bosnia and Herzegovina Convertible Mark
+        currency: 'bam',
       );
 
       if (paymentIntent == null) {
@@ -48,7 +47,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
       final clientSecret = paymentIntent['clientSecret'];
 
-      // Initialize payment sheet
       await Stripe.instance.initPaymentSheet(
         paymentSheetParameters: SetupPaymentSheetParameters(
           paymentIntentClientSecret: clientSecret,
@@ -57,10 +55,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
         ),
       );
 
-      // Present payment sheet
       await Stripe.instance.presentPaymentSheet();
 
-      // Payment successful
       if (mounted) {
         showCustomDialog(
           context: context,
@@ -75,7 +71,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
     } on StripeException catch (e) {
       if (mounted) {
         if (e.error.code == FailureCode.Canceled) {
-          // User canceled
           showCustomDialog(
             context: context,
             title: 'Payment Cancelled',
@@ -88,7 +83,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
             showCancel: false,
           );
         } else {
-          // Payment failed
           showCustomDialog(
             context: context,
             title: 'Payment Failed',

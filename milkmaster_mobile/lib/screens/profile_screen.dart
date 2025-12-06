@@ -43,17 +43,14 @@ class _ProfileScreenState extends State<ProfileScreen>
       final user = await authProvider.getUser();
       userId = user.id;
 
-      // Load user details
       final userDetailsProvider =
           Provider.of<UserDetailsProvider>(context, listen: false);
       final userDetails = await userDetailsProvider.getById(userId!);
 
-      // Load user address
       final userAddressProvider =
           Provider.of<UserAddressProvider>(context, listen: false);
       final userAddress = await userAddressProvider.getById(userId!);
 
-      // Load settings
       final settingsProvider =
           Provider.of<SettingsProvider>(context, listen: false);
       final settings = await settingsProvider.getById(userId!);
@@ -76,7 +73,6 @@ class _ProfileScreenState extends State<ProfileScreen>
           }
         });
 
-        // Set form values
         _personalFormKey.currentState?.patchValue({
           'firstName': userDetails?.firstName ?? '',
           'lastName': userDetails?.lastName ?? '',
@@ -381,7 +377,6 @@ class _ProfileScreenState extends State<ProfileScreen>
               ),
               const SizedBox(height: 20),
 
-              // Tab Content
               Expanded(
                 child: TabBarView(
                   controller: _tabController,

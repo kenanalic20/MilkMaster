@@ -3,8 +3,6 @@ import 'package:milkmaster_mobile/main.dart';
 import 'package:milkmaster_mobile/models/products_model.dart';
 import 'package:milkmaster_mobile/utils/widget_helpers.dart';
 
-/// A reusable horizontal product slider widget that displays a list of products
-/// Can be used to show recommended products, products by category, or related products
 class ProductSlider extends StatelessWidget {
   final List<Product> products;
   final bool isLoading;
@@ -126,7 +124,6 @@ class ProductSlider extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Product Image
               Image.network(
                 fixLocalhostUrl(product.imageUrl),
                 width: double.infinity,
@@ -146,7 +143,6 @@ class ProductSlider extends StatelessWidget {
                 },
               ),
 
-              // Product Title
               Padding(
                 padding: const EdgeInsets.only(top: 5, left: 5, right: 5),
                 child: Text(
@@ -157,7 +153,6 @@ class ProductSlider extends StatelessWidget {
                 ),
               ),
 
-              // Product Description
               SizedBox(
                 height: 40,
                 child: Padding(
@@ -171,7 +166,6 @@ class ProductSlider extends StatelessWidget {
                 ),
               ),
 
-              // Categories Tags
               Container(
                 height: 40,
                 width: cardWidth,
@@ -183,7 +177,6 @@ class ProductSlider extends StatelessWidget {
                       spacing: 2,
                       runSpacing: 2,
                       children: [
-                        // Product Categories
                         ...(product.productCategories?.map((category) {
                               return Container(
                                 padding: const EdgeInsets.symmetric(
@@ -203,7 +196,6 @@ class ProductSlider extends StatelessWidget {
                               );
                             }).toList() ??
                             []),
-                        // Cattle Category
                         if (product.cattleCategory != null)
                           Container(
                             padding: const EdgeInsets.symmetric(
@@ -227,7 +219,6 @@ class ProductSlider extends StatelessWidget {
                 ),
               ),
 
-              // Price
               Padding(
                 padding: const EdgeInsets.only(left: 5),
                 child: Text(
@@ -242,7 +233,6 @@ class ProductSlider extends StatelessWidget {
                 height: Theme.of(context).extension<AppSpacing>()?.small,
               ),
 
-              // Add to Cart Button
               Padding(
                 padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
                 child: SizedBox(

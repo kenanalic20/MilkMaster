@@ -76,7 +76,7 @@ class Cart {
 class CartItem {
   final Product product;
   int quantity;
-  final double size; // Size in liters (0.5, 1.0, 2.0, etc.)
+  final double size;
 
   CartItem({
     required this.product,

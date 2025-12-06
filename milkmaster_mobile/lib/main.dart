@@ -25,7 +25,6 @@ import 'package:provider/provider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Initialize Stripe with publishable key from backend
   try {
     final paymentProvider = PaymentProvider();
     final publishableKey = await paymentProvider.getPublishableKey();
@@ -142,7 +141,6 @@ class MyApp extends StatelessWidget {
           fillColor: Colors.white,
         ),
         iconTheme: IconThemeData(color: Color(0xFF212121)),
-        // Example of custom spacing extension
         extensions: <ThemeExtension<dynamic>>[
           AppSpacing(small: 8.0, medium: 15.0, large: 32.0),
         ],
@@ -180,7 +178,6 @@ class AppButtonStyles {
     ),
   );
 
-  // Danger / Delete button
   static ButtonStyle danger = ElevatedButton.styleFrom(
     backgroundColor: Colors.transparent,
     foregroundColor: Color(0xFFD32F2F),

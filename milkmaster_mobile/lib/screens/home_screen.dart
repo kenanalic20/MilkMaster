@@ -253,7 +253,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Stack(
                     children: [
                       Transform.rotate(
-                        angle: 3.14159, // 180 degrees in radians
+                        angle: 3.14159,
                         child: Container(
                           width: double.infinity,
                           height: double.infinity,
@@ -307,7 +307,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 isLoading: _productProvider.isLoading,
                 title: 'Recommended Products',
                 onSeeAll: () {
-                  debugPrint('See all tapped');
                   widget.onNavigateToProducts?.call();
                 },
                 onProductTap: (product) {

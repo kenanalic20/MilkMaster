@@ -107,7 +107,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         listen: false,
                       );
                       if (_formKey.currentState!.validate()) {
-                        // Show loading overlay
                         showDialog(
                           context: context,
                           barrierDismissible: false,
@@ -125,7 +124,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           password,
                         );
                         
-                        // Close loading overlay
                         if (mounted) Navigator.pop(context);
                 
                         if (!success) {
@@ -168,7 +166,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           return; 
                         }
                 
-                        // Set user in cart provider to load user-specific cart
                         if (mounted) {
                           final cartProvider = Provider.of<CartProvider>(context, listen: false);
                           try {

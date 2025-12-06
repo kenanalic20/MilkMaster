@@ -16,7 +16,6 @@ class AuthProvider with ChangeNotifier {
   late UserAuth? currentUser;
   
   Future<bool> login(String username, String password) async {
-    print('Attempting login to: $baseUrl/Auth/login'); // Debug print
     
     final response = await http.post(
       Uri.parse('$baseUrl/Auth/login'),

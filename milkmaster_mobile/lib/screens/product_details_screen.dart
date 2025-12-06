@@ -405,13 +405,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       return;
     }
 
-    // Validate quantity
     if (_quantity <= 0) {
       _showErrorDialog('Invalid Quantity', 'Please select a valid quantity');
       return;
     }
 
-    // Check stock availability
     final unitSymbol = _product!.unit?.symbol ?? 'L';
     final totalRequiredQuantity = _quantity * _selectedSize;
     final availableQuantity = _product!.quantity.toDouble();
@@ -425,7 +423,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       return;
     }
 
-    // Check if adding to existing cart item would exceed stock
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
     final existingCartItem = cartProvider.getCartItem(_product!.id, _selectedSize);
     
@@ -444,7 +441,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       }
     }
 
-    // All validations passed, add to cart
     final success = await cartProvider.addToCart(
       _product!,
       quantity: _quantity,
@@ -472,7 +468,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             duration: const Duration(seconds: 2),
           ),
         );
-        // Reset quantity to 1 after successful add
         setState(() {
           _quantity = 1;
         });

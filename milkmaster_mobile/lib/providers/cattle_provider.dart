@@ -59,11 +59,9 @@ class CattleProvider extends BaseProvider<Cattle> {
         );
         return true;
       } else {
-        print('Could not launch $url');
         return false;
       }
     } catch (e) {
-      print('Download failed: $e');
       return false;
     }
   }

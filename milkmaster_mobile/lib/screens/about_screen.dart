@@ -120,7 +120,6 @@ class AboutScreen extends StatelessWidget {
               
               SizedBox(height: Theme.of(context).extension<AppSpacing>()?.medium),
               
-              // Contact Us Section
               _buildSectionTitle(context, 'Contact Us'),
               SizedBox(height: Theme.of(context).extension<AppSpacing>()?.medium),
               

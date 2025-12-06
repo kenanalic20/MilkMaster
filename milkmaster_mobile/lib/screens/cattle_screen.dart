@@ -152,7 +152,7 @@ class _CattleScreenState extends State<CattleScreen> {
           ),
           SizedBox(height: Theme.of(context).extension<AppSpacing>()?.medium),
           
-          // Category Filter Chips
+         
           if (_cattleCategories.isNotEmpty)
             SizedBox(
               height: 30,
@@ -283,7 +283,7 @@ class _CattleScreenState extends State<CattleScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Cattle Image with Category Badge
+         
           Stack(
             children: [
               ClipRRect(
@@ -325,7 +325,7 @@ class _CattleScreenState extends State<CattleScreen> {
             ],
           ),
           
-          // Cattle Info
+          
           Padding(
             padding: const EdgeInsets.all(15.0),
             child: Column(
@@ -375,7 +375,7 @@ class _CattleScreenState extends State<CattleScreen> {
                             ),
                           ),
                           Text(
-                            '${formatDouble(cattle.monthlyValue)} BAM', // Assuming 2 BAM per liter
+                            '${formatDouble(cattle.monthlyValue)} BAM',
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               fontWeight: FontWeight.w600,
                               color: Theme.of(context).colorScheme.secondary,

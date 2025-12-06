@@ -59,7 +59,6 @@ class FileProvider with ChangeNotifier {
     }
   }
 
-  /// Update a file
   Future<String?> updateFile(FileUpdateModel model) async {
     if (model.file == null || model.oldFileUrl == null) return null;
 
@@ -89,7 +88,6 @@ class FileProvider with ChangeNotifier {
     }
   }
 
-  /// Delete a file
   Future<bool> deleteFile(FileDeleteModel model) async {
     final uri = Uri.parse('$_baseUrl/$_endpoint/delete');
     final request = http.MultipartRequest('DELETE', uri)
