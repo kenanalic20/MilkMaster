@@ -10,5 +10,6 @@ namespace MilkMaster.Application.Interfaces.Services
         Task<string> GenerateOrderNumberAsync();
         Task<decimal> GetTotalRevenueAsync();
         Task<TopCustomerDto?> GetTopCustomerAsync();
+        Task<OrderWithPaymentResponseDto> CreateOrderWithPaymentAsync(OrdersCreateDto dto);
     }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:milkmaster_mobile/providers/cart_provider.dart';
 import 'package:milkmaster_mobile/providers/orders_provider.dart';
+import 'package:milkmaster_mobile/screens/payment_screen.dart';
 import 'package:milkmaster_mobile/utils/widget_helpers.dart';
 import 'package:provider/provider.dart';
 
@@ -18,7 +19,6 @@ class _CartScreenState extends State<CartScreen> {
 
   Future<void> _handleCheckout() async {
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
-    final ordersProvider = Provider.of<OrdersProvider>(context, listen: false);
 
     if (cartProvider.items.isEmpty) {
       showCustomDialog(
@@ -30,6 +30,30 @@ class _CartScreenState extends State<CartScreen> {
       );
       return;
     }
+
+    // Navigate to payment screen
+    if (mounted) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PaymentScreen(
+            amount: cartProvider.totalAmount,
+            onPaymentSuccess: () async {
+              // Payment successful, now create the order
+              await _createOrder();
+            },
+            onPaymentCancel: () {
+              Navigator.pop(context); // Go back to cart
+            },
+          ),
+        ),
+      );
+    }
+  }
+
+  Future<void> _createOrder() async {
+    final cartProvider = Provider.of<CartProvider>(context, listen: false);
+    final ordersProvider = Provider.of<OrdersProvider>(context, listen: false);
 
     setState(() {
       _isProcessingCheckout = true;
@@ -49,6 +73,9 @@ class _CartScreenState extends State<CartScreen> {
       final result = await ordersProvider.checkout(orderItems);
 
       if (mounted) {
+        // Close payment screen
+        Navigator.pop(context);
+        
         if (result.success) {
           // Clear cart after successful order
           await cartProvider.clearCart();
@@ -56,7 +83,7 @@ class _CartScreenState extends State<CartScreen> {
           showCustomDialog(
             context: context,
             title: 'Order Placed Successfully',
-            message: 'Your order has been placed successfully!',
+            message: 'Your payment has been processed and order has been placed successfully!',
             onConfirm: () {
               Navigator.pop(context); // Close cart screen
             },
@@ -66,7 +93,7 @@ class _CartScreenState extends State<CartScreen> {
           showCustomDialog(
             context: context,
             title: 'Order Failed',
-            message: result.errorMessage ?? 'Failed to place order. Please try again.',
+            message: result.errorMessage ?? 'Failed to place order. Please contact support.',
             onConfirm: () {},
             showCancel: false,
           );
@@ -74,6 +101,7 @@ class _CartScreenState extends State<CartScreen> {
       }
     } catch (e) {
       if (mounted) {
+        Navigator.pop(context); // Close payment screen
         showCustomDialog(
           context: context,
           title: 'Error',

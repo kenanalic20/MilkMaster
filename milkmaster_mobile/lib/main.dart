@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:milkmaster_mobile/widgets/home_shell.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
@@ -18,10 +19,25 @@ import 'package:milkmaster_mobile/providers/user_address_provider.dart';
 import 'package:milkmaster_mobile/providers/settings_provider.dart';
 import 'package:milkmaster_mobile/providers/search_provider.dart';
 import 'package:milkmaster_mobile/providers/cart_provider.dart';
+import 'package:milkmaster_mobile/providers/payment_provider.dart';
 import 'package:provider/provider.dart';
 
-void main() {
-   runApp(
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Stripe with publishable key from backend
+  try {
+    final paymentProvider = PaymentProvider();
+    final publishableKey = await paymentProvider.getPublishableKey();
+    
+    if (publishableKey != null && publishableKey.isNotEmpty) {
+      Stripe.publishableKey = publishableKey;
+    }
+  } catch (e) {
+    print('Failed to initialize Stripe: $e');
+  }
+  
+  runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
@@ -40,6 +56,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => SettingsProvider()),
         ChangeNotifierProvider(create: (_) => SearchProvider()),
         ChangeNotifierProvider(create: (_) => CartProvider()),
+        ChangeNotifierProvider(create: (_) => PaymentProvider()),
       ],
 
       child: const MyApp(),

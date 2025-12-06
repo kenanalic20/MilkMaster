@@ -21,5 +21,9 @@ namespace MilkMaster.Domain.Models
         public decimal Total { get; set; }
         public int StatusId { get; set; } = 1;
         public OrderStatus? Status { get; set; }
+        
+        // Payment Information
+        public string? PaymentIntentId { get; set; }
+        public string? PaymentStatus { get; set; } = "pending";
     }
 }

@@ -37,5 +37,20 @@ namespace MilkMaster.API.Controllers
             var result = await _ordersService.GetTotalRevenueAsync();
             return Ok(result);
         }
+
+        [Authorize]
+        [HttpPost("create-with-payment")]
+        public async Task<ActionResult<OrderWithPaymentResponseDto>> CreateOrderWithPayment([FromBody] OrdersCreateDto dto)
+        {
+            try
+            {
+                var result = await _ordersService.CreateOrderWithPaymentAsync(dto);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
     }
 }
