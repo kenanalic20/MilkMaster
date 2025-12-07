@@ -3,6 +3,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:milkmaster_mobile/main.dart';
 import 'package:milkmaster_mobile/providers/auth_provider.dart';
 import 'package:milkmaster_mobile/providers/cart_provider.dart';
+import 'package:milkmaster_mobile/providers/notification_settings_provider.dart';
 import 'package:milkmaster_mobile/providers/settings_provider.dart';
 import 'package:milkmaster_mobile/providers/user_address_provider.dart';
 import 'package:milkmaster_mobile/providers/user_details_provider.dart';
@@ -171,28 +172,29 @@ class _ProfileScreenState extends State<ProfileScreen>
     if (userId == null) return;
 
     try {
-      final settingsProvider =
-          Provider.of<SettingsProvider>(context, listen: false);
-      final updateData = {
-        'notificationsEnabled': _emailNotifications,
-        'pushNotificationsEnabled': _pushNotifications,
-      };
+      final notificationProvider =
+          Provider.of<NotificationSettingsProvider>(context, listen: false);
+      
+      await notificationProvider.updateNotificationSettings(
+        notificationsEnabled: _emailNotifications,
+        pushNotificationsEnabled: _pushNotifications,
+      );
 
-      final response = await settingsProvider.update(userId!, updateData);
-
-      if (response.success && mounted) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Settings updated successfully')),
-        );
-      } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${response.errorMessage}')),
+          SnackBar(
+            content: const Text('Settings updated successfully'),
+            backgroundColor: Theme.of(context).colorScheme.secondary,
+          ),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error updating settings: $e')),
+          SnackBar(
+            content: Text('Error updating settings: $e'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     }
@@ -284,100 +286,101 @@ class _ProfileScreenState extends State<ProfileScreen>
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(15),
-          child: Column(
-            children: [
-              // Profile Header
-              Center(
-                child: Column(
-                  children: [
-                    Stack(
-                      children: [
-                        CircleAvatar(
-                          radius: 50,
-                          backgroundColor:
-                              Theme.of(context).colorScheme.primary,
+        child: Column(
+          children: [
+            // Profile Header
+            Center(
+              child: Column(
+                children: [
+                  Stack(
+                    children: [
+                      CircleAvatar(
+                        radius: 50,
+                        backgroundColor:
+                            Theme.of(context).colorScheme.primary,
+                        child: const Icon(
+                          Icons.person,
+                          size: 50,
+                          color: Colors.black,
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.secondary,
+                            shape: BoxShape.circle,
+                          ),
                           child: const Icon(
-                            Icons.person,
-                            size: 50,
-                            color: Colors.black,
+                            Icons.edit,
+                            size: 14,
+                            color: Colors.white,
                           ),
                         ),
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.secondary,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.edit,
-                              size: 14,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      displayName,
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 4),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary,
-                        borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Text(
-                        'Loyal',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black,
-                            ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    displayName,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 12),
+                  OutlinedButton(
+                    onPressed: _logout,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Theme.of(context).colorScheme.secondary,
+                      side: BorderSide(color: Theme.of(context).colorScheme.secondary),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                    ),
+                    child: const Text(
+                      'Logout',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                  ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+        
+            // Tabs
+            TabBar(
+              controller: _tabController,
+              labelColor: Colors.black,
+              unselectedLabelColor: Colors.grey,
+              labelStyle: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+              unselectedLabelStyle: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.normal,
+              ),
+              indicator: const UnderlineTabIndicator(
+                borderSide: BorderSide(
+                  width: 2.0,
+                  color: Colors.black,
                 ),
               ),
-              const SizedBox(height: 20),
-
-              // Tabs
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: TabBar(
-                  controller: _tabController,
-                  labelColor: Colors.black,
-                  unselectedLabelColor: Colors.grey,
-                  labelStyle: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  indicator: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  indicatorSize: TabBarIndicatorSize.tab,
-                  dividerColor: Colors.transparent,
-                  tabs: const [
-                    Tab(text: 'Personal'),
-                    Tab(text: 'Address'),
-                    Tab(text: 'Settings'),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              Expanded(
+              indicatorSize: TabBarIndicatorSize.label,
+              dividerColor: Colors.grey[300],
+              tabs: const [
+                Tab(text: 'Personal'),
+                Tab(text: 'Address'),
+                Tab(text: 'Settings'),
+              ],
+            ),
+            Expanded(
+              child: Container(
+                color: Colors.grey[100],
                 child: TabBarView(
                   controller: _tabController,
                   children: [
@@ -387,8 +390,8 @@ class _ProfileScreenState extends State<ProfileScreen>
                   ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -398,9 +401,11 @@ class _ProfileScreenState extends State<ProfileScreen>
     return FormBuilder(
       key: _personalFormKey,
       child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+        child: Padding(
+          padding: const EdgeInsets.all(15),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
             Row(
               children: [
                 Expanded(
@@ -439,7 +444,8 @@ class _ProfileScreenState extends State<ProfileScreen>
                 ),
               ),
             ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -449,9 +455,11 @@ class _ProfileScreenState extends State<ProfileScreen>
     return FormBuilder(
       key: _addressFormKey,
       child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+        child: Padding(
+          padding: const EdgeInsets.all(15),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
             _buildFormField('Street Address', 'street'),
             const SizedBox(height: 15),
             _buildFormField('City', 'city'),
@@ -492,7 +500,8 @@ class _ProfileScreenState extends State<ProfileScreen>
                 ),
               ),
             ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -500,148 +509,69 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   Widget _buildSettingsTab() {
     return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+      child: Padding(
+        padding: const EdgeInsets.all(15),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
           Text(
             'Notification Settings',
-            style: Theme.of(context).textTheme.headlineLarge,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: 15),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey[300]!),
-            ),
-            child: Column(
-              children: [
-                _buildSwitchTile(
-                  'Email Notifications',
-                  'Receive email updates',
-                  _emailNotifications,
-                  (value) {
-                    setState(() => _emailNotifications = value);
-                  },
-                ),
-                Divider(height: 1, color: Colors.grey[300]),
-                _buildSwitchTile(
-                  'Push Notifications',
-                  'Receive alerts on your device',
-                  _pushNotifications,
-                  (value) {
-                    setState(() => _pushNotifications = value);
-                  },
-                ),
-              ],
-            ),
+          _buildSwitchTile(
+            'Email Notifications',
+            'Receive updates via email',
+            _emailNotifications,
+            (value) async {
+              setState(() => _emailNotifications = value);
+              await _saveSettings();
+            },
           ),
-          const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: ElevatedButton(
-              onPressed: _saveSettings,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.secondary,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                elevation: 0,
-              ),
-              child: const Text(
-                'Save Changes',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 30),
-          Text(
-            'Account',
-            style: Theme.of(context).textTheme.headlineLarge,
-          ),
-          const SizedBox(height: 15),
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: ElevatedButton(
-              onPressed: _logout,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                foregroundColor: Theme.of(context).colorScheme.secondary,
-                side: BorderSide(color: Theme.of(context).colorScheme.secondary),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                elevation: 0,
-              ),
-              child: const Text(
-                'Logout',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
+          const SizedBox(height: 10),
+          _buildSwitchTile(
+            'Push Notifications',
+            'Receive alerts on your device',
+            _pushNotifications,
+            (value) async {
+              setState(() => _pushNotifications = value);
+              await _saveSettings();
+            },
           ),
           const SizedBox(height: 30),
           Text(
             'Danger Zone',
-            style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                  color: const Color(0xFFD32F2F),
-                ),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: const Color(0xFFD32F2F),
+            ),
           ),
           const SizedBox(height: 15),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFD32F2F)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Delete Account',
-                  style: Theme.of(context).textTheme.headlineMedium,
+          SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: OutlinedButton(
+              onPressed: _deleteAccount,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: const Color(0xFFD32F2F),
+                side: const BorderSide(color: Color(0xFFD32F2F)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Once you delete your account, there is no going back. Please be certain.',
-                  style: TextStyle(fontSize: 14),
+              ),
+              child: const Text(
+                'Delete Account',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
                 ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton(
-                    onPressed: _deleteAccount,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent,
-                      foregroundColor: const Color(0xFFD32F2F),
-                      side: const BorderSide(color: Color(0xFFD32F2F)),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: const Text(
-                      'Delete Account',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -698,8 +628,13 @@ class _ProfileScreenState extends State<ProfileScreen>
     bool value,
     Function(bool) onChanged,
   ) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey[300]!),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
         children: [
           Expanded(
@@ -728,8 +663,8 @@ class _ProfileScreenState extends State<ProfileScreen>
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: Theme.of(context).colorScheme.secondary,
-            activeTrackColor: Theme.of(context).colorScheme.secondary.withOpacity(0.5),
+            activeColor: Colors.white,
+            activeTrackColor: Theme.of(context).colorScheme.secondary,
           ),
         ],
       ),

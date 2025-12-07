@@ -47,6 +47,8 @@ dependencies:
   url_launcher: ^6.3.2
   shared_preferences: ^2.3.5
   flutter_stripe: ^11.1.0
+  flutter_local_notifications: ^18.0.1
+  timezone: ^0.9.2
 
 
 

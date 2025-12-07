@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:milkmaster_mobile/providers/auth_provider.dart';
 import 'package:milkmaster_mobile/providers/cart_provider.dart';
+import 'package:milkmaster_mobile/providers/notification_settings_provider.dart';
 import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -168,13 +169,28 @@ class _LoginScreenState extends State<LoginScreen> {
                 
                         if (mounted) {
                           final cartProvider = Provider.of<CartProvider>(context, listen: false);
+                          final notificationProvider = Provider.of<NotificationSettingsProvider>(context, listen: false);
+                          
                           try {
                             final userId = int.tryParse(user.id);
                             if (userId != null) {
                               await cartProvider.setUser(userId);
                             }
+                            
+                            // Initialize notifications with user settings
+                            await notificationProvider.initialize(user.id);
+
+                            // Schedule a daily notification at 9 AM
+                            await notificationProvider.scheduleDailyNotification(
+                              id: 1, // Unique ID for this notification
+                              title: 'MilkMaster Daily Reminder',
+                              body: 'Check out new products and special offers!',
+                              hour: 9,  // 9 AM
+                              minute: 0,
+                              payload: 'daily_reminder',
+                            );
                           } catch (e) {
-                            print('Error setting cart user: $e');
+                            print('Error setting cart user or notifications: $e');
                           }
                         }
                 

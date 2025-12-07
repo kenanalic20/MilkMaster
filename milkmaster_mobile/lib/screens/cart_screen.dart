@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:milkmaster_mobile/providers/cart_provider.dart';
+import 'package:milkmaster_mobile/providers/notification_settings_provider.dart';
 import 'package:milkmaster_mobile/providers/orders_provider.dart';
 import 'package:milkmaster_mobile/screens/payment_screen.dart';
 import 'package:milkmaster_mobile/utils/widget_helpers.dart';
@@ -52,6 +53,7 @@ class _CartScreenState extends State<CartScreen> {
   Future<void> _createOrder() async {
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
     final ordersProvider = Provider.of<OrdersProvider>(context, listen: false);
+    final notificationProvider = Provider.of<NotificationSettingsProvider>(context, listen: false);
 
     setState(() {
       _isProcessingCheckout = true;
@@ -73,6 +75,14 @@ class _CartScreenState extends State<CartScreen> {
         
         if (result.success) {
           await cartProvider.clearCart();
+
+          // Show success notification
+          await notificationProvider.showNotificationIfEnabled(
+            id: DateTime.now().millisecondsSinceEpoch ~/ 1000, // Convert to seconds to fit in int
+            title: 'Order Placed Successfully',
+            body: 'Your order has been placed and payment processed!',
+            payload: 'order_success',
+          );
 
           showCustomDialog(
             context: context,

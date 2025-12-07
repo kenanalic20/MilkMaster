@@ -20,6 +20,7 @@ import 'package:milkmaster_mobile/providers/settings_provider.dart';
 import 'package:milkmaster_mobile/providers/search_provider.dart';
 import 'package:milkmaster_mobile/providers/cart_provider.dart';
 import 'package:milkmaster_mobile/providers/payment_provider.dart';
+import 'package:milkmaster_mobile/providers/notification_settings_provider.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
@@ -56,6 +57,13 @@ void main() async {
         ChangeNotifierProvider(create: (_) => SearchProvider()),
         ChangeNotifierProvider(create: (_) => CartProvider()),
         ChangeNotifierProvider(create: (_) => PaymentProvider()),
+        ChangeNotifierProxyProvider<SettingsProvider, NotificationSettingsProvider>(
+          create: (context) => NotificationSettingsProvider(
+            Provider.of<SettingsProvider>(context, listen: false),
+          ),
+          update: (context, settingsProvider, previous) =>
+              previous ?? NotificationSettingsProvider(settingsProvider),
+        ),
       ],
 
       child: const MyApp(),
