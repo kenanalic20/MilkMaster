@@ -267,6 +267,81 @@ namespace MilkMaster.Infrastructure.Services
             return true;
         }
 
+        public async Task<bool> UpdatePhoneNumberAsync(string userId, string phoneNumber)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return false;
+
+            var oldPhoneNumber = user.PhoneNumber;
+            user.PhoneNumber = phoneNumber;
+
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+                return false;
+
+            var emailMessage = new EmailMessage
+            {
+                Email = user.Email ?? "",
+                Subject = "Phone Number Updated",
+                Body = $"Hello {user.UserName},\n\n" +
+                       $"Your phone number has been successfully updated.\n\n" +
+                       $"Old Phone Number: {oldPhoneNumber ?? "Not set"}\n" +
+                       $"New Phone Number: {phoneNumber}\n\n" +
+                       $"If you did not make this change, please contact support immediately."
+            };
+
+            await _emailService.SendEmailAsync(user.Id, emailMessage, skipSettingsCheck: true);
+
+            return true;
+        }
+
+        public async Task<bool> UpdateEmailAsync(string userId, string email)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return false;
+
+            var oldEmail = user.Email;
+
+            var existingUser = await _userManager.FindByEmailAsync(email);
+            if (existingUser != null && existingUser.Id != userId)
+                return false;
+
+            if (!string.IsNullOrEmpty(oldEmail))
+            {
+                var oldEmailMessage = new EmailMessage
+                {
+                    Email = oldEmail,
+                    Subject = "Email Address Changed",
+                    Body = $"Hello {user.UserName},\n\n" +
+                           $"Your email address has been changed from {oldEmail} to {email}.\n\n" +
+                           $"If you did not make this change, please contact support immediately."
+                };
+
+                await _emailService.SendEmailAsync(user.Id, oldEmailMessage, skipSettingsCheck: true);
+            }
+
+            user.Email = email;
+
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+                return false;
+
+            var newEmailMessage = new EmailMessage
+            {
+                Email = email,
+                Subject = "Email Address Updated Successfully",
+                Body = $"Hello {user.UserName},\n\n" +
+                       $"Your email address has been successfully updated to {email}.\n\n" +
+                       $"You will now receive all notifications at this address."
+            };
+
+            await _emailService.SendEmailAsync(user.Id, newEmailMessage, skipSettingsCheck: true);
+
+            return true;
+        }
+
 
     }
 }

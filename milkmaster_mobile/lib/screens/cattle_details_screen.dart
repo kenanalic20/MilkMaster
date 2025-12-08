@@ -380,7 +380,10 @@ class _CattleDetailsScreenState extends State<CattleDetailsScreen> {
                 if (success) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Opening milk carton for ${_cattle!.name}'),
+                      content: Text(
+                        'Opening milk carton for ${_cattle!.name}',
+                        style: const TextStyle(color: Colors.black),
+                      ),
                       backgroundColor: Theme.of(context).colorScheme.secondary,
                     ),
                   );
@@ -710,7 +713,10 @@ class _CattleDetailsScreenState extends State<CattleDetailsScreen> {
             if (success) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('Added "${product.title}" to cart'),
+                  content: Text(
+                    'Added "${product.title}" to cart',
+                    style: const TextStyle(color: Colors.black),
+                  ),
                   backgroundColor: Theme.of(context).colorScheme.secondary,
                   duration: const Duration(seconds: 2),
                 ),

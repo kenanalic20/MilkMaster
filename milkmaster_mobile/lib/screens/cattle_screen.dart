@@ -217,7 +217,7 @@ class _CattleScreenState extends State<CattleScreen> {
       return const NoDataWidget();
     }
 
-    return Padding(
+    return Container(
       padding: const EdgeInsets.symmetric(horizontal: 15.0),
       child: Column(
         children: [
@@ -436,7 +436,10 @@ class _CattleScreenState extends State<CattleScreen> {
                               if (success) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text('Opening milk carton for ${cattle.name}'),
+                                    content: Text(
+                                      'Opening milk carton for ${cattle.name}',
+                                      style: const TextStyle(color: Colors.black),
+                                    ),
                                     backgroundColor: Theme.of(context).colorScheme.secondary,
                                   ),
                                 );

@@ -19,7 +19,7 @@ class BaseProvider<T> with ChangeNotifier {
     _endPoint = endPoint;
     _baseUrl = const String.fromEnvironment(
       'BASE_URL',
-      defaultValue: 'http://192.168.1.5:5068',
+      defaultValue: 'http://10.0.2.2:5068',
     );
   }
 

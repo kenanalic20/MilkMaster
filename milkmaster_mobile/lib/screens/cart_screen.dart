@@ -316,15 +316,11 @@ class _CartScreenState extends State<CartScreen> {
                                   showDialog(
                                     context: context,
                                     builder: (context) => AlertDialog(
-                                      title: const Text('Remove Item'),
+                                      title: Text('Remove Item',style:Theme.of(context).textTheme.headlineMedium),
                                       content: const Text(
                                         'Are you sure you want to remove this item from your cart?',
                                       ),
                                       actions: [
-                                        TextButton(
-                                          onPressed: () => Navigator.pop(context),
-                                          child: const Text('Cancel'),
-                                        ),
                                         TextButton(
                                           onPressed: () {
                                             Navigator.pop(context);
@@ -337,6 +333,10 @@ class _CartScreenState extends State<CartScreen> {
                                             'Remove',
                                             style: TextStyle(color: Colors.red),
                                           ),
+                                        ),
+                                        TextButton(
+                                          onPressed: () => Navigator.pop(context),
+                                          child: const Text('Cancel'),
                                         ),
                                       ],
                                     ),

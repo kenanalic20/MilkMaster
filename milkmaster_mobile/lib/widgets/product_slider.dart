@@ -22,7 +22,7 @@ class ProductSlider extends StatelessWidget {
     this.onProductTap,
     this.onAddToCart,
     this.height = 280,
-    this.cardWidth = 175,
+    this.cardWidth = 185,
   });
 
   @override
@@ -108,9 +108,9 @@ class ProductSlider extends StatelessWidget {
     return SizedBox(
       width: cardWidth,
       child: Card(
-        elevation: 4,
+        elevation: 2,
         shadowColor: Colors.black.withOpacity(1),
-        clipBehavior: Clip.hardEdge,
+        clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: () {
             if (onProductTap != null) {
@@ -143,123 +143,128 @@ class ProductSlider extends StatelessWidget {
                 },
               ),
 
-              Padding(
-                padding: const EdgeInsets.only(top: 5, left: 5, right: 5),
-                child: Text(
-                  product.title,
-                  style: Theme.of(context).textTheme.headlineLarge,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 5, left: 5, right: 5),
+                      child: Text(
+                        product.title,
+                        style: Theme.of(context).textTheme.headlineLarge,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
 
-              SizedBox(
-                height: 40,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 5),
-                  child: Text(
-                    product.description ?? '',
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ),
-              ),
+                    SizedBox(
+                      height: 40,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 5),
+                        child: Text(
+                          product.description ?? '',
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ),
+                    ),
 
-              Container(
-                height: 40,
-                width: cardWidth,
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 5, right: 5),
-                    child: Wrap(
-                      spacing: 2,
-                      runSpacing: 2,
-                      children: [
-                        ...(product.productCategories?.map((category) {
-                              return Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: Colors.transparent,
+                    Container(
+                      height: 40,
+                      width: cardWidth,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.vertical,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 5, right: 5),
+                          child: Wrap(
+                            spacing: 2,
+                            runSpacing: 2,
+                            children: [
+                              ...(product.productCategories?.map((category) {
+                                    return Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context).colorScheme.primary,
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(
+                                          color: Colors.transparent,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        category.name.toLowerCase(),
+                                        style: Theme.of(context).textTheme.bodySmall,
+                                      ),
+                                    );
+                                  }).toList() ??
+                                  []),
+                              if (product.cattleCategory != null)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).colorScheme.primary,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: Colors.transparent,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    product.cattleCategory!.name.toLowerCase(),
+                                    style: Theme.of(context).textTheme.bodySmall,
                                   ),
                                 ),
-                                child: Text(
-                                  category.name.toLowerCase(),
-                                  style: Theme.of(context).textTheme.bodySmall,
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const Spacer(),
+
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10,top: 5),
+                      child: Text(
+                        '${formatDouble(product.pricePerUnit)} BAM',
+                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
+                      ),
+                    ),
+
+
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(5, 0, 5, 5),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25),
+                            ),
+                          ),
+                          onPressed: () {
+                            if (onAddToCart != null) {
+                              onAddToCart!(product);
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Added "${product.title}" to cart',
+                                  ),
+                                  backgroundColor:
+                                      Theme.of(context).colorScheme.secondary,
                                 ),
                               );
-                            }).toList() ??
-                            []),
-                        if (product.cattleCategory != null)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.primary,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: Colors.transparent,
-                              ),
-                            ),
-                            child: Text(
-                              product.cattleCategory!.name.toLowerCase(),
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-
-              Padding(
-                padding: const EdgeInsets.only(left: 5),
-                child: Text(
-                  '${formatDouble(product.pricePerUnit)} BAM',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
-                ),
-              ),
-
-              SizedBox(
-                height: Theme.of(context).extension<AppSpacing>()?.small,
-              ),
-
-              Padding(
-                padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25),
+                            }
+                          },
+                          child: const Text('Add to cart'),
+                        ),
                       ),
                     ),
-                    onPressed: () {
-                      if (onAddToCart != null) {
-                        onAddToCart!(product);
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Added "${product.title}" to cart',
-                            ),
-                            backgroundColor:
-                                Theme.of(context).colorScheme.secondary,
-                          ),
-                        );
-                      }
-                    },
-                    child: const Text('Add to cart'),
-                  ),
+                  ],
                 ),
               ),
             ],
