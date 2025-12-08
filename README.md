@@ -1,8 +1,5 @@
 # MilkMaster
 
-## Naziv tima
-**MilkMaster**
-
 ## Kredencijali za testiranje
 
 ### Administrator
