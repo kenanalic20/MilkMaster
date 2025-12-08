@@ -16,7 +16,7 @@ class ReportProvider with ChangeNotifier {
     _endPoint = endPoint;
     _baseUrl = String.fromEnvironment(
       'BASE_URL',
-      defaultValue: 'http://192.168.1.5:5068',
+      defaultValue: 'http://10.0.2.2:5068',
     );
   }
   Future<Map<String, String>> getHeaders() async {

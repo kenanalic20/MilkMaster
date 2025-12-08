@@ -252,19 +252,16 @@ class _HomeScreenState extends State<HomeScreen> {
                   borderRadius: BorderRadius.circular(12),
                   child: Stack(
                     children: [
-                      Transform.rotate(
-                        angle: 3.14159,
-                        child: Container(
-                          width: double.infinity,
-                          height: double.infinity,
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: AssetImage('assets/images/banner.jpg'),
-                              fit: BoxFit.cover,
-                              colorFilter: ColorFilter.mode(
-                                Colors.black.withOpacity(0.4),
-                                BlendMode.darken,
-                              ),
+                      Container(
+                        width: double.infinity,
+                        height: double.infinity,
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: AssetImage('assets/images/banner.jpg'),
+                            fit: BoxFit.cover,
+                            colorFilter: ColorFilter.mode(
+                              Colors.black.withOpacity(0.4),
+                              BlendMode.darken,
                             ),
                           ),
                         ),
@@ -330,7 +327,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     if (success) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('Added "${product.title}" to cart'),
+                          content: Text(
+                            'Added "${product.title}" to cart',
+                            style: const TextStyle(color: Colors.black),
+                          ),
                           backgroundColor: Theme.of(context).colorScheme.secondary,
                           duration: const Duration(seconds: 2),
                         ),
@@ -351,6 +351,7 @@ class _HomeScreenState extends State<HomeScreen> {
               SizedBox(
                 height: Theme.of(context).extension<AppSpacing>()?.small,
               ),
+              
               Text('Our Cattle', style: Theme.of(context).textTheme.titleLarge),
               SizedBox(
                 height: Theme.of(context).extension<AppSpacing>()?.small,

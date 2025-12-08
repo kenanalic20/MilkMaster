@@ -550,8 +550,9 @@ class _ProductsScreenState extends State<ProductsScreen> {
                 ),
               ),
             ),
+            const Spacer(),
             Padding(
-              padding: const EdgeInsets.only(left: 5, top: 5),
+              padding: const EdgeInsets.only(left: 10, top: 5,bottom: 5),
               child: Text(
                 '${formatDouble(product.pricePerUnit)} BAM',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
@@ -560,7 +561,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+              padding: const EdgeInsets.fromLTRB(8, 0, 8, 5),
               child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -582,7 +583,10 @@ class _ProductsScreenState extends State<ProductsScreen> {
                       if (success) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('Added "${product.title}" to cart'),
+                            content: Text(
+                              'Added "${product.title}" to cart',
+                              style: const TextStyle(color: Colors.black),
+                            ),
                             backgroundColor: Theme.of(context).colorScheme.secondary,
                             duration: const Duration(seconds: 2),
                           ),

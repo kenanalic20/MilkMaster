@@ -166,17 +166,54 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               _isLoading = true;
                             });
 
-                            final username = _usernameController.text;
-                            final email = _emailController.text;
-                            final password = _passwordController.text;
-                            final platform = String.fromEnvironment('PLATFORM', defaultValue: 'mobile');
-                            final success = await _authProvider.register(username, email, password, platform);
-
+                          final username = _usernameController.text;
+                          final email = _emailController.text;
+                          final password = _passwordController.text;
+                          final platform = String.fromEnvironment('PLATFORM', defaultValue: 'mobile');
+                          
+                          bool success = false;
+                          try {
+                            success = await _authProvider.register(username, email, password, platform);
+                          } catch (e) {
                             setState(() {
                               _isLoading = false;
                             });
+                            
+                            if (e.toString().contains('NETWORK_ERROR')) {
+                              showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder:
+                                    (BuildContext context) => AlertDialog(
+                                      title: const Text(
+                                        'Connection Error',
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.red,
+                                        ),
+                                      ),
+                                      content: const Text(
+                                        'Unable to connect to the server. Please check your internet connection or try again later.',
+                                        style: TextStyle(fontSize: 16),
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () => Navigator.pop(context),
+                                          child: const Text("OK"),
+                                        ),
+                                      ],
+                                    ),
+                              );
+                            }
+                            return;
+                          }
 
-                            if (!success) {
+                          setState(() {
+                            _isLoading = false;
+                          });
+                          
+                          if (!success) {
                               showDialog(
                                 context: context,
                                 builder:
