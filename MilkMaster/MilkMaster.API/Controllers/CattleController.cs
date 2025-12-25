@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MilkMaster.Application.Common;
 using MilkMaster.Application.DTOs;
 using MilkMaster.Application.Filters;
@@ -8,15 +9,15 @@ using MilkMaster.Infrastructure.Services;
 
 namespace MilkMaster.API.Controllers
 {
+    [Authorize]
     public class CattleController : BaseController<Cattle, CattleDto, CattleCreateDto, CattleUpdateDto, CattleQueryFilter, int>
     {
-        private readonly ICattleService _productService;
+        private readonly ICattleService _cattleService;
 
         public CattleController(ICattleService service) : base(service)
         {
-            _productService = service;
+            _cattleService = service;
         }
-
         [HttpGet]
         public override async Task<IActionResult> GetAll([FromQuery] CattleQueryFilter? queryFilter = null)
         {
@@ -34,7 +35,7 @@ namespace MilkMaster.API.Controllers
                 PageNumber = queryFilter.PageNumber
             };
 
-            var result = await _productService.GetPagedAsync(paginationRequest, queryFilter);
+            var result = await _cattleService.GetPagedAsync(paginationRequest, queryFilter);
 
             return Ok(result);
         }
