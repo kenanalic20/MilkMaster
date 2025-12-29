@@ -66,7 +66,11 @@ class _CattleScreenState extends State<CattleScreen> {
     _fileProvider = context.read<FileProvider>();
     widget.openForm(
       SingleChildScrollView(
-        child: MasterWidget(title: 'Add Cattle', body: _buildCattleForm()),
+        child: MasterWidget(
+          title: 'Add Cattle',
+          body: _buildCattleForm(),
+          onClose: widget.closeForm,
+        ),
       ),
     );
   }
@@ -421,7 +425,6 @@ class _CattleScreenState extends State<CattleScreen> {
                       );
                     }).toList(),
                 onChanged: (value) async {
-
                   setState(() {
                     _selectedSort = value;
                     _currentPage = 1;
@@ -1030,7 +1033,7 @@ class _CattleScreenState extends State<CattleScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (cattle.imageUrl != null && cattle.imageUrl!.isNotEmpty)
-          FilePickerWithPreview(imageUrl: cattle.imageUrl,hasButton: false,),
+          FilePickerWithPreview(imageUrl: cattle.imageUrl, hasButton: false),
         const SizedBox(height: 16),
 
         if (cattle.milkCartonUrl != null && cattle.milkCartonUrl!.isNotEmpty)
@@ -1139,8 +1142,6 @@ class _CattleScreenState extends State<CattleScreen> {
     );
   }
 
-
-
   Container _buildCattle(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
@@ -1155,196 +1156,209 @@ class _CattleScreenState extends State<CattleScreen> {
         subtitleStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
           color: Theme.of(context).colorScheme.tertiary,
         ),
-        body: _cattleProvider.isLoading? const Center(child: CircularProgressIndicator()) :
-        _cattle.isEmpty? NoDataWidget() : SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Container(
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey),
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(12),
-                topRight: Radius.circular(12),
-              ),
-            ),
-            child: DataTable(
-              columnSpacing: 50,
-              dataRowHeight: 40,
-              headingTextStyle: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                color: Theme.of(context).colorScheme.tertiary,
-              ),
-              dataTextStyle: Theme.of(context).textTheme.bodyLarge,
-              border: TableBorder(
-                horizontalInside: BorderSide(
-                  color: Theme.of(context).colorScheme.tertiary,
-                  width: 2,
-                ),
-              ),
-              columns: const [
-                DataColumn(label: Text('Tag Number')),
-                DataColumn(label: Text('Name')),
-                DataColumn(label: Text('Type')),
-                DataColumn(label: Text('Age')),
-                DataColumn(label: Text('Milk production')),
-                DataColumn(label: Text('Revenue')),
-                DataColumn(label: Text('Actions')),
-              ],
-              rows:
-                  _cattle.map((cattle) {
-                    return DataRow(
-                      cells: [
-                        DataCell(
-                          SizedBox(
-                            width: 70,
-                            child: Text(
-                              "#${cattle.tagNumber}",
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
+        body:
+            _cattleProvider.isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _cattle.isEmpty
+                ? NoDataWidget()
+                : SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(12),
+                        topRight: Radius.circular(12),
+                      ),
+                    ),
+                    child: DataTable(
+                      columnSpacing: 50,
+                      dataRowHeight: 40,
+                      headingTextStyle: Theme.of(
+                        context,
+                      ).textTheme.bodyLarge!.copyWith(
+                        color: Theme.of(context).colorScheme.tertiary,
+                      ),
+                      dataTextStyle: Theme.of(context).textTheme.bodyLarge,
+                      border: TableBorder(
+                        horizontalInside: BorderSide(
+                          color: Theme.of(context).colorScheme.tertiary,
+                          width: 2,
                         ),
-                        DataCell(
-                          SizedBox(
-                            width:50,
-                            child: Text(cattle.name, overflow: TextOverflow.ellipsis)
-                          ),
-                        ),
-                        DataCell(
-                          SizedBox(
-                            width: 90,
-                            child: Text(
-                              "${cattle.cattleCategory?.name ?? 'Undefined'}",
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ),
-                        DataCell(SizedBox(width: 80,child: Text("${cattle.age} years",overflow: TextOverflow.ellipsis,))),
-                        DataCell(
-                          SizedBox(
-                            width: 100,
-                            child: Text(
-                              "${formatDouble(cattle.litersPerDay)} L/day",
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ),
-                        DataCell(
-                          SizedBox(
-                            width: 90,
-                            child: Text(
-                              "${formatDouble(cattle.monthlyValue)} BAM",
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ),
-                        DataCell(
-                          Row(
-                            children: [
-                              MouseRegion(
-                                cursor: SystemMouseCursors.click,
-                                child: GestureDetector(
-                                  child: leadingIcon(
-                                    'assets/icons/eye.png',
-                                    width: 24,
-                                    height: 24,
-                                  ),
-                                  onTap: () async {
-                                    await _fetchById(cattle.id);
-
-                                    widget.openForm(
-                                      SingleChildScrollView(
-                                        child: MasterWidget(
-                                          title: cattle.name,
-                                          subtitle:
-                                              '${cattle.breedOfCattle?.isNotEmpty == true ? '${cattle.breedOfCattle} - ' : ''} ${cattle.age} years old',
-                                          headerActions: Center(
-                                            child: ElevatedButton(
-                                              onPressed:
-                                                  () => widget.closeForm(),
-
-                                              child: const Text('X'),
-                                            ),
-                                          ),
-                                          body: _buildCattleView(
-                                            cattle: _singleCattle!,
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                              const SizedBox(width: 5),
-                              MouseRegion(
-                                cursor: SystemMouseCursors.click,
-                                child: GestureDetector(
-                                  child: leadingIcon(
-                                    'assets/icons/pentool_transparent_icon.png',
-                                    width: 24,
-                                    height: 24,
-                                  ),
-                                  onTap: () async {
-                                    await _fetchById(cattle.id);
-                                    widget.openForm(
-                                      SingleChildScrollView(
-                                        child: MasterWidget(
-                                          title: 'Edit Cattle',
-                                          subtitle: cattle.name,
-                                          body: _buildCattleForm(
-                                            cattle: _singleCattle,
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                              const SizedBox(width: 5),
-                              MouseRegion(
-                                cursor: SystemMouseCursors.click,
-                                child: GestureDetector(
-                                  child: leadingIcon(
-                                    'assets/icons/trash_transparent_icon.png',
-                                    width: 24,
-                                    height: 24,
-                                  ),
-                                  onTap: () async {
-                                    await showCustomDialog(
-                                      context: context,
-                                      title: "Delete Cattle",
-                                      message:
-                                          "Are you sure you want to delete '${cattle.name}'?",
-                                      onConfirm: () async {
-                                        await _deleteCattle(cattle);
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          SnackBar(
-                                            content: Text(
-                                              "Cattle Deleted successfully",
-                                              style: TextStyle(
-                                                color: Colors.black,
-                                              ),
-                                            ),
-                                            backgroundColor:
-                                                Theme.of(
-                                                  context,
-                                                ).colorScheme.secondary,
-                                            duration: Duration(seconds: 2),
-                                          ),
-                                        );
-                                      },
-                                    );
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                      ),
+                      columns: const [
+                        DataColumn(label: Text('Tag Number')),
+                        DataColumn(label: Text('Name')),
+                        DataColumn(label: Text('Type')),
+                        DataColumn(label: Text('Age')),
+                        DataColumn(label: Text('Milk production')),
+                        DataColumn(label: Text('Revenue')),
+                        DataColumn(label: Text('Actions')),
                       ],
-                    );
-                  }).toList(),
-            ),
-          ),
-        ),
+                      rows:
+                          _cattle.map((cattle) {
+                            return DataRow(
+                              cells: [
+                                DataCell(
+                                  SizedBox(
+                                    width: 70,
+                                    child: Text(
+                                      "#${cattle.tagNumber}",
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ),
+                                DataCell(
+                                  SizedBox(
+                                    width: 50,
+                                    child: Text(
+                                      cattle.name,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ),
+                                DataCell(
+                                  SizedBox(
+                                    width: 90,
+                                    child: Text(
+                                      "${cattle.cattleCategory?.name ?? 'Undefined'}",
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ),
+                                DataCell(
+                                  SizedBox(
+                                    width: 80,
+                                    child: Text(
+                                      "${cattle.age} years",
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ),
+                                DataCell(
+                                  SizedBox(
+                                    width: 100,
+                                    child: Text(
+                                      "${formatDouble(cattle.litersPerDay)} L/day",
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ),
+                                DataCell(
+                                  SizedBox(
+                                    width: 90,
+                                    child: Text(
+                                      "${formatDouble(cattle.monthlyValue)} BAM",
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ),
+                                DataCell(
+                                  Row(
+                                    children: [
+                                      MouseRegion(
+                                        cursor: SystemMouseCursors.click,
+                                        child: GestureDetector(
+                                          child: leadingIcon(
+                                            'assets/icons/Eye.png',
+                                            width: 24,
+                                            height: 24,
+                                          ),
+                                          onTap: () async {
+                                            await _fetchById(cattle.id);
+
+                                            widget.openForm(
+                                              SingleChildScrollView(
+                                                child: MasterWidget(
+                                                  title: cattle.name,
+                                                  subtitle:
+                                                      '${cattle.breedOfCattle?.isNotEmpty == true ? '${cattle.breedOfCattle} - ' : ''} ${cattle.age} years old',
+                                                  body: _buildCattleView(
+                                                    cattle: _singleCattle!,
+                                                  ),
+                                                  onClose: widget.closeForm,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                      const SizedBox(width: 5),
+                                      MouseRegion(
+                                        cursor: SystemMouseCursors.click,
+                                        child: GestureDetector(
+                                          child: leadingIcon(
+                                            'assets/icons/pentool_transparent_icon.png',
+                                            width: 24,
+                                            height: 24,
+                                          ),
+                                          onTap: () async {
+                                            await _fetchById(cattle.id);
+                                            widget.openForm(
+                                              SingleChildScrollView(
+                                                child: MasterWidget(
+                                                  title: 'Edit Cattle',
+                                                  subtitle: cattle.name,
+                                                  body: _buildCattleForm(
+                                                    cattle: _singleCattle,
+                                                  ),
+                                                  onClose: widget.closeForm,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                      const SizedBox(width: 5),
+                                      MouseRegion(
+                                        cursor: SystemMouseCursors.click,
+                                        child: GestureDetector(
+                                          child: leadingIcon(
+                                            'assets/icons/trash_transparent_icon.png',
+                                            width: 24,
+                                            height: 24,
+                                          ),
+                                          onTap: () async {
+                                            await showCustomDialog(
+                                              context: context,
+                                              title: "Delete Cattle",
+                                              message:
+                                                  "Are you sure you want to delete '${cattle.name}'?",
+                                              onConfirm: () async {
+                                                await _deleteCattle(cattle);
+                                                ScaffoldMessenger.of(
+                                                  context,
+                                                ).showSnackBar(
+                                                  SnackBar(
+                                                    content: Text(
+                                                      "Cattle Deleted successfully",
+                                                      style: TextStyle(
+                                                        color: Colors.black,
+                                                      ),
+                                                    ),
+                                                    backgroundColor:
+                                                        Theme.of(
+                                                          context,
+                                                        ).colorScheme.secondary,
+                                                    duration: Duration(
+                                                      seconds: 2,
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            );
+                          }).toList(),
+                    ),
+                  ),
+                ),
       ),
     );
   }

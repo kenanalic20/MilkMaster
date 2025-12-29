@@ -226,7 +226,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
                                         cursor: SystemMouseCursors.click,
                                         child: GestureDetector(
                                           child: leadingIcon(
-                                            'assets/icons/eye.png',
+                                            'assets/icons/Eye.png',
                                             width: 24,
                                             height: 24,
                                           ),
@@ -240,18 +240,10 @@ class _CustomersScreenState extends State<CustomersScreen> {
                                                   title:
                                                       'Customer: ${customer.userName}',
                                                   subtitle: '',
-                                                  headerActions: Center(
-                                                    child: ElevatedButton(
-                                                      onPressed:
-                                                          () =>
-                                                              widget
-                                                                  .closeForm(),
-                                                      child: const Text('X'),
-                                                    ),
-                                                  ),
                                                   body: _buildCustomerView(
                                                     _singleCustomer!,
                                                   ),
+                                                  onClose: widget.closeForm,
                                                 ),
                                               ),
                                             );
@@ -278,6 +270,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
                                                   body: _buildCustomerForm(
                                                     customer,
                                                   ),
+                                                  onClose: widget.closeForm,
                                                 ),
                                               ),
                                             );

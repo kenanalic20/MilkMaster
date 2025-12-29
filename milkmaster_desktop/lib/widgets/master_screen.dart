@@ -12,6 +12,7 @@ class MasterWidget extends StatelessWidget {
   final TextStyle? titleStyle;
   final TextStyle? subtitleStyle;
   final double? customSpacing;
+  final VoidCallback? onClose;
 
   const MasterWidget({
     super.key,
@@ -23,7 +24,8 @@ class MasterWidget extends StatelessWidget {
     this.hasData = true,
     this.titleStyle,
     this.subtitleStyle,
-    this.customSpacing
+    this.customSpacing,
+    this.onClose,
   });
 
   @override
@@ -66,12 +68,26 @@ class MasterWidget extends StatelessWidget {
                   ],
                 ),
                 Spacer(),
-                if (headerActions != null) ...[
-                  headerActions!,
+                if (headerActions != null) ...[headerActions!],
+                if (onClose != null) ...[
+                  SizedBox(width: spacing.medium),
+                  MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: onClose,
+                      child: Icon(
+                        Icons.close,
+                        size: 24,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                  ),
                 ],
               ],
             ),
-            SizedBox(height: customSpacing==null ? spacing.medium : customSpacing),
+            SizedBox(
+              height: customSpacing == null ? spacing.medium : customSpacing,
+            ),
 
             hasData ? body : NoDataWidget(),
           ],

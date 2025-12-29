@@ -56,6 +56,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
         title: 'Add Category',
         subtitle: '',
         body: _buildProductCategoryForm(category: null),
+        onClose: widget.closeForm,
       ),
     );
   }
@@ -84,7 +85,6 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     }
   }
 
-
   Widget _buildProductCategories() {
     return Wrap(
       spacing: 34,
@@ -105,19 +105,13 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               child: GestureDetector(
                 onTap: () async {
                   widget.openForm(
-                      SingleChildScrollView(
-                        child: MasterWidget(
-                          title: category.name,
-                          headerActions: Center(
-                            child: ElevatedButton(
-                              onPressed: () => widget.closeForm(),
-
-                              child: const Text('X'),
-                            ),
-                          ),
-                          body:_buildProductCategoryView(category: category) 
-                        ),
-                      )
+                    SingleChildScrollView(
+                      child: MasterWidget(
+                        title: category.name,
+                        body: _buildProductCategoryView(category: category),
+                        onClose: widget.closeForm,
+                      ),
+                    ),
                   );
                 },
                 child: Container(
@@ -195,6 +189,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                                         body: _buildProductCategoryForm(
                                           category: category,
                                         ),
+                                        onClose: widget.closeForm,
                                       ),
                                     );
                                   },
@@ -248,40 +243,43 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
           }).toList(),
     );
   }
-Widget _buildProductCategoryView({required ProductCategoryAdmin category}) {
-  return SingleChildScrollView(
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (category.imageUrl.isNotEmpty)
-          Center(
-            child: FilePickerWithPreview(imageUrl: category.imageUrl,hasButton: false)
-            
-          ),
-        const SizedBox(height: 16),
 
-        Card(
-          margin: const EdgeInsets.only(bottom: 16),
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Product Category Info',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 12),
-                buildInfoRow('Name', category.name),
-                buildInfoRow('Number of Products', category.count.toString()),
-              ],
+  Widget _buildProductCategoryView({required ProductCategoryAdmin category}) {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (category.imageUrl.isNotEmpty)
+            Center(
+              child: FilePickerWithPreview(
+                imageUrl: category.imageUrl,
+                hasButton: false,
+              ),
+            ),
+          const SizedBox(height: 16),
+
+          Card(
+            margin: const EdgeInsets.only(bottom: 16),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Product Category Info',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 12),
+                  buildInfoRow('Name', category.name),
+                  buildInfoRow('Number of Products', category.count.toString()),
+                ],
+              ),
             ),
           ),
-        ),
-      ],
-    ),
-  );
-}
+        ],
+      ),
+    );
+  }
 
   FormBuilder _buildProductCategoryForm({category = null}) {
     final isEdit = category != null;
@@ -479,8 +477,11 @@ Widget _buildProductCategoryView({required ProductCategoryAdmin category}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _productCategoryProvider.isLoading? const Center(child: CircularProgressIndicator()) 
-        : _productCategories.isEmpty? NoDataWidget() : _buildProductCategories(),
+        _productCategoryProvider.isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : _productCategories.isEmpty
+            ? NoDataWidget()
+            : _buildProductCategories(),
         SizedBox(height: Theme.of(context).extension<AppSpacing>()!.large),
         AnimalCategoriesScreen(
           key: _animalCategoriesKey,

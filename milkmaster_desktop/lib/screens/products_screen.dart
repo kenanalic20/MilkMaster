@@ -72,7 +72,11 @@ class _ProductScreenState extends State<ProductScreen> {
     _fileProvider = context.read<FileProvider>();
     widget.openForm(
       SingleChildScrollView(
-        child: MasterWidget(title: 'Add Product', body: _buildProductForm()),
+        child: MasterWidget(
+          title: 'Add Product',
+          body: _buildProductForm(),
+          onClose: widget.closeForm,
+        ),
       ),
     );
   }
@@ -371,14 +375,8 @@ class _ProductScreenState extends State<ProductScreen> {
                         SingleChildScrollView(
                           child: MasterWidget(
                             title: product.title,
-                            headerActions: Center(
-                              child: ElevatedButton(
-                                onPressed: () => widget.closeForm(),
-
-                                child: const Text('X'),
-                              ),
-                            ),
                             body: _buildProductView(product: _singleProduct!),
+                            onClose: widget.closeForm,
                           ),
                         ),
                       );
@@ -521,6 +519,7 @@ class _ProductScreenState extends State<ProductScreen> {
                                               body: _buildProductForm(
                                                 product: _singleProduct,
                                               ),
+                                              onClose: widget.closeForm,
                                             ),
                                           ),
                                         );
@@ -666,7 +665,6 @@ class _ProductScreenState extends State<ProductScreen> {
                   decoration: const InputDecoration(
                     labelText: 'Price per Unit',
                     prefixIcon: Icon(Icons.attach_money_outlined),
-
                   ),
                   keyboardType: TextInputType.number,
                   validator: FormBuilderValidators.compose([
@@ -961,53 +959,56 @@ class _ProductScreenState extends State<ProductScreen> {
 
                               if (isEdit) {
                                 await showCustomDialog(
-                                context: context,
-                                title: "Update Product",
-                                message:
-                                    "Are you sure you want to update '${product.title}'?",
-                                onConfirm: () async {
-                                  await _productProvider.update(product.id, body);
+                                  context: context,
+                                  title: "Update Product",
+                                  message:
+                                      "Are you sure you want to update '${product.title}'?",
+                                  onConfirm: () async {
+                                    await _productProvider.update(
+                                      product.id,
+                                      body,
+                                    );
 
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        "Product Updated successfully",
-                                        style: TextStyle(color: Colors.black),
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          "Product Updated successfully",
+                                          style: TextStyle(color: Colors.black),
+                                        ),
+                                        backgroundColor:
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.secondary,
+                                        duration: Duration(seconds: 2),
                                       ),
-                                      backgroundColor:
-                                          Theme.of(
-                                            context,
-                                          ).colorScheme.secondary,
-                                      duration: Duration(seconds: 2),
-                                    ),
-                                  );
-                                  widget.closeForm();
-                                },
-                              );
+                                    );
+                                    widget.closeForm();
+                                  },
+                                );
                               } else {
-                                 await showCustomDialog(
-                                context: context,
-                                title: "Add Product",
-                                message:
-                                    "Are you sure you want to add '${body['title']}'?",
-                                onConfirm: () async {
-                                  await _productProvider.create(body);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        "Product Added successfully",
-                                        style: TextStyle(color: Colors.black),
+                                await showCustomDialog(
+                                  context: context,
+                                  title: "Add Product",
+                                  message:
+                                      "Are you sure you want to add '${body['title']}'?",
+                                  onConfirm: () async {
+                                    await _productProvider.create(body);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          "Product Added successfully",
+                                          style: TextStyle(color: Colors.black),
+                                        ),
+                                        backgroundColor:
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.secondary,
+                                        duration: Duration(seconds: 2),
                                       ),
-                                      backgroundColor:
-                                          Theme.of(
-                                            context,
-                                          ).colorScheme.secondary,
-                                      duration: Duration(seconds: 2),
-                                    ),
-                                  );
-                                  widget.closeForm();
-                                },
-                              );
+                                    );
+                                    widget.closeForm();
+                                  },
+                                );
                               }
 
                               await _fetchProduct();
