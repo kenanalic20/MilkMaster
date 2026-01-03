@@ -50,6 +50,7 @@ class _AnimalCategoriesScreenState extends State<AnimalCategoriesScreen> {
           title: 'Add Animal Category',
           subtitle: '',
           body: _buildCattleCategoryForm(),
+          onClose: widget.closeForm,
         ),
       ),
     );
@@ -319,8 +320,10 @@ class _AnimalCategoriesScreenState extends State<AnimalCategoriesScreen> {
         children: [
           if (category.imageUrl.isNotEmpty)
             Center(
-              child: FilePickerWithPreview(imageUrl: category.imageUrl,hasButton: false)
-
+              child: FilePickerWithPreview(
+                imageUrl: category.imageUrl,
+                hasButton: false,
+              ),
             ),
           const SizedBox(height: 16),
 
@@ -410,15 +413,9 @@ class _AnimalCategoriesScreenState extends State<AnimalCategoriesScreen> {
                     widget.openForm(
                       SingleChildScrollView(
                         child: MasterWidget(
-                          headerActions: Center(
-                            child: ElevatedButton(
-                              onPressed: () => widget.closeForm(),
-
-                              child: const Text('X'),
-                            ),
-                          ),
                           title: category.name,
                           body: _buildCattleCategoryView(category: category),
+                          onClose: widget.closeForm,
                         ),
                       ),
                     );
@@ -495,6 +492,7 @@ class _AnimalCategoriesScreenState extends State<AnimalCategoriesScreen> {
                       title: 'Edit Category',
                       subtitle: category.name,
                       body: _buildCattleCategoryForm(category: category),
+                      onClose: widget.closeForm,
                     ),
                   ),
                 );

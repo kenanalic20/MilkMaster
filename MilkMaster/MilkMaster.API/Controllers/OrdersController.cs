@@ -8,6 +8,8 @@ using MilkMaster.Domain.Models;
 
 namespace MilkMaster.API.Controllers
 {
+    [Authorize]
+
     public class OrdersController : BaseController<Orders, OrdersDto, OrdersCreateDto, OrdersUpdateDto, OrderQueryFilter, int>
     {
         private readonly IOrdersService _ordersService;

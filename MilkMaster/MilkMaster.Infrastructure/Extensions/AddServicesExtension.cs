@@ -37,7 +37,7 @@ namespace MilkMaster.Infrastructure.Extensions
             services.AddScoped<IGeneralSearchService, GeneralSearchService>();
             services.AddScoped<IOrdersRepository, OrdersRepository>();
             services.AddScoped<IOrdersService, OrdersService>();
-            //temporary
+            
             services.AddScoped<IOrderItemsRepository, OrderItemsRepository>();
             services.AddScoped<IOrderItemsService, OrderItemsService>();
 

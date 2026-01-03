@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MilkMaster.Application.Common;
 using MilkMaster.Application.DTOs;
 using MilkMaster.Application.Filters;
@@ -7,6 +8,8 @@ using MilkMaster.Domain.Models;
 
 namespace MilkMaster.API.Controllers
 {
+    [Authorize]
+
     public class OrderItemsController : BaseController<OrderItems, OrderItemsDto, OrderItemsCreateDto, OrderItemsUpdateDto, OrderItemsQueryFilter, int>
     {
         private readonly IOrderItemsService _orderItemsService;

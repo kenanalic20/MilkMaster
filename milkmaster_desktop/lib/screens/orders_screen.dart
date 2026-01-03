@@ -629,7 +629,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                         cursor: SystemMouseCursors.click,
                                         child: GestureDetector(
                                           child: leadingIcon(
-                                            'assets/icons/eye.png',
+                                            'assets/icons/Eye.png',
                                             width: 24,
                                             height: 24,
                                           ),
@@ -641,18 +641,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                                   title:
                                                       'Order: ${order.orderNumber}',
                                                   subtitle: '',
-                                                  headerActions: Center(
-                                                    child: ElevatedButton(
-                                                      onPressed:
-                                                          () =>
-                                                              widget
-                                                                  .closeForm(),
-                                                      child: const Text('X'),
-                                                    ),
-                                                  ),
                                                   body: _buildOrderView(
                                                     _singleOrder!,
                                                   ),
+                                                  onClose: widget.closeForm,
                                                 ),
                                               ),
                                             );
@@ -675,6 +667,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                                   title: 'Update order status',
                                                   subtitle: '',
                                                   body: _buildOrderForm(order),
+                                                  onClose: widget.closeForm,
                                                 ),
                                               ),
                                             );

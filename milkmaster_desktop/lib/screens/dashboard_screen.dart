@@ -63,11 +63,13 @@ class DashboardScreenState extends State<DashboardScreen> {
           title: 'Report settings',
           subtitle: 'Select what you want to export',
           body: _buildReportForm(),
+          onClose: widget.closeForm,
         ),
       ),
     );
   }
-Future<void> _fetchCustomers() async {
+
+  Future<void> _fetchCustomers() async {
     try {
       final result = await _userProvider.fetchAll();
       if (mounted) {
@@ -79,6 +81,7 @@ Future<void> _fetchCustomers() async {
       print("Error fetching customer: $e");
     }
   }
+
   Future<void> _fetchOrders({
     int? page,
     Map<String, dynamic>? extraQuery,
@@ -389,7 +392,7 @@ Future<void> _fetchCustomers() async {
                 decoration: const InputDecoration(
                   labelText: 'Report Description',
                 ),
-                validator: FormBuilderValidators.required()
+                validator: FormBuilderValidators.required(),
               ),
             ),
           ),
