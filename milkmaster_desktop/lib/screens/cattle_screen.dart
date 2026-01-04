@@ -753,7 +753,9 @@ class _CattleScreenState extends State<CattleScreen> {
                     prefixIcon: Icon(Icons.balance_outlined),
                     labelText: 'Weight (kg)',
                   ),
-                  validator: FormBuilderValidators.numeric(),
+                  validator: FormBuilderValidators.numeric(
+                    checkNullOrEmpty: false,
+                  ),
                 ),
               ),
             ),
@@ -770,7 +772,9 @@ class _CattleScreenState extends State<CattleScreen> {
                     prefixIcon: Icon(Icons.straighten_outlined),
                     labelText: 'Height (cm)',
                   ),
-                  validator: FormBuilderValidators.numeric(),
+                  validator: FormBuilderValidators.numeric(
+                    checkNullOrEmpty: false,
+                  ),
                 ),
               ),
             ),
@@ -843,7 +847,9 @@ class _CattleScreenState extends State<CattleScreen> {
                   decoration: const InputDecoration(
                     labelText: 'Number of Calves',
                   ),
-                  validator: FormBuilderValidators.numeric(),
+                  validator: FormBuilderValidators.numeric(
+                    checkNullOrEmpty: false,
+                  ),
                 ),
               ),
             ),
