@@ -13,12 +13,14 @@ class CattleDetailsScreen extends StatefulWidget {
   final int cattleId;
   final void Function(int productId)? onNavigateToProductDetails;
   final void Function({int? cattleCategoryId})? onNavigateToProducts;
+  final VoidCallback? onNavigateBack;
 
   const CattleDetailsScreen({
     Key? key,
     required this.cattleId,
     this.onNavigateToProductDetails,
     this.onNavigateToProducts,
+    this.onNavigateBack,
   }) : super(key: key);
 
   @override
@@ -181,9 +183,46 @@ class _CattleDetailsScreenState extends State<CattleDetailsScreen> {
                 child: Image.network(
                   fixLocalhostUrl(_cattle!.imageUrl),
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    color: Colors.grey[300],
-                    child: const Icon(Icons.pets, size: 80),
+                  errorBuilder:
+                      (context, error, stackTrace) => Container(
+                        color: Colors.grey[300],
+                        child: const Icon(Icons.pets, size: 80),
+                      ),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 12,
+              left: 12,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    if (widget.onNavigateBack != null) {
+                      widget.onNavigateBack!();
+                    } else {
+                      Navigator.of(context).pop();
+                    }
+                  },
+                  borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.9),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 4,
+                          spreadRadius: 1,
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.arrow_back,
+                      size: 24,
+                      color: Colors.black87,
+                    ),
                   ),
                 ),
               ),
@@ -191,9 +230,12 @@ class _CattleDetailsScreenState extends State<CattleDetailsScreen> {
             if (_cattle!.cattleCategory != null)
               Positioned(
                 top: 12,
-                left: 12,
+                right: 12,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.primary,
                     borderRadius: BorderRadius.circular(16),
@@ -201,8 +243,8 @@ class _CattleDetailsScreenState extends State<CattleDetailsScreen> {
                   child: Text(
                     _cattle!.cattleCategory!.name.toLowerCase(),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
@@ -219,10 +261,7 @@ class _CattleDetailsScreenState extends State<CattleDetailsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            _cattle!.name,
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
+          Text(_cattle!.name, style: Theme.of(context).textTheme.titleLarge),
           if (_cattle!.breedOfCattle != null || _cattle!.age > 0)
             Text(
               '${_cattle!.breedOfCattle ?? ''} ${_cattle!.breedOfCattle != null && _cattle!.age > 0 ? '-' : ''} ${_cattle!.age > 0 ? '${_cattle!.age} years old' : ''}',
@@ -247,17 +286,19 @@ class _CattleDetailsScreenState extends State<CattleDetailsScreen> {
                         const SizedBox(width: 4),
                         Text(
                           'Milk Production',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: Theme.of(context).colorScheme.tertiary,
-                              ),
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.tertiary,
+                          ),
                         ),
                       ],
                     ),
                     Text(
                       '${formatDouble(_cattle!.litersPerDay)} L/day',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
@@ -276,18 +317,20 @@ class _CattleDetailsScreenState extends State<CattleDetailsScreen> {
                         const SizedBox(width: 4),
                         Text(
                           'Monthly Value',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: Theme.of(context).colorScheme.tertiary,
-                              ),
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.tertiary,
+                          ),
                         ),
                       ],
                     ),
                     Text(
                       '${formatDouble(_cattle!.monthlyValue)} BAM',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.secondary,
-                          ),
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
                     ),
                   ],
                 ),
@@ -311,17 +354,19 @@ class _CattleDetailsScreenState extends State<CattleDetailsScreen> {
                         const SizedBox(width: 4),
                         Text(
                           'Birth Date',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: Theme.of(context).colorScheme.tertiary,
-                              ),
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.tertiary,
+                          ),
                         ),
                       ],
                     ),
                     Text(
                       dateFormat.format(_cattle!.birthDate),
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
@@ -340,17 +385,19 @@ class _CattleDetailsScreenState extends State<CattleDetailsScreen> {
                         const SizedBox(width: 4),
                         Text(
                           'Health check',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: Theme.of(context).colorScheme.tertiary,
-                              ),
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.tertiary,
+                          ),
                         ),
                       ],
                     ),
                     Text(
                       dateFormat.format(_cattle!.healthCheck),
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
@@ -406,10 +453,7 @@ class _CattleDetailsScreenState extends State<CattleDetailsScreen> {
             }
           },
           style: OutlinedButton.styleFrom(
-            side: const BorderSide(
-              color: Colors.black,
-              width: 1,
-            ),
+            side: const BorderSide(color: Colors.black, width: 1),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -417,7 +461,7 @@ class _CattleDetailsScreenState extends State<CattleDetailsScreen> {
           ),
           child: Text(
             'Download Milk Carton',
-            style: Theme.of(context).textTheme.bodyLarge
+            style: Theme.of(context).textTheme.bodyLarge,
           ),
         ),
       ),
@@ -447,10 +491,7 @@ class _CattleDetailsScreenState extends State<CattleDetailsScreen> {
                 indicatorSize: TabBarIndicatorSize.tab,
                 indicatorPadding: const EdgeInsets.all(8),
                 dividerColor: Colors.transparent,
-                tabs: const [
-                  Tab(text: 'Overview'),
-                  Tab(text: 'Breeding'),
-                ],
+                tabs: const [Tab(text: 'Overview'), Tab(text: 'Breeding')],
               ),
             ),
             const SizedBox(height: 16),
@@ -478,7 +519,6 @@ class _CattleDetailsScreenState extends State<CattleDetailsScreen> {
 
   Widget _buildOverviewTab() {
     final overview = _cattle!.overview;
-    final dateFormat = DateFormat('dd/MM/yyyy');
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),
@@ -487,81 +527,96 @@ class _CattleDetailsScreenState extends State<CattleDetailsScreen> {
         children: [
           Text(
             'About ${_cattle!.name}',
-            style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 15),
-          if (overview?.description != null && overview!.description!.isNotEmpty)
+          if (overview?.description != null &&
+              overview!.description!.isNotEmpty)
             Text(
               overview.description!,
               style: Theme.of(context).textTheme.bodySmall,
             )
           else
             Text(
-              '${_cattle!.name} is one of our top milk producers. She has a calm temperament and adapts well to changes in routine.',
-              style: Theme.of(context).textTheme.bodySmall,
+              'No detailed description available for ${_cattle!.name}.',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.tertiary,
+                fontStyle: FontStyle.italic,
+              ),
             ),
           const SizedBox(height: 15),
           if (overview?.weight != null || overview?.height != null)
             Row(
               children: [
-                if (overview?.weight != null)
+                if (overview?.weight != null && overview!.weight! > 0)
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           'Weight',
-                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodyMedium?.copyWith(
                             color: Theme.of(context).colorScheme.tertiary,
                           ),
                         ),
-                       
+
                         Text(
-                          '${overview!.weight!.toInt()} kg',
-                          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
+                          '${overview.weight!.toInt()} kg',
+                          style: Theme.of(context).textTheme.headlineLarge
+                              ?.copyWith(fontWeight: FontWeight.w600),
                         ),
                       ],
                     ),
                   ),
-                if (overview?.height != null)
+                if (overview?.height != null && overview!.height! > 0)
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           'Height',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: Theme.of(context).colorScheme.tertiary,
-                              ),
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.tertiary,
+                          ),
                         ),
-                        
+
                         Text(
-                          '${overview!.height!.toInt()} cm',
-                          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
+                          '${overview.height!.toInt()} cm',
+                          style: Theme.of(context).textTheme.headlineLarge
+                              ?.copyWith(fontWeight: FontWeight.w600),
                         ),
                       ],
                     ),
                   ),
               ],
             ),
-          if (overview?.diet != null) ...[
+          if (overview?.diet != null && overview!.diet.isNotEmpty) ...[
             const SizedBox(height: 15),
             Text(
               'Diet',
-              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 15),
-            Text(
-              overview!.diet,
-              style: Theme.of(context).textTheme.bodySmall,
+            Text(overview.diet, style: Theme.of(context).textTheme.bodySmall),
+          ],
+          if (overview == null) ...[
+            const SizedBox(height: 15),
+            Center(
+              child: Text(
+                'No overview information available',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.tertiary,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
             ),
           ],
         ],
@@ -580,6 +635,9 @@ class _CattleDetailsScreenState extends State<CattleDetailsScreen> {
       );
     }
 
+    // Check if this is a valid breeding record (lastCalving is not default date)
+    final hasBreedingHistory = breeding.lastCalving.year > 1900;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),
       child: Column(
@@ -587,9 +645,9 @@ class _CattleDetailsScreenState extends State<CattleDetailsScreen> {
         children: [
           Text(
             'Breeding Status',
-            style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 15),
           Row(
@@ -601,14 +659,30 @@ class _CattleDetailsScreenState extends State<CattleDetailsScreen> {
                     Text(
                       'Pregnancy status',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.tertiary,
-                          ),
+                        color: Theme.of(context).colorScheme.tertiary,
+                      ),
                     ),
-                    Text(
-                      breeding.pragnancyStatus ? 'Pregnant' : 'Not pregnant',
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
+                    Row(
+                      children: [
+                        Icon(
+                          breeding.pragnancyStatus
+                              ? Icons.check_circle
+                              : Icons.cancel,
+                          color:
+                              breeding.pragnancyStatus
+                                  ? Colors.green
+                                  : Colors.grey,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          breeding.pragnancyStatus
+                              ? 'Pregnant'
+                              : 'Not pregnant',
+                          style: Theme.of(context).textTheme.headlineMedium
+                              ?.copyWith(fontWeight: FontWeight.w600),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -620,14 +694,23 @@ class _CattleDetailsScreenState extends State<CattleDetailsScreen> {
                     Text(
                       'Last Calving',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.tertiary,
-                          ),
+                        color: Theme.of(context).colorScheme.tertiary,
+                      ),
                     ),
                     Text(
-                      dateFormat.format(breeding.lastCalving),
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
+                      hasBreedingHistory
+                          ? dateFormat.format(breeding.lastCalving)
+                          : 'No history',
+                      style: Theme.of(
+                        context,
+                      ).textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color:
+                            hasBreedingHistory
+                                ? null
+                                : Theme.of(context).colorScheme.tertiary,
+                        fontStyle: hasBreedingHistory ? null : FontStyle.italic,
+                      ),
                     ),
                   ],
                 ),
@@ -638,14 +721,21 @@ class _CattleDetailsScreenState extends State<CattleDetailsScreen> {
           Text(
             'Number of Calves',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.tertiary,
-                ),
+              color: Theme.of(context).colorScheme.tertiary,
+            ),
           ),
           Text(
-            breeding.numberOfCalves.toString(),
+            breeding.numberOfCalves > 0
+                ? breeding.numberOfCalves.toString()
+                : 'None yet',
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+              fontWeight: FontWeight.w600,
+              color:
+                  breeding.numberOfCalves > 0
+                      ? null
+                      : Theme.of(context).colorScheme.tertiary,
+              fontStyle: breeding.numberOfCalves > 0 ? null : FontStyle.italic,
+            ),
           ),
         ],
       ),
@@ -656,12 +746,7 @@ class _CattleDetailsScreenState extends State<CattleDetailsScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12.0),
       decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: Colors.grey[300]!,
-            width: 1,
-          ),
-        ),
+        border: Border(bottom: BorderSide(color: Colors.grey[300]!, width: 1)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -687,28 +772,32 @@ class _CattleDetailsScreenState extends State<CattleDetailsScreen> {
         products: _relatedProducts,
         isLoading: _isLoadingRelated,
         title: 'Related Products',
-        onSeeAll: _cattle?.cattleCategory != null
-            ? () {
-                if (widget.onNavigateToProducts != null) {
-                  widget.onNavigateToProducts!(
-                    cattleCategoryId: _cattle!.cattleCategory!.id,
-                  );
+        onSeeAll:
+            _cattle?.cattleCategory != null
+                ? () {
+                  if (widget.onNavigateToProducts != null) {
+                    widget.onNavigateToProducts!(
+                      cattleCategoryId: _cattle!.cattleCategory!.id,
+                    );
+                  }
                 }
-              }
-            : null,
+                : null,
         onProductTap: (product) {
           if (widget.onNavigateToProductDetails != null) {
             widget.onNavigateToProductDetails!(product.id);
           }
         },
         onAddToCart: (product) async {
-          final cartProvider = Provider.of<CartProvider>(context, listen: false);
+          final cartProvider = Provider.of<CartProvider>(
+            context,
+            listen: false,
+          );
           final success = await cartProvider.addToCart(
             product,
             quantity: 1,
             size: 1.0,
           );
-          
+
           if (mounted) {
             if (success) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -725,7 +814,8 @@ class _CattleDetailsScreenState extends State<CattleDetailsScreen> {
               showCustomDialog(
                 context: context,
                 title: 'Cannot Add to Cart',
-                message: 'Not enough stock available or product is out of stock.',
+                message:
+                    'Not enough stock available or product is out of stock.',
                 onConfirm: () {},
                 showCancel: false,
               );
