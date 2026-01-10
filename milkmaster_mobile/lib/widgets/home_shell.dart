@@ -67,12 +67,20 @@ class _HomeShellState extends State<HomeShell> {
     });
   }
 
+  void navigateBack() {
+    setState(() {
+      _viewingCattleId = null;
+      _viewingProductId = null;
+    });
+  }
+
   Widget _buildScreen(int index) {
     if (_viewingProductId != null) {
       return ProductDetailsScreen(
         productId: _viewingProductId!,
         onNavigateToProductDetails: navigateToProductDetails,
         onNavigateToProducts: () => navigateToProducts(),
+        onNavigateBack: navigateBack,
       );
     }
 
@@ -81,6 +89,7 @@ class _HomeShellState extends State<HomeShell> {
         cattleId: _viewingCattleId!,
         onNavigateToProductDetails: navigateToProductDetails,
         onNavigateToProducts: navigateToProducts,
+        onNavigateBack: navigateBack,
       );
     }
 
@@ -153,10 +162,13 @@ class _HomeShellState extends State<HomeShell> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => SearchScreen(
-                          onNavigateToProductDetails: navigateToProductDetails,
-                          onNavigateToCattleDetails: navigateToCattleDetails,
-                        ),
+                        builder:
+                            (context) => SearchScreen(
+                              onNavigateToProductDetails:
+                                  navigateToProductDetails,
+                              onNavigateToCattleDetails:
+                                  navigateToCattleDetails,
+                            ),
                       ),
                     );
                   },
@@ -173,9 +185,11 @@ class _HomeShellState extends State<HomeShell> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => CartScreen(
-                              onNavigateToProductDetails: navigateToProductDetails,
-                            ),
+                            builder:
+                                (context) => CartScreen(
+                                  onNavigateToProductDetails:
+                                      navigateToProductDetails,
+                                ),
                           ),
                         );
                       },

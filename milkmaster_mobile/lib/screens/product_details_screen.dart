@@ -10,12 +10,14 @@ class ProductDetailsScreen extends StatefulWidget {
   final int productId;
   final void Function(int productId)? onNavigateToProductDetails;
   final VoidCallback? onNavigateToProducts;
+  final VoidCallback? onNavigateBack;
 
   const ProductDetailsScreen({
     Key? key,
     required this.productId,
     this.onNavigateToProductDetails,
     this.onNavigateToProducts,
+    this.onNavigateBack,
   }) : super(key: key);
 
   @override
@@ -151,32 +153,72 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     return Padding(
       padding: const EdgeInsets.all(15),
       child: Center(
-        child: Container(
-          width: 382,
-          height: 215,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                blurRadius: 8,
-                spreadRadius: 1,
-                offset: Offset(0, 4),
-              ),
-            ],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Image.network(
-              fixLocalhostUrl(_product!.imageUrl),
-              fit: BoxFit.cover,
-              errorBuilder:
-                  (context, error, stackTrace) => Container(
-                    color: Colors.grey[300],
-                    child: const Icon(Icons.image_not_supported, size: 80),
+        child: Stack(
+          children: [
+            Container(
+              width: 382,
+              height: 215,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 8,
+                    spreadRadius: 1,
+                    offset: Offset(0, 4),
                   ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.network(
+                  fixLocalhostUrl(_product!.imageUrl),
+                  fit: BoxFit.cover,
+                  errorBuilder:
+                      (context, error, stackTrace) => Container(
+                        color: Colors.grey[300],
+                        child: const Icon(Icons.image_not_supported, size: 80),
+                      ),
+                ),
+              ),
             ),
-          ),
+            Positioned(
+              top: 12,
+              left: 12,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    if (widget.onNavigateBack != null) {
+                      widget.onNavigateBack!();
+                    } else {
+                      Navigator.of(context).pop();
+                    }
+                  },
+                  borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.9),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 4,
+                          spreadRadius: 1,
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.arrow_back,
+                      size: 24,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -274,7 +316,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
   Widget _buildSizeOption(double size, String unitSymbol) {
     final isSelected = _selectedSize == size;
-    final sizeText = size == size.toInt() ? '${size.toInt()}$unitSymbol' : '$size$unitSymbol';
+    final sizeText =
+        size == size.toInt()
+            ? '${size.toInt()}$unitSymbol'
+            : '$size$unitSymbol';
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -285,18 +330,19 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         width: 50,
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? Theme.of(context).colorScheme.primary : Colors.white,
+          color:
+              isSelected ? Theme.of(context).colorScheme.primary : Colors.white,
           border: Border.all(
-            color: isSelected ? Theme.of(context).colorScheme.secondary : Colors.grey[300]!,
+            color:
+                isSelected
+                    ? Theme.of(context).colorScheme.secondary
+                    : Colors.grey[300]!,
             width: isSelected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Center(
-          child: Text(
-            sizeText,
-            style: Theme.of(context).textTheme.bodyMedium
-          ),
+          child: Text(sizeText, style: Theme.of(context).textTheme.bodyMedium),
         ),
       ),
     );
@@ -340,9 +386,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       right: BorderSide(color: Colors.grey[300]!),
                     ),
                   ),
-                  child: Text(
-                    _quantity.toString(),
-                  ),
+                  child: Text(_quantity.toString()),
                 ),
                 _buildQuantityButton(
                   icon: Icons.add,
@@ -369,9 +413,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       child: Container(
         width: 40,
         height: 40,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-        ),
+        decoration: BoxDecoration(shape: BoxShape.circle),
         child: Icon(icon, size: 20, color: Colors.grey[700]),
       ),
     );
@@ -385,14 +427,13 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         height: 44,
         child: ElevatedButton(
           onPressed: _validateAndAddToCart,
-         
+
           child: Text(
             'Add to cart',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              color:Theme.of(context).colorScheme.secondary,
-              fontWeight: FontWeight.normal
-            )
-            
+              color: Theme.of(context).colorScheme.secondary,
+              fontWeight: FontWeight.normal,
+            ),
           ),
         ),
       ),
@@ -418,24 +459,28 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       _showErrorDialog(
         'Not enough stock available.\n',
         'Available: ${availableQuantity.toStringAsFixed(1)}$unitSymbol\n'
-        'Requested: ${totalRequiredQuantity.toStringAsFixed(1)}$unitSymbol'
+            'Requested: ${totalRequiredQuantity.toStringAsFixed(1)}$unitSymbol',
       );
       return;
     }
 
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
-    final existingCartItem = cartProvider.getCartItem(_product!.id, _selectedSize);
-    
+    final existingCartItem = cartProvider.getCartItem(
+      _product!.id,
+      _selectedSize,
+    );
+
     if (existingCartItem != null) {
-      final existingQuantity = existingCartItem.quantity * existingCartItem.size;
+      final existingQuantity =
+          existingCartItem.quantity * existingCartItem.size;
       final newTotalQuantity = existingQuantity + totalRequiredQuantity;
-      
+
       if (availableQuantity < newTotalQuantity) {
         _showErrorDialog(
           'Adding this quantity would exceed available stock.\n',
           'In cart: ${existingQuantity.toStringAsFixed(1)}$unitSymbol\n'
-          'Available: ${availableQuantity.toStringAsFixed(1)}$unitSymbol\n'
-          'Trying to add: ${totalRequiredQuantity.toStringAsFixed(1)}$unitSymbol'
+              'Available: ${availableQuantity.toStringAsFixed(1)}$unitSymbol\n'
+              'Trying to add: ${totalRequiredQuantity.toStringAsFixed(1)}$unitSymbol',
         );
         return;
       }
@@ -472,7 +517,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           _quantity = 1;
         });
       } else {
-        _showErrorDialog('Failed to Add', 'Failed to add to cart. Please try again.');
+        _showErrorDialog(
+          'Failed to Add',
+          'Failed to add to cart. Please try again.',
+        );
       }
     }
   }
@@ -484,7 +532,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       message: message,
       onConfirm: () {},
       showCancel: false,
-      );
+    );
   }
 
   Widget _buildTabs() {
@@ -510,10 +558,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 indicatorSize: TabBarIndicatorSize.tab,
                 indicatorPadding: const EdgeInsets.all(8),
                 dividerColor: Colors.transparent,
-                tabs: const [
-                  Tab(text: 'Description'),
-                  Tab(text: 'Nutrition'),
-                ],
+                tabs: const [Tab(text: 'Description'), Tab(text: 'Nutrition')],
               ),
             ),
             const SizedBox(height: 16),
@@ -567,7 +612,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         children: [
           Text(
             'Nutritional Information',
-            style: Theme.of(context).textTheme.headlineMedium
+            style: Theme.of(context).textTheme.headlineMedium,
           ),
           Text(
             'Per 100 m${unitSymbol.toLowerCase()}',
@@ -575,7 +620,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               color: Theme.of(context).colorScheme.tertiary,
             ),
           ),
-          
+
           const SizedBox(height: 16),
           if (nutrition.energy != null)
             _buildNutritionRow('Energy', '${nutrition.energy!} kcal'),
@@ -587,11 +632,17 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               '${nutrition.carbohydrates!} ${unitSymbol}',
             ),
           if (nutrition.protein != null)
-            _buildNutritionRow('Protein', '${nutrition.protein!} ${unitSymbol}'),
+            _buildNutritionRow(
+              'Protein',
+              '${nutrition.protein!} ${unitSymbol}',
+            ),
           if (nutrition.salt != null)
             _buildNutritionRow('Salt', '${nutrition.salt!} ${unitSymbol}'),
           if (nutrition.calcium != null)
-            _buildNutritionRow('Calcium', '${nutrition.calcium!} ${unitSymbol}'),
+            _buildNutritionRow(
+              'Calcium',
+              '${nutrition.calcium!} ${unitSymbol}',
+            ),
         ],
       ),
     );
@@ -601,12 +652,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12.0),
       decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: Colors.grey[300]!,
-            width: 1,
-          ),
-        ),
+        border: Border(bottom: BorderSide(color: Colors.grey[300]!, width: 1)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -643,13 +689,16 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           }
         },
         onAddToCart: (product) async {
-          final cartProvider = Provider.of<CartProvider>(context, listen: false);
+          final cartProvider = Provider.of<CartProvider>(
+            context,
+            listen: false,
+          );
           final success = await cartProvider.addToCart(
             product,
             quantity: 1,
             size: 1.0,
           );
-          
+
           if (mounted) {
             if (success) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -666,7 +715,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               showCustomDialog(
                 context: context,
                 title: 'Cannot Add to Cart',
-                message: 'Not enough stock available or product is out of stock.',
+                message:
+                    'Not enough stock available or product is out of stock.',
                 onConfirm: () {},
                 showCancel: false,
               );

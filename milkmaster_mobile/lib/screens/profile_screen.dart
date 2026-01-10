@@ -819,7 +819,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                         errorText: 'Phone number is required',
                       ),
                       FormBuilderValidators.match(
-                        r'^\+?[0-9]{7,15}$',
+                        RegExp(r'^\+?[0-9]{7,15}$'),
                         errorText: 'Enter a valid phone number',
                       ),
                     ],

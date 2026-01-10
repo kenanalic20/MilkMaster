@@ -18,7 +18,7 @@ class ProductsScreen extends StatefulWidget {
   final int? selectedProductCategory;
   final int? selectedCattleCategory;
   final void Function(int productId)? onNavigateToProductDetails;
-  
+
   const ProductsScreen({
     Key? key,
     this.selectedProductCategory,
@@ -40,7 +40,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
   int _currentPage = 1;
   int? _selectedProductCategory;
   int? _selectedCattleCategory;
-  bool _sortDescending = true; 
+  bool _sortDescending = true;
   List<Product> _products = [];
   List<CattleCategory> _cattleCategories = [];
   List<ProductCategory> _productCategories = [];
@@ -53,12 +53,14 @@ class _ProductsScreenState extends State<ProductsScreen> {
     _productCategoryProvider = context.read<ProductCategoryProvider>();
     _selectedProductCategory = widget.selectedProductCategory;
     _selectedCattleCategory = widget.selectedCattleCategory;
-    _fetchProduct(extraQuery: {
-      "pageSize": _pageSize,
-      'productCategoryId': _selectedProductCategory ?? '',
-      'cattleCategoryId': _selectedCattleCategory ?? '',
-      'sortDescending': _sortDescending,
-    });
+    _fetchProduct(
+      extraQuery: {
+        "pageSize": _pageSize,
+        'productCategoryId': _selectedProductCategory ?? '',
+        'cattleCategoryId': _selectedCattleCategory ?? '',
+        'sortDescending': _sortDescending,
+      },
+    );
     _fetchCattleCategories();
     _fetchProductCategories();
   }
@@ -73,12 +75,14 @@ class _ProductsScreenState extends State<ProductsScreen> {
         _selectedCattleCategory = widget.selectedCattleCategory;
         _currentPage = 1;
       });
-      _fetchProduct(extraQuery: {
-        "pageSize": _pageSize,
-        'productCategoryId': _selectedProductCategory ?? '',
-        'cattleCategoryId': _selectedCattleCategory ?? '',
-        'sortDescending': _sortDescending,
-      });
+      _fetchProduct(
+        extraQuery: {
+          "pageSize": _pageSize,
+          'productCategoryId': _selectedProductCategory ?? '',
+          'cattleCategoryId': _selectedCattleCategory ?? '',
+          'sortDescending': _sortDescending,
+        },
+      );
     }
   }
 
@@ -170,10 +174,15 @@ class _ProductsScreenState extends State<ProductsScreen> {
                   color: Theme.of(context).colorScheme.tertiary,
                   size: 20,
                 ),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 filled: true,
                 fillColor: const Color.fromRGBO(229, 229, 229, 1),
-                contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: 0,
+                  horizontal: 12,
+                ),
               ),
               onChanged: (value) async {
                 setState(() {
@@ -251,9 +260,11 @@ class _ProductsScreenState extends State<ProductsScreen> {
                   ),
                 ),
               ),
-              
-              SizedBox(width: Theme.of(context).extension<AppSpacing>()!.medium),
-              
+
+              SizedBox(
+                width: Theme.of(context).extension<AppSpacing>()!.medium,
+              ),
+
               Expanded(
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton2<int>(
@@ -270,7 +281,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                         _selectedCattleCategory = value;
                         _currentPage = 1;
                       });
-              
+
                       await _fetchProduct(
                         extraQuery: {
                           'title': _searchController.text,
@@ -339,77 +350,77 @@ class _ProductsScreenState extends State<ProductsScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 15.0),
       child: Column(
         children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '$_totalCount ${_totalCount == 1 ? 'product found' : 'products found'}',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.tertiary,
-                    ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '$_totalCount ${_totalCount == 1 ? 'product found' : 'products found'}',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.tertiary,
                   ),
-                  Row(
-                    children: [
-                      Text(
-                        'Sort:',
-                      ),
-                      DropdownButtonHideUnderline(
-                        child: DropdownButton2<bool>(
-                          value: _sortDescending,
-                          items: const [
-                            DropdownMenuItem<bool>(
-                              value: true,
-                              child: Text('Fresh'),
-                            ),
-                            DropdownMenuItem<bool>(
-                              value: false,
-                              child: Text('Oldest'),
-                            ),
-                          ],
-                          onChanged: (value) async {
-                            if (value != null) {
-                              setState(() {
-                                _sortDescending = value;
-                                _currentPage = 1;
-                              });
-                              await _fetchProduct(
-                                extraQuery: {
-                                  'title': _searchController.text,
-                                  'cattleCategoryId': _selectedCattleCategory ?? '',
-                                  'productCategoryId': _selectedProductCategory ?? '',
-                                  'pageSize': _pageSize,
-                                  'pageNumber': _currentPage,
-                                  'sortDescending': _sortDescending,
-                                },
-                              );
-                            }
-                          },
-                          buttonStyleData: ButtonStyleData(
-                            height: 30,
-                            padding: const EdgeInsets.only(left: 0, right: 5),
-                            decoration: const BoxDecoration(
-                              color: Colors.transparent,
-                            ),
+                ),
+                Row(
+                  children: [
+                    Text('Sort:'),
+                    DropdownButtonHideUnderline(
+                      child: DropdownButton2<bool>(
+                        value: _sortDescending,
+                        items: const [
+                          DropdownMenuItem<bool>(
+                            value: true,
+                            child: Text('Fresh'),
                           ),
-                          iconStyleData: const IconStyleData(
-                            icon: Icon(Icons.keyboard_arrow_down),
-                            iconSize: 18,
-                            iconEnabledColor: Colors.black,
+                          DropdownMenuItem<bool>(
+                            value: false,
+                            child: Text('Oldest'),
                           ),
-                          dropdownStyleData: const DropdownStyleData(
-                            maxHeight: 200,
-                            offset: Offset(0, -5),
+                        ],
+                        onChanged: (value) async {
+                          if (value != null) {
+                            setState(() {
+                              _sortDescending = value;
+                              _currentPage = 1;
+                            });
+                            await _fetchProduct(
+                              extraQuery: {
+                                'title': _searchController.text,
+                                'cattleCategoryId':
+                                    _selectedCattleCategory ?? '',
+                                'productCategoryId':
+                                    _selectedProductCategory ?? '',
+                                'pageSize': _pageSize,
+                                'pageNumber': _currentPage,
+                                'sortDescending': _sortDescending,
+                              },
+                            );
+                          }
+                        },
+                        buttonStyleData: ButtonStyleData(
+                          height: 30,
+                          padding: const EdgeInsets.only(left: 0, right: 5),
+                          decoration: const BoxDecoration(
+                            color: Colors.transparent,
                           ),
-                          menuItemStyleData: const MenuItemStyleData(height: 35),
                         ),
+                        iconStyleData: const IconStyleData(
+                          icon: Icon(Icons.keyboard_arrow_down),
+                          iconSize: 18,
+                          iconEnabledColor: Colors.black,
+                        ),
+                        dropdownStyleData: const DropdownStyleData(
+                          maxHeight: 200,
+                          offset: Offset(0, -5),
+                        ),
+                        menuItemStyleData: const MenuItemStyleData(height: 35),
                       ),
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                  ],
+                ),
+              ],
             ),
+          ),
           Expanded(
             child: GridView.builder(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -463,7 +474,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ProductDetailsScreen(productId: product.id),
+                builder:
+                    (context) => ProductDetailsScreen(productId: product.id),
               ),
             );
           }
@@ -476,8 +488,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
               width: double.infinity,
               height: 110,
               fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) =>
-                  Container(
+              errorBuilder:
+                  (context, error, stackTrace) => Container(
                     height: 110,
                     color: Colors.grey[300],
                     child: const Icon(Icons.broken_image, size: 50),
@@ -552,12 +564,12 @@ class _ProductsScreenState extends State<ProductsScreen> {
             ),
             const Spacer(),
             Padding(
-              padding: const EdgeInsets.only(left: 10, top: 5,bottom: 5),
+              padding: const EdgeInsets.only(left: 10, top: 5, bottom: 5),
               child: Text(
                 '${formatDouble(product.pricePerUnit)} BAM',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.secondary,
-                    ),
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
               ),
             ),
             Padding(
@@ -572,13 +584,16 @@ class _ProductsScreenState extends State<ProductsScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 8),
                   ),
                   onPressed: () async {
-                    final cartProvider = Provider.of<CartProvider>(context, listen: false);
+                    final cartProvider = Provider.of<CartProvider>(
+                      context,
+                      listen: false,
+                    );
                     final success = await cartProvider.addToCart(
                       product,
                       quantity: 1,
                       size: 1.0,
                     );
-                    
+
                     if (context.mounted) {
                       if (success) {
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -587,7 +602,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
                               'Added "${product.title}" to cart',
                               style: const TextStyle(color: Colors.black),
                             ),
-                            backgroundColor: Theme.of(context).colorScheme.secondary,
+                            backgroundColor:
+                                Theme.of(context).colorScheme.secondary,
                             duration: const Duration(seconds: 2),
                           ),
                         );
@@ -595,7 +611,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
                         showCustomDialog(
                           context: context,
                           title: 'Cannot Add to Cart',
-                          message: 'Not enough stock available or product is out of stock.',
+                          message:
+                              'Not enough stock available or product is out of stock.',
                           onConfirm: () {},
                           showCancel: false,
                         );
@@ -612,4 +629,3 @@ class _ProductsScreenState extends State<ProductsScreen> {
     );
   }
 }
-
