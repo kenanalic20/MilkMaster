@@ -72,3 +72,47 @@ Ove skripte će:
 - Obrisati folder sa migracijama (`MilkMaster.Domain/Migrations`)
 
 Nakon cleanup-a možete ponovo pokrenuti `setup.cmd` / `setup.sh` za fresh instalaciju.
+
+## Screenshots
+
+### Desktop
+
+Dashboard view:
+
+![Dashboard](Screenshots/Desktop/Dashboard.png)
+
+Categories view:
+
+![Categories](Screenshots/Desktop/Categories.png)
+
+Products view:
+
+![Products](Screenshots/Desktop/Products.png)
+
+Cattle view:
+
+![Cattle](Screenshots/Desktop/Cattle.png)
+
+### Mobile
+
+Home screens:
+
+![Home 1](Screenshots/Mobile/Home1.png)
+
+![Home 2](Screenshots/Mobile/Home2.png)
+
+Products list:
+
+![Products Mobile](Screenshots/Mobile/Products.png)
+
+Single product:
+
+![Single Product](Screenshots/Mobile/SingleProduct.png)
+
+About / Info:
+
+![About](Screenshots/Mobile/About.png)
+
+Cattle (mobile):
+
+![Cattle Mobile](Screenshots/Mobile/Cattle.png)
