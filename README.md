@@ -79,40 +79,40 @@ Nakon cleanup-a možete ponovo pokrenuti `setup.cmd` / `setup.sh` za fresh insta
 
 Dashboard view:
 
-![Dashboard](Screenshots/Desktop/Dashboard.png)
+<img src="Screenshots/Desktop/Dashboard.png" alt="Dashboard" width="600" />
 
 Categories view:
 
-![Categories](Screenshots/Desktop/Categories.png)
+<img src="Screenshots/Desktop/Categories.png" alt="Categories" width="600" />
 
 Products view:
 
-![Products](Screenshots/Desktop/Products.png)
+<img src="Screenshots/Desktop/Products.png" alt="Products" width="600" />
 
 Cattle view:
 
-![Cattle](Screenshots/Desktop/Cattle.png)
+<img src="Screenshots/Desktop/Cattle.png" alt="Cattle" width="600" />
 
 ### Mobile
 
 Home screens:
 
-![Home 1](Screenshots/Mobile/Home1.png)
+<img src="Screenshots/Mobile/Home1.png" alt="Home 1" width="300" />
 
-![Home 2](Screenshots/Mobile/Home2.png)
+<img src="Screenshots/Mobile/Home2.png" alt="Home 2" width="300" />
 
 Products list:
 
-![Products Mobile](Screenshots/Mobile/Products.png)
+<img src="Screenshots/Mobile/Products.png" alt="Products Mobile" width="300" />
 
 Single product:
 
-![Single Product](Screenshots/Mobile/SingleProduct.png)
+<img src="Screenshots/Mobile/SingleProduct.png" alt="Single Product" width="300" />
 
 About / Info:
 
-![About](Screenshots/Mobile/About.png)
+<img src="Screenshots/Mobile/About.png" alt="About" width="300" />
 
 Cattle (mobile):
 
-![Cattle Mobile](Screenshots/Mobile/Cattle.png)
+<img src="Screenshots/Mobile/Cattle.png" alt="Cattle Mobile" width="300" />
